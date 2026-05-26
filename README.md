@@ -4,7 +4,7 @@ Aplikasi web mobile-first untuk mencatat pengeluaran keluarga. Pengganti Google 
 
 ## Fitur MVP (Phase 1)
 
-- 🔐 **Login tanpa password** (magic link via email)
+- 🔐 **Login email + password** (no email confirmation — instant)
 - 👨‍👩‍👧 **Multi-user shared household** — Anda & istri input ke 1 database keluarga
 - ⚡ **Form input cepat** — date default hari ini, kategori "sering dipakai", chip +5rb/+10rb, format Rupiah otomatis
 - 📊 **Dashboard bulanan** — sisa uang, progress bar per kategori, alert warna kuning/merah saat budget mau habis
@@ -32,7 +32,9 @@ Aplikasi web mobile-first untuk mencatat pengeluaran keluarga. Pengganti Google 
 4. Di sidebar: **SQL Editor** → **New query**
 5. Copy semua isi file [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) → paste → **Run**
    - Ini bikin semua tabel, RLS policies, dan trigger auto-seed kategori saat user baru daftar
-6. Di sidebar: **Project Settings** → **API** → catat 2 hal:
+6. **PENTING — disable email confirmation:** sidebar **Authentication** → **Providers** → klik **Email** → matikan toggle **"Confirm email"** → Save.
+   - Tanpa ini, signup nunggu klik link konfirmasi (kena rate limit Supabase free tier).
+7. Di sidebar: **Project Settings** → **API** → catat 2 hal:
    - **Project URL** (mis: `https://abcdefgh.supabase.co`)
    - **anon public key** (string panjang dimulai `eyJ...`)
 
@@ -160,11 +162,11 @@ public/                      # Static assets + PWA manifest
 
 ## Troubleshooting
 
-**"User not found" saat login** — Cek di Supabase: **Authentication → Providers → Email** → enable, set **Confirm email = OFF** (untuk magic link).
+**"Email rate limit exceeded"** — Supabase free SMTP cuma boleh ~2 email/jam. **Solusi:** Authentication → Providers → Email → matikan **Confirm email** → Save. App ini pakai email+password tanpa konfirmasi, jadi nggak butuh email sama sekali.
+
+**"Invalid login credentials"** — Anda klik "Masuk" padahal belum daftar, atau password salah. Klik "Daftar" dulu di bawah form.
 
 **Tabel kosong setelah login** — Cek SQL Editor: `select * from household_members;`. Kalau kosong, trigger belum jalan. Re-run migration.
-
-**Email magic link tidak masuk** — Cek folder Spam. Di Supabase dashboard → **Authentication → Email Templates** ada log pengiriman.
 
 **Deploy Vercel error: env not set** — `vercel env add` lalu re-deploy dengan `vercel --prod --force`.
 
