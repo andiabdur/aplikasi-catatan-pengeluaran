@@ -33,3 +33,7 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# python
+__pycache__
+*.pyc
