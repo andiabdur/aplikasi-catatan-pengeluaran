@@ -8,11 +8,13 @@ export function PeriodSelector({
   payDay,
   onChange,
   compact = false,
+  customRangeText,
 }: {
   labelMonth: Date;
   payDay: number;
   onChange: (next: Date) => void;
   compact?: boolean;
+  customRangeText?: string;
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
@@ -28,7 +30,7 @@ export function PeriodSelector({
         <p className={compact ? "text-sm font-semibold" : "font-semibold"}>
           {periodTitle(labelMonth)}
         </p>
-        <p className="text-xs text-slate-500">{periodRangeText(labelMonth, payDay)}</p>
+        <p className="text-xs text-slate-500">{customRangeText ?? periodRangeText(labelMonth, payDay)}</p>
       </div>
       <button
         type="button"

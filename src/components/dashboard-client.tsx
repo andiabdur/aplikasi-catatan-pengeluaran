@@ -6,11 +6,11 @@ import { ArrowUpRight, TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR } from "@/lib/format";
 import {
-  currentPeriodLabel,
+  currentPeriodLabelWithCustom,
   labelMonthKey,
-  periodEnd,
-  periodStart,
   isoDate,
+  getPeriodRange,
+  periodRangeTextWithCustom,
 } from "@/lib/period";
 import { PeriodSelector } from "@/components/period-selector";
 import { cn } from "@/lib/utils";
@@ -24,23 +24,28 @@ export function DashboardClient({
   householdId,
   payDay,
   initialLabelMonth,
+  customPeriods: initialCustomPeriods,
 }: {
   householdId: string;
   payDay: number;
   initialLabelMonth: string;
+  customPeriods: { label_month: string; start_date: string; end_date: string }[];
 }) {
+  const [customPeriods, setCustomPeriods] = useState(initialCustomPeriods);
   const [labelMonth, setLabelMonth] = useState<Date>(new Date(initialLabelMonth));
   const [summary, setSummary] = useState<MonthlySummaryRow[]>([]);
   const [incomes, setIncomes] = useState<Income[]>([]);
   const [recent, setRecent] = useState<Recent[]>([]);
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     if (!householdId) return;
     const supabase = createClient();
     const labelKey = labelMonthKey(labelMonth);
-    const ps = isoDate(periodStart(labelMonth, payDay));
-    const pe = isoDate(periodEnd(labelMonth, payDay));
+    const range = getPeriodRange(labelMonth, payDay, customPeriods);
+    const ps = range.from;
+    const pe = range.to;
 
     setLoading(true);
     Promise.all([
@@ -68,27 +73,33 @@ export function DashboardClient({
       setRecent((recRes.data ?? []) as unknown as Recent[]);
       setLoading(false);
     });
-  }, [householdId, payDay, labelMonth]);
+  }, [householdId, payDay, labelMonth, customPeriods]);
 
   const totalSpent = summary.reduce((s, r) => s + Number(r.spent), 0);
   const totalBudget = summary.reduce((s, r) => s + Number(r.budget), 0);
   const totalIncome = incomes.reduce((s, r) => s + Number(r.amount), 0);
   const sisa = totalIncome - totalSpent;
-  const isCurrent = labelMonthKey(labelMonth) === labelMonthKey(currentPeriodLabel(payDay));
+  const isCurrent = labelMonthKey(labelMonth) === labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods));
 
   return (
     <>
       <div className="card">
-        <PeriodSelector labelMonth={labelMonth} payDay={payDay} onChange={setLabelMonth} />
+        <PeriodSelector
+          labelMonth={labelMonth}
+          payDay={payDay}
+          onChange={setLabelMonth}
+          customRangeText={periodRangeTextWithCustom(labelMonth, payDay, customPeriods)}
+        />
         {!isCurrent && (
           <button
-            onClick={() => setLabelMonth(currentPeriodLabel(payDay))}
+            onClick={() => setLabelMonth(currentPeriodLabelWithCustom(payDay, customPeriods))}
             className="mt-2 text-xs text-brand-600 w-full text-center"
           >
             Ke periode sekarang
           </button>
         )}
       </div>
+
 
       {/* Hero summary */}
       <section className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-700 text-white p-5 shadow-lg shadow-brand-600/20">

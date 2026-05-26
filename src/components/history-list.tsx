@@ -4,11 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import {
-  currentPeriodLabel,
+  currentPeriodLabelWithCustom,
   labelMonthKey,
-  periodEnd,
-  periodStart,
   isoDate,
+  getPeriodRange,
+  periodRangeTextWithCustom,
 } from "@/lib/period";
 import { PeriodSelector } from "@/components/period-selector";
 import { CategoryPieChart, CategoryBarChart } from "@/components/expense-charts";
@@ -28,12 +28,15 @@ export function HistoryList({
   householdId,
   payDay,
   initialLabelMonth,
+  customPeriods: initialCustomPeriods,
 }: {
   categories: Category[];
   householdId: string;
   payDay: number;
   initialLabelMonth: string;
+  customPeriods: { label_month: string; start_date: string; end_date: string }[];
 }) {
+  const [customPeriods, setCustomPeriods] = useState(initialCustomPeriods);
   const [filterMode, setFilterMode] = useState<FilterMode>("period");
   const [labelMonth, setLabelMonth] = useState<Date>(new Date(initialLabelMonth));
   const [from, setFrom] = useState("");
@@ -50,13 +53,15 @@ export function HistoryList({
   // Derive effective date range
   const range = useMemo(() => {
     if (filterMode === "period") {
+      const r = getPeriodRange(labelMonth, payDay, customPeriods);
       return {
-        from: isoDate(periodStart(labelMonth, payDay)),
-        to: isoDate(periodEnd(labelMonth, payDay)),
+        from: r.from,
+        to: r.to,
       };
     }
     return { from: from || null, to: to || null };
-  }, [filterMode, labelMonth, payDay, from, to]);
+  }, [filterMode, labelMonth, payDay, customPeriods, from, to]);
+
 
   async function load() {
     setLoading(true);
@@ -231,16 +236,22 @@ export function HistoryList({
 
         {filterMode === "period" ? (
           <div>
-            <PeriodSelector labelMonth={labelMonth} payDay={payDay} onChange={setLabelMonth} />
-            {labelMonthKey(labelMonth) !== labelMonthKey(currentPeriodLabel(payDay)) && (
+            <PeriodSelector
+              labelMonth={labelMonth}
+              payDay={payDay}
+              onChange={setLabelMonth}
+              customRangeText={periodRangeTextWithCustom(labelMonth, payDay, customPeriods)}
+            />
+            {labelMonthKey(labelMonth) !== labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods)) && (
               <button
-                onClick={() => setLabelMonth(currentPeriodLabel(payDay))}
+                onClick={() => setLabelMonth(currentPeriodLabelWithCustom(payDay, customPeriods))}
                 className="mt-1 text-xs text-brand-600 w-full text-center"
               >
                 Ke periode sekarang
               </button>
             )}
           </div>
+
         ) : (
           <div className="grid grid-cols-2 gap-2">
             <div>

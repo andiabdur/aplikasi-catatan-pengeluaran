@@ -49,3 +49,13 @@ export type MonthlySummaryRow = {
   remaining: number;
   usage_pct: number;
 };
+
+export type CustomPeriod = {
+  id: string;
+  household_id: string;
+  label_month: string;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+};
+

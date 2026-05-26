@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
-import { currentPeriodLabel, labelMonthKey, periodTitle } from "@/lib/period";
+import { currentPeriodLabelWithCustom, labelMonthKey, periodTitle, getPeriodRange, periodRangeTextWithCustom } from "@/lib/period";
 import { PeriodSelector } from "@/components/period-selector";
-import type { Category, Budget, Income } from "@/lib/types";
-import { Plus, Trash2, LogOut, Save, CalendarCog } from "lucide-react";
+import type { Category, Budget, Income, CustomPeriod } from "@/lib/types";
+import { Plus, Trash2, LogOut, Save, CalendarCog, Edit3, RotateCcw } from "lucide-react";
 
 const COLORS = [
   "#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4",
@@ -20,21 +20,25 @@ export function SettingsClient({
   payDay: initialPayDay,
   initialLabelMonth,
   email,
+  customPeriods: initialCustomPeriods,
 }: {
   householdId: string;
   categories: Category[];
   payDay: number;
   initialLabelMonth: string;
   email: string;
+  customPeriods: { label_month: string; start_date: string; end_date: string }[];
 }) {
   const router = useRouter();
   const supabase = createClient();
   const [cats, setCats] = useState(initialCats);
   const [payDay, setPayDay] = useState(initialPayDay);
+  const [customPeriods, setCustomPeriods] = useState(initialCustomPeriods);
   const [labelMonth, setLabelMonth] = useState<Date>(new Date(initialLabelMonth));
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [incomes, setIncomes] = useState<Income[]>([]);
   const [savingKey, setSavingKey] = useState<string | null>(null);
+
 
   const labelKey = labelMonthKey(labelMonth);
 
@@ -198,10 +202,67 @@ export function SettingsClient({
     router.refresh();
   }
 
+  async function saveCustomPeriod(start: string, end: string) {
+    if (!start || !end) return alert("Tanggal start dan end harus diisi.");
+    if (new Date(start) > new Date(end)) {
+      return alert("Tanggal mulai tidak boleh melebihi tanggal selesai.");
+    }
+    setSavingKey("cp");
+    const { data, error } = await supabase
+      .from("custom_periods")
+      .upsert({
+        household_id: householdId,
+        label_month: labelKey,
+        start_date: start,
+        end_date: end,
+      }, {
+        onConflict: "household_id,label_month"
+      })
+      .select()
+      .single();
+    
+    setSavingKey(null);
+    if (error) return alert(error.message);
+
+    // Update local state
+    setCustomPeriods((prev) => {
+      const filtered = prev.filter((p) => p.label_month !== labelKey);
+      if (data) {
+        filtered.push({
+          label_month: data.label_month,
+          start_date: data.start_date,
+          end_date: data.end_date,
+        });
+      }
+      return filtered;
+    });
+
+    router.refresh();
+  }
+
+  async function resetCustomPeriod() {
+    if (!confirm("Kembalikan tanggal gajian periode ini ke default?")) return;
+    setSavingKey("cp");
+    const { error } = await supabase
+      .from("custom_periods")
+      .delete()
+      .eq("household_id", householdId)
+      .eq("label_month", labelKey);
+    
+    setSavingKey(null);
+    if (error) return alert(error.message);
+
+    // Remove from local state
+    setCustomPeriods((prev) => prev.filter((p) => p.label_month !== labelKey));
+
+    router.refresh();
+  }
+
   async function logout() {
     await supabase.auth.signOut();
     router.push("/login");
   }
+
 
   return (
     <div className="space-y-4">
@@ -235,17 +296,31 @@ export function SettingsClient({
       </section>
 
       {/* Period selector */}
-      <div className="card">
-        <PeriodSelector labelMonth={labelMonth} payDay={payDay} onChange={setLabelMonth} />
-        {labelMonthKey(labelMonth) !== labelMonthKey(currentPeriodLabel(payDay)) && (
+      <div className="card space-y-4">
+        <PeriodSelector
+          labelMonth={labelMonth}
+          payDay={payDay}
+          onChange={setLabelMonth}
+          customRangeText={periodRangeTextWithCustom(labelMonth, payDay, customPeriods)}
+        />
+        {labelMonthKey(labelMonth) !== labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods)) && (
           <button
-            onClick={() => setLabelMonth(currentPeriodLabel(payDay))}
+            onClick={() => setLabelMonth(currentPeriodLabelWithCustom(payDay, customPeriods))}
             className="mt-2 text-xs text-brand-600 w-full text-center"
           >
             Ke periode sekarang
           </button>
         )}
+        <CustomPeriodEditor
+          labelMonth={labelMonth}
+          payDay={payDay}
+          customPeriods={customPeriods}
+          onSave={saveCustomPeriod}
+          onReset={resetCustomPeriod}
+          saving={savingKey === "cp"}
+        />
       </div>
+
 
       {/* Income */}
       <section>
@@ -425,3 +500,109 @@ function CategoryRow({
     </div>
   );
 }
+
+function CustomPeriodEditor({
+  labelMonth,
+  payDay,
+  customPeriods,
+  onSave,
+  onReset,
+  saving,
+}: {
+  labelMonth: Date;
+  payDay: number;
+  customPeriods: { label_month: string; start_date: string; end_date: string }[];
+  onSave: (start: string, end: string) => Promise<any>;
+  onReset: () => Promise<any>;
+  saving: boolean;
+}) {
+  const range = getPeriodRange(labelMonth, payDay, customPeriods);
+  const [isEditing, setIsEditing] = useState(false);
+  const [start, setStart] = useState(range.from);
+  const [end, setEnd] = useState(range.to);
+
+  useEffect(() => {
+    setStart(range.from);
+    setEnd(range.to);
+  }, [range.from, range.to]);
+
+  if (!isEditing) {
+    return (
+      <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+        <span className="text-xs text-slate-500">
+          {range.isCustom ? (
+            <span className="inline-flex items-center gap-1 text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded">
+              Custom Range
+            </span>
+          ) : (
+            <span className="text-slate-400">Tanggal default</span>
+          )}
+        </span>
+        <div className="flex items-center gap-2">
+          {range.isCustom && (
+            <button
+              onClick={onReset}
+              className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-50 transition"
+              disabled={saving}
+            >
+              <RotateCcw className="w-3 h-3" /> Reset
+            </button>
+          )}
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-brand-50 transition font-medium"
+            disabled={saving}
+          >
+            <Edit3 className="w-3 h-3" /> Ubah Range
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border-t border-slate-100 pt-3 space-y-3">
+      <p className="text-xs font-semibold text-slate-700">Custom Rentang Tanggal</p>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-[10px] text-slate-500 block mb-0.5">Mulai</label>
+          <input
+            type="date"
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
+            className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
+          />
+        </div>
+        <div>
+          <label className="text-[10px] text-slate-500 block mb-0.5">Selesai</label>
+          <input
+            type="date"
+            value={end}
+            onChange={(e) => setEnd(e.target.value)}
+            className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
+          />
+        </div>
+      </div>
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={() => setIsEditing(false)}
+          className="text-xs text-slate-500 px-3 py-1.5 rounded hover:bg-slate-50 transition"
+          disabled={saving}
+        >
+          Batal
+        </button>
+        <button
+          onClick={async () => {
+            await onSave(start, end);
+            setIsEditing(false);
+          }}
+          className="text-xs font-semibold bg-brand-600 text-white px-3 py-1.5 rounded-lg hover:bg-brand-700 flex items-center gap-1.5 shadow-sm transition"
+          disabled={saving}
+        >
+          {saving ? "Menyimpan..." : "Simpan"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
