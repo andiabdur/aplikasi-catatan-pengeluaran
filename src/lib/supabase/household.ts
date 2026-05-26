@@ -2,15 +2,16 @@ import { cookies } from "next/headers";
 import { createClient } from "./server";
 
 export async function getCurrentHouseholdId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const cachedId = cookieStore.get("household_id")?.value;
-  if (cachedId) return cachedId;
-
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
+
+  const cookieStore = await cookies();
+  const cookieName = `hh_id_${user.id}`;
+  const cachedId = cookieStore.get(cookieName)?.value;
+  if (cachedId) return cachedId;
 
   const { data } = await supabase
     .from("household_members")

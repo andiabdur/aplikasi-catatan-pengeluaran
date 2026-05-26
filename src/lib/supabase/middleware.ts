@@ -51,8 +51,9 @@ export async function updateSession(request: NextRequest) {
       return redirectResponse;
     }
   } else {
-    // If logged in, check if household_id cookie is present
-    let householdId = request.cookies.get("household_id")?.value;
+    // If logged in, check if user-specific household_id cookie is present
+    const cookieName = `hh_id_${user.id}`;
+    let householdId = request.cookies.get(cookieName)?.value;
     if (!householdId) {
       // Query household_members once
       const { data } = await supabase
@@ -64,7 +65,7 @@ export async function updateSession(request: NextRequest) {
         .maybeSingle();
 
       if (data?.household_id) {
-        response.cookies.set("household_id", data.household_id, {
+        response.cookies.set(cookieName, data.household_id, {
           path: "/",
           maxAge: 60 * 60 * 24 * 365, // 1 year
           httpOnly: true,
