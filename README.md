@@ -1,4 +1,4 @@
-# Catatan Pengeluaran Keluarga
+# Catatan Pengeluaran Keluarga AAB
 
 Aplikasi web mobile-first untuk mencatat pengeluaran keluarga. Pengganti Google Sheets — input cepat, dashboard real-time, multi-user, bisa di-install di HP (PWA).
 
