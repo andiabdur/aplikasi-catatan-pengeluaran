@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
@@ -338,6 +338,12 @@ function IncomeRow({
   const [text, setText] = useState(
     income.amount ? Number(income.amount).toLocaleString("id-ID") : "",
   );
+  const isFocused = useRef(false);
+  useEffect(() => {
+    if (!isFocused.current) {
+      setText(income.amount ? Number(income.amount).toLocaleString("id-ID") : "");
+    }
+  }, [income.amount]);
   return (
     <div className="flex items-center gap-2 p-3">
       <span className="text-sm font-medium flex-1 truncate">{income.source}</span>
@@ -350,7 +356,11 @@ function IncomeRow({
           inputMode="numeric"
           value={text}
           onChange={(e) => setText(formatIDRInput(e.target.value))}
-          onBlur={() => onChange(parseIDRInput(text))}
+          onFocus={() => { isFocused.current = true; }}
+          onBlur={() => {
+            isFocused.current = false;
+            onChange(parseIDRInput(text));
+          }}
           className="w-full border border-slate-200 rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
           placeholder="0"
         />
@@ -377,6 +387,12 @@ function CategoryRow({
   onDelete: () => void;
 }) {
   const [text, setText] = useState(budget ? Number(budget).toLocaleString("id-ID") : "");
+  const isFocused = useRef(false);
+  useEffect(() => {
+    if (!isFocused.current) {
+      setText(budget ? Number(budget).toLocaleString("id-ID") : "");
+    }
+  }, [budget]);
   return (
     <div className="flex items-center gap-2 p-3">
       <span
@@ -393,7 +409,11 @@ function CategoryRow({
           inputMode="numeric"
           value={text}
           onChange={(e) => setText(formatIDRInput(e.target.value))}
-          onBlur={() => onBudgetChange(parseIDRInput(text))}
+          onFocus={() => { isFocused.current = true; }}
+          onBlur={() => {
+            isFocused.current = false;
+            onBudgetChange(parseIDRInput(text));
+          }}
           className="w-full border border-slate-200 rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
           placeholder="0"
         />
