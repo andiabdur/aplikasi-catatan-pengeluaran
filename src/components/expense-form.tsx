@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDRInput, parseIDRInput, todayISO } from "@/lib/format";
 import type { Category } from "@/lib/types";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function ExpenseForm({
@@ -23,11 +23,33 @@ export function ExpenseForm({
   const [costText, setCostText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
+  const [calcOpen, setCalcOpen] = useState(false);
+  const [calcExpr, setCalcExpr] = useState("");
   const descRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     descRef.current?.focus();
   }, []);
+
+  function calcPress(key: string) {
+    if (key === "AC") { setCalcExpr(""); return; }
+    if (key === "⌫") { setCalcExpr((e) => e.slice(0, -1)); return; }
+    if (key === "=") {
+      const clean = calcExpr.replace(/×/g, "*").replace(/÷/g, "/");
+      if (!/^[\d\s+\-*/().]+$/.test(clean)) return;
+      try {
+        // eslint-disable-next-line no-new-func
+        const result = Function('"use strict"; return (' + clean + ")")() as number;
+        if (isFinite(result) && result >= 0) {
+          setCostText(formatIDRInput(String(Math.round(result))));
+          setCalcOpen(false);
+          setCalcExpr("");
+        }
+      } catch { /* ignore bad expr */ }
+      return;
+    }
+    setCalcExpr((e) => e + key);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -93,7 +115,22 @@ export function ExpenseForm({
         </div>
 
         <div>
-          <label className="label">Cost (Rp)</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="label mb-0">Cost (Rp)</label>
+            <button
+              type="button"
+              onClick={() => { setCalcOpen((o) => !o); setCalcExpr(""); }}
+              className={cn(
+                "flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg transition",
+                calcOpen
+                  ? "bg-brand-600 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200",
+              )}
+            >
+              <Calculator className="w-3.5 h-3.5" />
+              Kalkulator
+            </button>
+          </div>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
               Rp
@@ -108,20 +145,54 @@ export function ExpenseForm({
               autoComplete="off"
             />
           </div>
-          <div className="flex gap-2 mt-2">
-            {[5000, 10000, 25000, 50000, 100000].map((v) => (
-              <button
-                type="button"
-                key={v}
-                onClick={() =>
-                  setCostText(formatIDRInput(String(parseIDRInput(costText) + v)))
-                }
-                className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200"
-              >
-                +{(v / 1000).toFixed(0)}rb
-              </button>
-            ))}
-          </div>
+
+          {/* Calculator panel */}
+          {calcOpen && (
+            <div className="mt-2 border border-slate-200 rounded-xl overflow-hidden">
+              <div className="px-3 py-2 bg-slate-50 border-b border-slate-100 text-right min-h-9 flex items-center justify-end">
+                <span className="text-sm font-mono text-slate-600 truncate">
+                  {calcExpr || "0"}
+                </span>
+              </div>
+              <div className="grid grid-cols-4 gap-px bg-slate-100">
+                {(["AC", "⌫", "÷", "×", "7", "8", "9", "-", "4", "5", "6", "+", "1", "2", "3", "=", "0", "00", "000", "."] as const).map(
+                  (k) => (
+                    <button
+                      type="button"
+                      key={k}
+                      onClick={() => calcPress(k)}
+                      className={cn(
+                        "py-3.5 text-sm font-semibold bg-white hover:bg-slate-50 active:bg-slate-100 transition",
+                        (k === "AC" || k === "⌫") && "text-red-500",
+                        (k === "÷" || k === "×" || k === "-" || k === "+") &&
+                          "text-brand-600",
+                        k === "=" && "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800",
+                      )}
+                    >
+                      {k}
+                    </button>
+                  ),
+                )}
+              </div>
+            </div>
+          )}
+
+          {!calcOpen && (
+            <div className="flex gap-2 mt-2">
+              {[5000, 10000, 25000, 50000, 100000].map((v) => (
+                <button
+                  type="button"
+                  key={v}
+                  onClick={() =>
+                    setCostText(formatIDRInput(String(parseIDRInput(costText) + v)))
+                  }
+                  className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200"
+                >
+                  +{(v / 1000).toFixed(0)}rb
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

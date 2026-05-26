@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { formatIDR } from "@/lib/format";
+import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import {
   currentPeriodLabel,
   labelMonthKey,
@@ -12,7 +12,7 @@ import {
 } from "@/lib/period";
 import { PeriodSelector } from "@/components/period-selector";
 import { CategoryPieChart, CategoryBarChart } from "@/components/expense-charts";
-import { Search, Trash2, X, PieChart as PieIcon, BarChart3, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Trash2, X, PieChart as PieIcon, BarChart3, ChevronDown, ChevronUp, Pencil, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Category, Expense } from "@/lib/types";
 
@@ -45,6 +45,7 @@ export function HistoryList({
 
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   // Derive effective date range
   const range = useMemo(() => {
@@ -101,6 +102,23 @@ export function HistoryList({
     return [...map.values()];
   }, [filtered]);
 
+  async function handleSave(
+    id: string,
+    patch: { description: string; category_id: string; amount: number },
+  ) {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("expenses")
+      .update(patch)
+      .eq("id", id)
+      .select("*,categories(name,color)")
+      .single();
+    if (data) {
+      setRows((rs) => rs.map((r) => (r.id === id ? (data as Row) : r)));
+    }
+    setEditingId(null);
+  }
+
   async function handleDelete(id: string) {
     if (!confirm("Hapus pengeluaran ini?")) return;
     const supabase = createClient();
@@ -117,6 +135,73 @@ export function HistoryList({
     });
     return [...map.entries()];
   }, [filtered]);
+
+  function EditExpenseRow({
+    row,
+    categories: cats,
+    onSave,
+    onCancel,
+  }: {
+    row: Row;
+    categories: Category[];
+    onSave: (patch: { description: string; category_id: string; amount: number }) => void;
+    onCancel: () => void;
+  }) {
+    const [desc, setDesc] = useState(row.description);
+    const [catId, setCatId] = useState(row.category_id);
+    const [amtText, setAmtText] = useState(
+      row.amount ? Number(row.amount).toLocaleString("id-ID") : "",
+    );
+
+    return (
+      <div className="p-3 space-y-2 bg-slate-50">
+        <input
+          type="text"
+          value={desc}
+          onChange={(e) => setDesc(e.target.value)}
+          className="input text-sm py-1.5"
+          autoFocus
+          placeholder="Nama kebutuhan"
+        />
+        <select
+          value={catId}
+          onChange={(e) => setCatId(e.target.value)}
+          className="input text-sm py-1.5"
+        >
+          {cats.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+            Rp
+          </span>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={amtText}
+            onChange={(e) => setAmtText(formatIDRInput(e.target.value))}
+            className="input pl-8 text-sm py-1.5 text-right"
+          />
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() =>
+              onSave({ description: desc.trim(), category_id: catId, amount: parseIDRInput(amtText) })
+            }
+            className="btn-primary flex-1 text-sm py-2 flex items-center justify-center gap-1.5"
+          >
+            <Check className="w-3.5 h-3.5" /> Simpan
+          </button>
+          <button onClick={onCancel} className="btn-ghost text-sm py-2 px-4">
+            Batal
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
@@ -303,30 +388,47 @@ export function HistoryList({
                 <p className="text-xs font-medium text-slate-500">{formatIDR(dayTotal)}</p>
               </div>
               <div className="card divide-y divide-slate-100 p-0">
-                {items.map((r) => (
-                  <div key={r.id} className="flex items-center justify-between p-3 group">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ background: r.categories?.color ?? "#94a3b8" }}
-                        />
-                        <p className="font-medium truncate">{r.description}</p>
+                {items.map((r) =>
+                  editingId === r.id ? (
+                    <EditExpenseRow
+                      key={r.id}
+                      row={r}
+                      categories={categories}
+                      onSave={(patch) => handleSave(r.id, patch)}
+                      onCancel={() => setEditingId(null)}
+                    />
+                  ) : (
+                    <div key={r.id} className="flex items-center justify-between p-3 group">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0"
+                            style={{ background: r.categories?.color ?? "#94a3b8" }}
+                          />
+                          <p className="font-medium truncate">{r.description}</p>
+                        </div>
+                        <p className="text-xs text-slate-500 ml-4 mt-0.5">{r.categories?.name}</p>
                       </div>
-                      <p className="text-xs text-slate-500 ml-4 mt-0.5">{r.categories?.name}</p>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <p className="font-semibold text-sm mr-1">{formatIDR(r.amount)}</p>
+                        <button
+                          onClick={() => setEditingId(r.id)}
+                          className="p-1.5 text-slate-300 hover:text-brand-500 hover:bg-brand-50 rounded-lg"
+                          aria-label="Edit"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(r.id)}
+                          className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                          aria-label="Hapus"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <p className="font-semibold text-sm">{formatIDR(r.amount)}</p>
-                      <button
-                        onClick={() => handleDelete(r.id)}
-                        className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                        aria-label="Hapus"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </div>
           );
