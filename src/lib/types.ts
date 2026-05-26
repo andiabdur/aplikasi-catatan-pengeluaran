@@ -41,7 +41,9 @@ export type MonthlySummaryRow = {
   category_name: string;
   color: string | null;
   sort_order: number;
-  month: string;
+  label_month: string;
+  period_start: string;
+  period_end: string;
   budget: number;
   spent: number;
   remaining: number;
