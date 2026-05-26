@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentHouseholdId } from "@/lib/supabase/household";
 import { PageShell } from "@/components/page-shell";
 import { ExpenseForm } from "@/components/expense-form";
 import type { Category } from "@/lib/types";
@@ -7,9 +8,11 @@ export const dynamic = "force-dynamic";
 
 export default async function AddPage() {
   const supabase = await createClient();
+  const householdId = await getCurrentHouseholdId();
   const { data } = await supabase
     .from("categories")
     .select("*")
+    .eq("household_id", householdId ?? "")
     .eq("is_archived", false)
     .order("sort_order");
 
@@ -19,6 +22,7 @@ export default async function AddPage() {
   const { data: recent } = await supabase
     .from("expenses")
     .select("category_id")
+    .eq("household_id", householdId ?? "")
     .gte("spent_at", since.toISOString().slice(0, 10));
 
   const counts = new Map<string, number>();

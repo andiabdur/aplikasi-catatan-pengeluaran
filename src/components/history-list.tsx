@@ -10,7 +10,13 @@ type Row = Expense & {
   categories: { name: string; color: string | null } | null;
 };
 
-export function HistoryList({ categories }: { categories: Category[] }) {
+export function HistoryList({
+  categories,
+  householdId,
+}: {
+  categories: Category[];
+  householdId: string;
+}) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -24,6 +30,7 @@ export function HistoryList({ categories }: { categories: Category[] }) {
     let q = supabase
       .from("expenses")
       .select("*,categories(name,color)")
+      .eq("household_id", householdId)
       .order("spent_at", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(200);

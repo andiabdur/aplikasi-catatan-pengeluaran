@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentHouseholdId } from "@/lib/supabase/household";
 import { PageShell } from "@/components/page-shell";
 import { formatIDR, monthLabel, monthKey } from "@/lib/format";
 import Link from "next/link";
@@ -10,6 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
+  const householdId = await getCurrentHouseholdId();
 
   const { data: { user } } = await supabase.auth.getUser();
   const displayName = user?.email?.split("@")[0] ?? "Keluarga";
@@ -19,11 +21,17 @@ export default async function DashboardPage() {
     supabase
       .from("v_monthly_summary")
       .select("*")
+      .eq("household_id", householdId ?? "")
       .order("sort_order"),
-    supabase.from("incomes").select("*").eq("month", month),
+    supabase
+      .from("incomes")
+      .select("*")
+      .eq("household_id", householdId ?? "")
+      .eq("month", month),
     supabase
       .from("expenses")
       .select("id,description,amount,spent_at,category_id,categories(name,color)")
+      .eq("household_id", householdId ?? "")
       .order("spent_at", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(5),
