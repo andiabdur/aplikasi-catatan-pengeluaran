@@ -1,6 +1,11 @@
+import { cookies } from "next/headers";
 import { createClient } from "./server";
 
 export async function getCurrentHouseholdId(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const cachedId = cookieStore.get("household_id")?.value;
+  if (cachedId) return cachedId;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -17,3 +22,4 @@ export async function getCurrentHouseholdId(): Promise<string | null> {
 
   return data?.household_id ?? null;
 }
+

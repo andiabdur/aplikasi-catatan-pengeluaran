@@ -39,10 +39,40 @@ export async function updateSession(request: NextRequest) {
     path === "/favicon.ico" ||
     path === "/manifest.json";
 
-  if (!user && !isPublic) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+  if (!user) {
+    if (request.cookies.has("household_id")) {
+      response.cookies.delete("household_id");
+    }
+    if (!isPublic) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      const redirectResponse = NextResponse.redirect(url);
+      redirectResponse.cookies.delete("household_id");
+      return redirectResponse;
+    }
+  } else {
+    // If logged in, check if household_id cookie is present
+    let householdId = request.cookies.get("household_id")?.value;
+    if (!householdId) {
+      // Query household_members once
+      const { data } = await supabase
+        .from("household_members")
+        .select("household_id")
+        .eq("user_id", user.id)
+        .order("joined_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (data?.household_id) {
+        response.cookies.set("household_id", data.household_id, {
+          path: "/",
+          maxAge: 60 * 60 * 24 * 365, // 1 year
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+        });
+      }
+    }
   }
 
   return response;
