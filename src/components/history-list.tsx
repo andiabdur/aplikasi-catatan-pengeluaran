@@ -109,7 +109,7 @@ export function HistoryList({
 
   async function handleSave(
     id: string,
-    patch: { description: string; category_id: string; amount: number },
+    patch: { description: string; category_id: string; amount: number; spent_at: string },
   ) {
     const supabase = createClient();
     const { data } = await supabase
@@ -149,25 +149,34 @@ export function HistoryList({
   }: {
     row: Row;
     categories: Category[];
-    onSave: (patch: { description: string; category_id: string; amount: number }) => void;
+    onSave: (patch: { description: string; category_id: string; amount: number; spent_at: string }) => void;
     onCancel: () => void;
   }) {
     const [desc, setDesc] = useState(row.description);
     const [catId, setCatId] = useState(row.category_id);
+    const [spentAt, setSpentAt] = useState(row.spent_at);
     const [amtText, setAmtText] = useState(
       row.amount ? Number(row.amount).toLocaleString("id-ID") : "",
     );
 
     return (
       <div className="p-3 space-y-2 bg-slate-50">
-        <input
-          type="text"
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-          className="input text-sm py-1.5"
-          autoFocus
-          placeholder="Nama kebutuhan"
-        />
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            type="text"
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+            className="input text-sm py-1.5"
+            autoFocus
+            placeholder="Nama kebutuhan"
+          />
+          <input
+            type="date"
+            value={spentAt}
+            onChange={(e) => setSpentAt(e.target.value)}
+            className="input text-sm py-1.5"
+          />
+        </div>
         <select
           value={catId}
           onChange={(e) => setCatId(e.target.value)}
@@ -194,7 +203,12 @@ export function HistoryList({
         <div className="flex gap-2">
           <button
             onClick={() =>
-              onSave({ description: desc.trim(), category_id: catId, amount: parseIDRInput(amtText) })
+              onSave({
+                description: desc.trim(),
+                category_id: catId,
+                amount: parseIDRInput(amtText),
+                spent_at: spentAt,
+              })
             }
             className="btn-primary flex-1 text-sm py-2 flex items-center justify-center gap-1.5"
           >
