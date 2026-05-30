@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDRInput, parseIDRInput, todayISO } from "@/lib/format";
 import type { Category } from "@/lib/types";
-import { Check, Loader2, Calculator } from "lucide-react";
+import { Check, Loader2, Calculator, Mic, Square, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function ExpenseForm({
@@ -27,9 +27,103 @@ export function ExpenseForm({
   const [calcExpr, setCalcExpr] = useState("");
   const descRef = useRef<HTMLInputElement>(null);
 
+  // Voice note state
+  const [voiceState, setVoiceState] = useState<"idle" | "recording" | "processing">("idle");
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState<string | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     descRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  function pickAudioMime(): string {
+    const candidates = [
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/mp4",
+      "audio/ogg;codecs=opus",
+    ];
+    if (typeof MediaRecorder === "undefined") return "";
+    for (const c of candidates) {
+      if (MediaRecorder.isTypeSupported(c)) return c;
+    }
+    return "";
+  }
+
+  async function startRecording() {
+    setVoiceError(null);
+    setTranscript(null);
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setVoiceError("Browser tidak mendukung rekaman suara.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = pickAudioMime();
+      const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      chunksRef.current = [];
+      rec.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      rec.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        if (timerRef.current) clearInterval(timerRef.current);
+        const blob = new Blob(chunksRef.current, { type: rec.mimeType || mime || "audio/webm" });
+        await processAudio(blob);
+      };
+      rec.start();
+      recorderRef.current = rec;
+      setElapsed(0);
+      setVoiceState("recording");
+      timerRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
+    } catch {
+      setVoiceError("Mikrofon tidak bisa diakses. Cek izin mikrofon di browser.");
+      setVoiceState("idle");
+    }
+  }
+
+  function stopRecording() {
+    if (recorderRef.current && recorderRef.current.state !== "inactive") {
+      setVoiceState("processing");
+      recorderRef.current.stop();
+    }
+  }
+
+  async function processAudio(blob: Blob) {
+    try {
+      const fd = new FormData();
+      const ext = blob.type.includes("mp4") ? "m4a" : blob.type.includes("ogg") ? "ogg" : "webm";
+      fd.append("audio", blob, `voice.${ext}`);
+      const res = await fetch("/api/voice-expense", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) {
+        setVoiceError(data.error || "Gagal memproses suara.");
+        setVoiceState("idle");
+        return;
+      }
+      if (data.description) setDescription(data.description);
+      if (data.amount > 0) setCostText(formatIDRInput(String(data.amount)));
+      if (data.category_id) setCategoryId(data.category_id);
+      setTranscript(data.transcript || null);
+      if (!data.description && data.amount === 0) {
+        setVoiceError("Suara kurang jelas, coba ulangi.");
+      }
+      setVoiceState("idle");
+    } catch {
+      setVoiceError("Gagal mengirim suara. Cek koneksi.");
+      setVoiceState("idle");
+    }
+  }
 
   function calcPress(key: string) {
     if (key === "AC") { setCalcExpr(""); return; }
@@ -89,6 +183,64 @@ export function ExpenseForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Voice note */}
+      <div className="card bg-brand-50 border-brand-200 space-y-2">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={voiceState === "recording" ? stopRecording : startRecording}
+            disabled={voiceState === "processing"}
+            className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition shadow-sm",
+              voiceState === "recording"
+                ? "bg-red-500 text-white animate-pulse"
+                : voiceState === "processing"
+                  ? "bg-slate-300 text-white"
+                  : "bg-brand-600 text-white hover:bg-brand-700 active:scale-95",
+            )}
+            aria-label={voiceState === "recording" ? "Stop rekam" : "Rekam suara"}
+          >
+            {voiceState === "recording" ? (
+              <Square className="w-5 h-5" fill="currentColor" />
+            ) : voiceState === "processing" ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Mic className="w-6 h-6" />
+            )}
+          </button>
+          <div className="min-w-0 flex-1">
+            {voiceState === "recording" ? (
+              <>
+                <p className="text-sm font-semibold text-red-600">
+                  Merekam... {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}
+                </p>
+                <p className="text-xs text-slate-500">Tap tombol stop kalau sudah selesai ngomong.</p>
+              </>
+            ) : voiceState === "processing" ? (
+              <>
+                <p className="text-sm font-semibold text-slate-700">Mendengarkan & menulis...</p>
+                <p className="text-xs text-slate-500">Lagi diproses AI sebentar.</p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-brand-800 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5" /> Catat pakai suara
+                </p>
+                <p className="text-xs text-slate-500">
+                  Contoh: &quot;Bensin lima puluh ribu&quot; — nominal & kategori keisi otomatis.
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+        {transcript && voiceState === "idle" && (
+          <p className="text-xs text-slate-500 bg-white/70 rounded-lg px-3 py-1.5">
+            Terdengar: <span className="text-slate-700">&quot;{transcript}&quot;</span>
+          </p>
+        )}
+        {voiceError && <p className="text-xs text-red-600 px-1">{voiceError}</p>}
+      </div>
+
       {/* Tanggal */}
       <div className="card space-y-3">
         <div>
