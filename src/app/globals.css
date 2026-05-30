@@ -8,12 +8,14 @@
   }
   body {
     @apply bg-slate-50 text-slate-900 antialiased;
+    @apply dark:bg-slate-950 dark:text-slate-100;
   }
 }
 
 @layer components {
   .card {
     @apply bg-white rounded-2xl shadow-sm border border-slate-200 p-4;
+    @apply dark:bg-slate-800 dark:border-slate-700 dark:shadow-slate-900/50;
   }
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium transition active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
@@ -23,11 +25,14 @@
   }
   .btn-ghost {
     @apply btn bg-slate-100 text-slate-700 hover:bg-slate-200;
+    @apply dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600;
   }
   .input {
-    @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent;
+    @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder:text-slate-400;
+    @apply dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-brand-500;
   }
   .label {
     @apply block text-sm font-medium text-slate-700 mb-1.5;
+    @apply dark:text-slate-300;
   }
 }

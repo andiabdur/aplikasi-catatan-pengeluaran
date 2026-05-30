@@ -16,7 +16,7 @@ const items = [
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80">
       <div className="mx-auto max-w-md grid grid-cols-5">
         {items.map(({ href, label, icon: Icon, primary }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -27,7 +27,7 @@ export function BottomNav() {
               prefetch={false}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 py-2.5 text-xs",
-                active ? "text-brand-600" : "text-slate-500",
+                active ? "text-brand-600" : "text-slate-500 dark:text-slate-400",
               )}
             >
               <span

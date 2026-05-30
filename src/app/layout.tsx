@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import SWRegister from "@/components/sw-register";
+import { ThemeScript } from "@/components/theme-script";
 
 export const metadata: Metadata = {
   title: "Catatan Pengeluaran Keluarga",
@@ -23,7 +24,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body>
         <SWRegister />
         {children}

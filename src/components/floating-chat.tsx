@@ -34,30 +34,30 @@ export function FloatingChat({ householdId }: { householdId: string }) {
 
       {/* Slide-up drawer */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out ${
+        className={`fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-slate-900 rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
         style={{ maxHeight: "85dvh" }}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-slate-200" />
+          <div className="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-700" />
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 pt-2 pb-3 border-b border-slate-100">
+        <div className="flex items-center justify-between px-4 pt-2 pb-3 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <p className="font-semibold text-slate-800 text-sm">Asisten Keuangan</p>
-              <p className="text-xs text-slate-400">AI · data keuangan real-time</p>
+              <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm">Asisten Keuangan</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">AI · data keuangan real-time</p>
             </div>
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition"
+            className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
             <X className="w-5 h-5" />
           </button>
