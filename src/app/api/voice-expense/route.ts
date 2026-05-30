@@ -73,12 +73,15 @@ export async function POST(req: Request) {
 Daftar kategori yang TERSEDIA (pilih SALAH SATU id yang paling cocok):
 ${catLines}
 
+PENTING: Satu rekaman bisa berisi BEBERAPA item belanja dalam satu kalimat. Contoh: "jeruk 10rb, salak 17rb, apel 33rb". Semua harga harus DIJUMLAHKAN jadi satu total.
+
 Aturan:
-- "deskripsi": nama singkat barang/kebutuhan yang disebut (contoh: "Bensin", "Susu anak", "Makan siang"). Rapikan kapitalisasi.
-- "amount": nominal dalam RUPIAH sebagai angka bulat (integer), tanpa titik/koma. Pahami slang uang Indonesia: "goceng"=5000, "ceban"=10000, "goban"/"gocap" bisa 50000, "cepek"=100000, "gopek"=500, "seceng"=1000, "noban"=20000, "ban"=ribu, "jt"/"juta"=1000000, "rb"/"ribu"=1000. Contoh: "lima puluh ribu"=50000, "dua puluh lima ribu"=25000, "seratus dua puluh lima ribu"=125000, "dua juta setengah"=2500000.
-- "category_id": HARUS salah satu id dari daftar di atas, yang paling cocok dengan deskripsi. Jika ragu, pilih yang paling umum/masuk akal.
+- "items": daftar SETIAP item yang disebut beserta harganya, format {name, price}. price = harga item itu dalam RUPIAH (integer). Kalau cuma 1 item, isi 1 elemen. Pahami slang uang Indonesia: "goceng"=5000, "ceban"=10000, "goban"/"gocap" bisa 50000, "cepek"=100000, "gopek"=500, "seceng"=1000, "noban"=20000, "ban"=ribu, "jt"/"juta"=1000000, "rb"/"ribu"=1000. Contoh: "lima puluh ribu"=50000, "dua puluh lima ribu"=25000, "seratus dua puluh lima ribu"=125000.
+- "amount": TOTAL = penjumlahan SEMUA price di items. Contoh "jeruk 10rb, salak 17rb, apel 33rb" => 10000+17000+33000 = 60000.
+- "deskripsi": ringkas. Kalau banyak item, gabungkan nama item dipisah koma (contoh: "Jeruk, salak, apel"). Kalau 1 item, pakai nama item itu (rapikan kapitalisasi).
+- "category_id": HARUS salah satu id dari daftar di atas, satu kategori yang paling cocok untuk KESELURUHAN belanja. Jika ragu, pilih yang paling umum/masuk akal.
 - "transcript": tulis ulang apa yang kamu dengar apa adanya (untuk verifikasi user).
-- Jika audio tidak jelas atau tidak menyebut pengeluaran, set amount=0 dan deskripsi kosong.`;
+- Jika audio tidak jelas atau tidak menyebut pengeluaran, set amount=0, deskripsi kosong, items=[].`;
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -93,8 +96,19 @@ Aturan:
             amount: { type: SchemaType.NUMBER },
             category_id: { type: SchemaType.STRING },
             transcript: { type: SchemaType.STRING },
+            items: {
+              type: SchemaType.ARRAY,
+              items: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  name: { type: SchemaType.STRING },
+                  price: { type: SchemaType.NUMBER },
+                },
+                required: ["name", "price"],
+              },
+            },
           },
-          required: ["deskripsi", "amount", "category_id", "transcript"],
+          required: ["deskripsi", "amount", "category_id", "transcript", "items"],
         },
       },
     });
@@ -110,16 +124,29 @@ Aturan:
       amount?: number;
       category_id?: string;
       transcript?: string;
+      items?: { name?: string; price?: number }[];
     };
 
     // Validate category_id against the real list; fall back if hallucinated
     const validCat = catList.find((c) => c.id === parsed.category_id);
 
+    // Normalize items; recompute total from items so the math is always exact
+    const items = (parsed.items ?? [])
+      .map((it) => ({
+        name: (it.name ?? "").trim(),
+        price: Math.max(0, Math.round(Number(it.price) || 0)),
+      }))
+      .filter((it) => it.name || it.price > 0);
+
+    const itemsTotal = items.reduce((s, it) => s + it.price, 0);
+    const amount = itemsTotal > 0 ? itemsTotal : Math.max(0, Math.round(Number(parsed.amount) || 0));
+
     return NextResponse.json({
       description: (parsed.deskripsi ?? "").trim(),
-      amount: Math.max(0, Math.round(Number(parsed.amount) || 0)),
+      amount,
       category_id: validCat?.id ?? null,
       transcript: (parsed.transcript ?? "").trim(),
+      items,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Gagal memproses audio.";

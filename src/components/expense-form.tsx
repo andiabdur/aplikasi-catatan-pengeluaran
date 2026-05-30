@@ -33,7 +33,13 @@ export function ExpenseForm({
   const [transcript, setTranscript] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [lastSaved, setLastSaved] = useState<
-    { id?: string; description: string; amount: number; categoryName: string } | null
+    {
+      id?: string;
+      description: string;
+      amount: number;
+      categoryName: string;
+      items: { name: string; price: number }[];
+    } | null
   >(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -142,6 +148,7 @@ export function ExpenseForm({
           description: data.description,
           amount: data.amount,
           categoryName: cat?.name ?? "",
+          items: Array.isArray(data.items) ? data.items : [],
         });
         setVoiceState("idle");
         startTransition(() => router.refresh());
@@ -301,20 +308,30 @@ export function ExpenseForm({
           </p>
         )}
         {lastSaved && voiceState === "idle" && (
-          <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-            <Check className="w-4 h-4 text-green-600 shrink-0" />
-            <p className="text-xs text-slate-700 min-w-0 flex-1 truncate">
-              Tersimpan: <span className="font-semibold">{lastSaved.description}</span> ·{" "}
-              {formatIDR(lastSaved.amount)}
-              {lastSaved.categoryName && ` · ${lastSaved.categoryName}`}
-            </p>
-            <button
-              type="button"
-              onClick={undoLastSaved}
-              className="text-xs font-medium text-red-600 hover:text-red-700 shrink-0"
-            >
-              Batalkan
-            </button>
+          <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 space-y-1">
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-green-600 shrink-0" />
+              <p className="text-xs text-slate-700 min-w-0 flex-1 truncate">
+                Tersimpan: <span className="font-semibold">{lastSaved.description}</span> ·{" "}
+                <span className="font-semibold">{formatIDR(lastSaved.amount)}</span>
+                {lastSaved.categoryName && ` · ${lastSaved.categoryName}`}
+              </p>
+              <button
+                type="button"
+                onClick={undoLastSaved}
+                className="text-xs font-medium text-red-600 hover:text-red-700 shrink-0"
+              >
+                Batalkan
+              </button>
+            </div>
+            {lastSaved.items.length > 1 && (
+              <p className="text-[11px] text-slate-500 pl-6 leading-snug">
+                {lastSaved.items
+                  .map((it) => `${it.name} ${formatIDR(it.price).replace("Rp ", "")}`)
+                  .join(" + ")}{" "}
+                = {formatIDR(lastSaved.amount).replace("Rp ", "")}
+              </p>
+            )}
           </div>
         )}
         {voiceError && <p className="text-xs text-red-600 px-1">{voiceError}</p>}
