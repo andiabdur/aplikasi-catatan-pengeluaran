@@ -66,6 +66,9 @@ Jawab ringkas, langsung ke inti, pakai Bahasa Indonesia santai (panggil mereka "
 === DATA ${ctx.periodsAnalyzed.length} PERIODE GAJIAN TERAKHIR (budget vs realisasi per kategori) ===
 ${ctx.digest}
 
+=== DETAIL TRANSAKSI PER PERIODE (item, tanggal, nominal) ===
+${ctx.itemDigest}
+
 === GOAL/TARGET TABUNGAN ===
 ${ctx.goalDigest}
 

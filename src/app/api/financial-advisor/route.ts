@@ -38,13 +38,16 @@ export async function POST() {
   if (!ctx) {
     return NextResponse.json({ error: "Belum ada data kategori untuk dianalisa." }, { status: 400 });
   }
-  const { digest, goalDigest, catList } = ctx;
+  const { digest, itemDigest, goalDigest, catList } = ctx;
   const catLines = catList.map((c) => `- ${c.name} (id: ${c.id})`).join("\n");
 
   const prompt = `Kamu penasihat keuangan keluarga Indonesia yang membumi, jujur, dan praktis. Analisa data ${PERIODS_TO_ANALYZE} periode gajian terakhir keluarga ini, lalu beri diagnosa + rencana.
 
 DATA PER PERIODE (budget vs realisasi per kategori):
 ${digest}
+
+DETAIL TRANSAKSI PER PERIODE (item, tanggal, nominal):
+${itemDigest}
 
 GOAL/TARGET TABUNGAN:
 ${goalDigest}
