@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Send, Loader2, Sparkles, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MarkdownLite } from "@/components/markdown-lite";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -110,13 +111,13 @@ export function FinancialChat({ householdId }: { householdId: string }) {
           >
             <div
               className={cn(
-                "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap leading-relaxed",
+                "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
                 m.role === "user"
-                  ? "bg-brand-600 text-white rounded-br-md"
+                  ? "bg-brand-600 text-white rounded-br-md whitespace-pre-wrap"
                   : "bg-white border border-slate-200 text-slate-700 rounded-bl-md",
               )}
             >
-              {m.content}
+              {m.role === "user" ? m.content : <MarkdownLite text={m.content} />}
             </div>
           </div>
         ))}
