@@ -47,6 +47,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Belum ada kategori." }, { status: 400 });
   }
 
+  // Active goals — so a "Nabung" deposit can be tagged to a target by voice.
+  const { data: goalsData } = await supabase
+    .from("goals")
+    .select("id,name")
+    .eq("household_id", householdId)
+    .eq("status", "active")
+    .order("sort_order");
+  const goalList = goalsData ?? [];
+
   // Read the uploaded audio
   let audioBuffer: Buffer;
   let mimeType: string;
@@ -67,11 +76,19 @@ export async function POST(req: Request) {
   }
 
   const catLines = catList.map((c) => `- ${c.name} (id: ${c.id})`).join("\n");
+  const goalLines = goalList.length
+    ? goalList.map((g) => `- ${g.name} (id: ${g.id})`).join("\n")
+    : "(belum ada goal)";
 
   const prompt = `Kamu asisten pencatat keuangan keluarga Indonesia. Dengarkan rekaman suara ini dan ekstrak pengeluaran.
 
 Daftar kategori yang TERSEDIA (pilih id yang paling cocok):
 ${catLines}
+
+Daftar GOAL/target tabungan keluarga (untuk setoran ke kategori Nabung/Tabungan):
+${goalLines}
+
+Kalau group itu kategorinya Nabung/Tabungan DAN user menyebut nama target (misal "nabung buat umroh", "tabungan jepang"), isi "goal_id" dengan id goal yang paling cocok dari daftar di atas. Kalau tidak menyebut target atau bukan nabung, kosongkan goal_id.
 
 PENTING: Satu rekaman bisa berisi BEBERAPA item, dan item-item itu bisa dari KATEGORI BERBEDA. Kelompokkan item berdasarkan kategori yang paling cocok. SETIAP kategori menjadi SATU pengeluaran terpisah (satu "group"). Item dalam kategori yang sama digabung dan harganya dijumlahkan.
 
@@ -109,6 +126,7 @@ Output:
                 properties: {
                   deskripsi: { type: SchemaType.STRING },
                   category_id: { type: SchemaType.STRING },
+                  goal_id: { type: SchemaType.STRING },
                   items: {
                     type: SchemaType.ARRAY,
                     items: {
@@ -141,6 +159,7 @@ Output:
       groups?: {
         deskripsi?: string;
         category_id?: string;
+        goal_id?: string;
         items?: { name?: string; price?: number }[];
       }[];
     };
@@ -149,6 +168,7 @@ Output:
     const groups = (parsed.groups ?? [])
       .map((g) => {
         const validCat = catList.find((c) => c.id === g.category_id);
+        const validGoal = goalList.find((gl) => gl.id === g.goal_id);
         const items = (g.items ?? [])
           .map((it) => ({
             name: (it.name ?? "").trim(),
@@ -161,6 +181,8 @@ Output:
           amount,
           category_id: validCat?.id ?? null,
           category_name: validCat?.name ?? null,
+          goal_id: validGoal?.id ?? null,
+          goal_name: validGoal?.name ?? null,
           items,
         };
       })

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { ArrowUpRight, TrendingUp, TrendingDown, Wallet, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR } from "@/lib/format";
 import {
@@ -141,6 +141,23 @@ export function DashboardClient({
           </div>
         )}
       </section>
+
+      {/* AI assistant entry */}
+      <Link
+        href="/asisten"
+        className="flex items-center gap-3 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-4 shadow-sm active:scale-[0.99] transition"
+      >
+        <div className="w-11 h-11 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0">
+          <Sparkles className="w-5 h-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-slate-900">Asisten Keuangan AI</p>
+          <p className="text-xs text-slate-500 leading-snug">
+            Minta analisa pola belanja & usulan budget bulan depan.
+          </p>
+        </div>
+        <ArrowUpRight className="w-5 h-5 text-brand-600 shrink-0" />
+      </Link>
 
       {/* Categories */}
       <section className="space-y-2">

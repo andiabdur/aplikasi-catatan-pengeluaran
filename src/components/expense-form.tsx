@@ -4,22 +4,31 @@ import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR, formatIDRInput, parseIDRInput, todayISO } from "@/lib/format";
-import type { Category } from "@/lib/types";
-import { Check, Loader2, Calculator, Mic, Square, Sparkles } from "lucide-react";
+import type { Category, Goal } from "@/lib/types";
+import { Check, Loader2, Calculator, Mic, Square, Sparkles, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// A category counts as "savings" if its name mentions nabung/tabung.
+function isSavingsCategory(name: string | undefined): boolean {
+  if (!name) return false;
+  return /nabung|tabung/i.test(name);
+}
 
 export function ExpenseForm({
   categories,
   topCategories,
+  goals = [],
 }: {
   categories: Category[];
   topCategories: Category[];
+  goals?: Goal[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [spentAt, setSpentAt] = useState(todayISO());
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState<string>(topCategories[0]?.id ?? categories[0]?.id ?? "");
+  const [goalId, setGoalId] = useState<string>("");
   const [costText, setCostText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
@@ -37,6 +46,7 @@ export function ExpenseForm({
     description: string;
     amount: number;
     categoryName: string;
+    goalName?: string | null;
     items: { name: string; price: number }[];
   };
   const [savedExpenses, setSavedExpenses] = useState<SavedExpense[]>([]);
@@ -128,6 +138,8 @@ export function ExpenseForm({
         amount: number;
         category_id: string | null;
         category_name: string | null;
+        goal_id: string | null;
+        goal_name: string | null;
         items: { name: string; price: number }[];
       };
       const groups: Group[] = Array.isArray(data.groups) ? data.groups : [];
@@ -145,6 +157,7 @@ export function ExpenseForm({
             amount: g.amount,
             categoryId: g.category_id!,
             spentAt,
+            goalId: g.goal_id,
           });
           if (!err) {
             saved.push({
@@ -152,6 +165,7 @@ export function ExpenseForm({
               description: g.description,
               amount: g.amount,
               categoryName: g.category_name ?? "",
+              goalName: g.goal_name,
               items: g.items ?? [],
             });
           }
@@ -211,6 +225,7 @@ export function ExpenseForm({
     amount: number;
     categoryId: string;
     spentAt: string;
+    goalId?: string | null;
   }): Promise<{ error?: string; id?: string }> {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -229,6 +244,7 @@ export function ExpenseForm({
         spent_at: payload.spentAt,
         description: payload.description.trim(),
         amount: payload.amount,
+        goal_id: payload.goalId || null,
         created_by: user.id,
       })
       .select("id")
@@ -263,12 +279,18 @@ export function ExpenseForm({
     if (!categoryId) return setError("Pilih kategori");
     if (amount <= 0) return setError("Cost harus lebih dari 0");
 
-    const { error: err } = await saveExpense({ description, amount, categoryId, spentAt });
+    const selectedCat = categories.find((c) => c.id === categoryId);
+    const goalForSave = isSavingsCategory(selectedCat?.name) ? goalId : null;
+
+    const { error: err } = await saveExpense({
+      description, amount, categoryId, spentAt, goalId: goalForSave,
+    });
     if (err) return setError(err);
 
     setJustSaved(true);
     setDescription("");
     setCostText("");
+    setGoalId("");
     descRef.current?.focus();
     setTimeout(() => setJustSaved(false), 1500);
     startTransition(() => router.refresh());
@@ -358,6 +380,7 @@ export function ExpenseForm({
                     <span className="font-semibold">{s.description}</span> ·{" "}
                     <span className="font-semibold">{formatIDR(s.amount)}</span>
                     {s.categoryName && ` · ${s.categoryName}`}
+                    {s.goalName && ` 🎯 ${s.goalName}`}
                   </p>
                   <button
                     type="button"
@@ -522,6 +545,45 @@ export function ExpenseForm({
           </div>
         </div>
       </div>
+
+      {/* Goal picker — only when a savings (Nabung) category is selected */}
+      {isSavingsCategory(categories.find((c) => c.id === categoryId)?.name) && goals.length > 0 && (
+        <div className="card space-y-2 border-brand-200 bg-brand-50/50">
+          <label className="label flex items-center gap-1.5">
+            <Target className="w-3.5 h-3.5 text-brand-600" /> Nabung buat goal? (opsional)
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setGoalId("")}
+              className={cn(
+                "px-3 py-2 rounded-xl text-sm border transition",
+                goalId === ""
+                  ? "bg-slate-700 border-slate-700 text-white font-medium"
+                  : "bg-white border-slate-200 text-slate-600 hover:border-slate-300",
+              )}
+            >
+              Tanpa goal
+            </button>
+            {goals.map((g) => (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => setGoalId(g.id)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm border transition",
+                  goalId === g.id
+                    ? "bg-brand-50 border-brand-500 text-brand-700 font-medium"
+                    : "bg-white border-slate-200 text-slate-700 hover:border-slate-300",
+                )}
+              >
+                <span>{g.emoji}</span>
+                <span className="truncate max-w-[8rem]">{g.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {error && <p className="text-sm text-red-600 px-1">{error}</p>}
 

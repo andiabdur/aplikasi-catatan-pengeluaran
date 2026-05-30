@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
 import { PageShell } from "@/components/page-shell";
 import { ExpenseForm } from "@/components/expense-form";
-import type { Category } from "@/lib/types";
+import type { Category, Goal } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +15,15 @@ export default async function AddPage() {
     .eq("household_id", householdId ?? "")
     .eq("is_archived", false)
     .order("sort_order");
+
+  // Active goals — used to tag "Nabung" deposits to a target.
+  const { data: goalsData } = await supabase
+    .from("goals")
+    .select("*")
+    .eq("household_id", householdId ?? "")
+    .eq("status", "active")
+    .order("sort_order");
+  const goals = (goalsData ?? []) as Goal[];
 
   // Most-used categories last 30 days
   const since = new Date();
@@ -37,7 +46,7 @@ export default async function AddPage() {
 
   return (
     <PageShell title="Catat Pengeluaran" subtitle="Form simpel, langsung kelar">
-      <ExpenseForm categories={categories} topCategories={top} />
+      <ExpenseForm categories={categories} topCategories={top} goals={goals} />
     </PageShell>
   );
 }

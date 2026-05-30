@@ -31,9 +31,28 @@ export type Expense = {
   description: string;
   amount: number;
   note: string | null;
+  goal_id: string | null;
   created_by: string | null;
   created_at: string;
 };
+
+export type GoalStatus = "active" | "achieved" | "archived";
+
+export type Goal = {
+  id: string;
+  household_id: string;
+  name: string;
+  target_amount: number;
+  target_date: string | null;
+  emoji: string;
+  color: string;
+  status: GoalStatus;
+  sort_order: number;
+  created_at: string;
+};
+
+// Goal augmented with computed progress (sum of tagged Nabung deposits).
+export type GoalWithProgress = Goal & { saved: number };
 
 export type MonthlySummaryRow = {
   household_id: string;

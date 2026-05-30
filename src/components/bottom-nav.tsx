@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Plus, History, Settings } from "lucide-react";
+import { Home, Plus, Target, History, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/", label: "Beranda", icon: Home },
-  { href: "/add", label: "Catat", icon: Plus, primary: true },
   { href: "/history", label: "Riwayat", icon: History },
+  { href: "/add", label: "Catat", icon: Plus, primary: true },
+  { href: "/goals", label: "Goals", icon: Target },
   { href: "/settings", label: "Atur", icon: Settings },
 ];
 
@@ -16,7 +17,7 @@ export function BottomNav() {
   const pathname = usePathname();
   return (
     <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      <div className="mx-auto max-w-md grid grid-cols-4">
+      <div className="mx-auto max-w-md grid grid-cols-5">
         {items.map(({ href, label, icon: Icon, primary }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
