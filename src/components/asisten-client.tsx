@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR } from "@/lib/format";
 import {
   Sparkles, Loader2, TrendingUp, AlertTriangle, CheckCircle2,
-  ListChecks, Wallet, Target, Check,
+  ListChecks, Wallet, Target, Check, BarChart3, MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FinancialChat } from "@/components/financial-chat";
 
 type Insight = { title: string; detail: string; severity: string };
 type SuggestedBudget = { category_id: string; category_name: string; amount: number; reason: string };
@@ -26,11 +27,31 @@ type Analysis = {
 };
 
 export function AsistenClient({ householdId }: { householdId: string }) {
+  const storageKey = `fin_analysis_${householdId}`;
+  const [tab, setTab] = useState<"analisa" | "chat">("analisa");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<Analysis | null>(null);
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Restore last analysis so it survives navigation/reload.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) setData(JSON.parse(raw));
+    } catch { /* ignore */ }
+    setHydrated(true);
+  }, [storageKey]);
+
+  // Persist analysis (only overwritten when user re-analyzes).
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      if (data) localStorage.setItem(storageKey, JSON.stringify(data));
+    } catch { /* ignore */ }
+  }, [data, hydrated, storageKey]);
 
   async function analyze() {
     setLoading(true);
@@ -71,9 +92,44 @@ export function AsistenClient({ householdId }: { householdId: string }) {
     setApplied(true);
   }
 
+  const tabBar = (
+    <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-xl">
+      <button
+        type="button"
+        onClick={() => setTab("analisa")}
+        className={cn(
+          "flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition",
+          tab === "analisa" ? "bg-white text-brand-700 shadow-sm" : "text-slate-500",
+        )}
+      >
+        <BarChart3 className="w-4 h-4" /> Analisa
+      </button>
+      <button
+        type="button"
+        onClick={() => setTab("chat")}
+        className={cn(
+          "flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition",
+          tab === "chat" ? "bg-white text-brand-700 shadow-sm" : "text-slate-500",
+        )}
+      >
+        <MessageCircle className="w-4 h-4" /> Chat
+      </button>
+    </div>
+  );
+
+  if (tab === "chat") {
+    return (
+      <div className="space-y-4">
+        {tabBar}
+        <FinancialChat householdId={householdId} />
+      </div>
+    );
+  }
+
   if (!data) {
     return (
       <div className="space-y-4">
+        {tabBar}
         <div className="card text-center py-8 space-y-3">
           <div className="w-14 h-14 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center mx-auto">
             <Sparkles className="w-7 h-7" />
@@ -100,6 +156,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
 
   return (
     <div className="space-y-4">
+      {tabBar}
       {/* Summary + health */}
       <div className="card space-y-3">
         <div className="flex items-center justify-between">

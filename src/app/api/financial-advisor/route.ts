@@ -2,13 +2,7 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
-import {
-  currentPeriodLabelWithCustom,
-  labelMonthKey,
-  shiftPeriod,
-  periodTitle,
-} from "@/lib/period";
-import type { MonthlySummaryRow } from "@/lib/types";
+import { buildFinancialContext } from "@/lib/financial-context";
 
 // AI financial planner. Reads a few recent salary periods (budget vs realisasi
 // per category) + income + goals progress, then asks Gemini to diagnose spending
@@ -40,81 +34,11 @@ export async function POST() {
     return NextResponse.json({ error: "Household tidak ditemukan." }, { status: 400 });
   }
 
-  // Pay day + custom periods to compute period labels
-  const [hhRes, cpRes, goalsRes, depositsRes] = await Promise.all([
-    supabase.from("households").select("pay_day_of_month").eq("id", householdId).maybeSingle(),
-    supabase.from("custom_periods").select("label_month, start_date, end_date").eq("household_id", householdId),
-    supabase.from("goals").select("id,name,target_amount,target_date,status").eq("household_id", householdId).eq("status", "active"),
-    supabase.from("expenses").select("goal_id, amount").eq("household_id", householdId).not("goal_id", "is", null),
-  ]);
-
-  const payDay = hhRes.data?.pay_day_of_month ?? 25;
-  const customPeriods = cpRes.data ?? [];
-  const goals = goalsRes.data ?? [];
-
-  // Goals progress = sum of tagged deposits
-  const savedByGoal = new Map<string, number>();
-  (depositsRes.data ?? []).forEach((d) => {
-    if (!d.goal_id) return;
-    savedByGoal.set(d.goal_id, (savedByGoal.get(d.goal_id) ?? 0) + Number(d.amount));
-  });
-
-  // Current label + the previous N (oldest → newest)
-  const currentLabel = currentPeriodLabelWithCustom(payDay, customPeriods);
-  const labels: Date[] = [];
-  for (let i = PERIODS_TO_ANALYZE - 1; i >= 0; i--) {
-    labels.push(shiftPeriod(currentLabel, -i));
-  }
-  const nextLabel = shiftPeriod(currentLabel, 1);
-
-  // Pull per-period category summaries + incomes
-  const perPeriod = await Promise.all(
-    labels.map(async (lbl) => {
-      const key = labelMonthKey(lbl);
-      const [sumRes, incRes] = await Promise.all([
-        supabase.rpc("f_period_summary", { p_household_id: householdId, p_label_month: key }),
-        supabase.from("incomes").select("source, amount").eq("household_id", householdId).eq("month", key),
-      ]);
-      const rows = (sumRes.data ?? []) as MonthlySummaryRow[];
-      const income = (incRes.data ?? []).reduce((s, r) => s + Number(r.amount), 0);
-      return { key, title: periodTitle(lbl), rows, income };
-    }),
-  );
-
-  // Category id↔name map (from the most recent period rows)
-  const latest = perPeriod[perPeriod.length - 1];
-  const catList = (latest?.rows ?? []).map((r) => ({ id: r.category_id, name: r.category_name }));
-  if (catList.length === 0) {
+  const ctx = await buildFinancialContext(supabase, householdId, PERIODS_TO_ANALYZE);
+  if (!ctx) {
     return NextResponse.json({ error: "Belum ada data kategori untuk dianalisa." }, { status: 400 });
   }
-
-  // Build a compact, human-readable data digest for the model
-  const digest = perPeriod
-    .map((p) => {
-      const lines = p.rows
-        .map(
-          (r) =>
-            `   - ${r.category_name}: budget ${Math.round(Number(r.budget))}, terpakai ${Math.round(
-              Number(r.spent),
-            )} (${Math.round(Number(r.usage_pct))}%)`,
-        )
-        .join("\n");
-      return `${p.title} — pemasukan ${Math.round(p.income)}:\n${lines}`;
-    })
-    .join("\n\n");
-
-  const goalDigest = goals.length
-    ? goals
-        .map((g) => {
-          const saved = savedByGoal.get(g.id) ?? 0;
-          const pct = g.target_amount > 0 ? Math.round((saved / Number(g.target_amount)) * 100) : 0;
-          return `- ${g.name}: terkumpul ${Math.round(saved)} dari target ${Math.round(
-            Number(g.target_amount),
-          )} (${pct}%)${g.target_date ? `, target tanggal ${g.target_date}` : ""}`;
-        })
-        .join("\n")
-    : "(belum ada goal)";
-
+  const { digest, goalDigest, catList } = ctx;
   const catLines = catList.map((c) => `- ${c.name} (id: ${c.id})`).join("\n");
 
   const prompt = `Kamu penasihat keuangan keluarga Indonesia yang membumi, jujur, dan praktis. Analisa data ${PERIODS_TO_ANALYZE} periode gajian terakhir keluarga ini, lalu beri diagnosa + rencana.
@@ -230,9 +154,9 @@ Jujur kalau memang boros, tapi tetap suportif dan beri jalan keluar.`;
         goal_name: (g.goal_name ?? "").trim(),
         advice: (g.advice ?? "").trim(),
       })),
-      next_label_month: labelMonthKey(nextLabel),
-      next_period_title: periodTitle(nextLabel),
-      periods_analyzed: perPeriod.map((p) => p.title),
+      next_label_month: ctx.nextLabelMonth,
+      next_period_title: ctx.nextPeriodTitle,
+      periods_analyzed: ctx.periodsAnalyzed,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Gagal menganalisa keuangan.";
