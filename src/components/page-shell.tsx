@@ -1,6 +1,8 @@
 import { BottomNav } from "./bottom-nav";
+import { FloatingChat } from "./floating-chat";
+import { getCurrentHouseholdId } from "@/lib/supabase/household";
 
-export function PageShell({
+export async function PageShell({
   title,
   subtitle,
   right,
@@ -11,6 +13,8 @@ export function PageShell({
   right?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  const householdId = await getCurrentHouseholdId();
+
   return (
     <div className="min-h-dvh pb-28">
       <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200">
@@ -24,6 +28,7 @@ export function PageShell({
       </header>
       <main className="mx-auto max-w-md px-4 py-4 space-y-4">{children}</main>
       <BottomNav />
+      {householdId && <FloatingChat householdId={householdId} />}
     </div>
   );
 }
