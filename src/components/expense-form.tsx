@@ -32,15 +32,14 @@ export function ExpenseForm({
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
-  const [lastSaved, setLastSaved] = useState<
-    {
-      id?: string;
-      description: string;
-      amount: number;
-      categoryName: string;
-      items: { name: string; price: number }[];
-    } | null
-  >(null);
+  type SavedExpense = {
+    id?: string;
+    description: string;
+    amount: number;
+    categoryName: string;
+    items: { name: string; price: number }[];
+  };
+  const [savedExpenses, setSavedExpenses] = useState<SavedExpense[]>([]);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -72,7 +71,7 @@ export function ExpenseForm({
   async function startRecording() {
     setVoiceError(null);
     setTranscript(null);
-    setLastSaved(null);
+    setSavedExpenses([]);
     if (!navigator.mediaDevices?.getUserMedia) {
       setVoiceError("Browser tidak mendukung rekaman suara.");
       return;
@@ -124,45 +123,61 @@ export function ExpenseForm({
 
       setTranscript(data.transcript || null);
 
-      const complete = data.description && data.amount > 0 && data.category_id;
-      if (complete) {
-        // Auto-post langsung tanpa perlu isi form
-        const cat = categories.find((c) => c.id === data.category_id);
-        const { error: err, id } = await saveExpense({
-          description: data.description,
-          amount: data.amount,
-          categoryId: data.category_id,
-          spentAt,
-        });
-        if (err) {
-          // Gagal simpan otomatis -> jatuh ke form manual biar bisa diperbaiki
-          setDescription(data.description);
-          setCostText(formatIDRInput(String(data.amount)));
-          setCategoryId(data.category_id);
-          setVoiceError("Gagal simpan otomatis: " + err + ". Cek & simpan manual.");
-          setVoiceState("idle");
-          return;
+      type Group = {
+        description: string;
+        amount: number;
+        category_id: string | null;
+        category_name: string | null;
+        items: { name: string; price: number }[];
+      };
+      const groups: Group[] = Array.isArray(data.groups) ? data.groups : [];
+
+      // Groups siap di-post: punya kategori valid + nominal > 0
+      const postable = groups.filter((g) => g.category_id && g.amount > 0);
+      // Groups yang kategorinya gak kebaca (perlu dilengkapi manual)
+      const incomplete = groups.filter((g) => !g.category_id && (g.description || g.amount > 0));
+
+      if (postable.length > 0) {
+        const saved: SavedExpense[] = [];
+        for (const g of postable) {
+          const { error: err, id } = await saveExpense({
+            description: g.description,
+            amount: g.amount,
+            categoryId: g.category_id!,
+            spentAt,
+          });
+          if (!err) {
+            saved.push({
+              id,
+              description: g.description,
+              amount: g.amount,
+              categoryName: g.category_name ?? "",
+              items: g.items ?? [],
+            });
+          }
         }
-        setLastSaved({
-          id,
-          description: data.description,
-          amount: data.amount,
-          categoryName: cat?.name ?? "",
-          items: Array.isArray(data.items) ? data.items : [],
-        });
+        setSavedExpenses(saved);
         setVoiceState("idle");
         startTransition(() => router.refresh());
+        if (saved.length < postable.length) {
+          setVoiceError("Sebagian gagal tersimpan, coba ulangi yang kurang.");
+        } else if (incomplete.length > 0) {
+          // Satu group kategorinya gak kebaca -> bantu isi ke form
+          const g = incomplete[0];
+          if (g.description) setDescription(g.description);
+          if (g.amount > 0) setCostText(formatIDRInput(String(g.amount)));
+          setVoiceError(`"${incomplete[0].description}" belum dapat kategori — lengkapi & simpan manual.`);
+        }
         return;
       }
 
-      // Hasil kurang lengkap -> isi form untuk dilengkapi manual
-      if (data.description) setDescription(data.description);
-      if (data.amount > 0) setCostText(formatIDRInput(String(data.amount)));
-      if (data.category_id) setCategoryId(data.category_id);
+      // Tidak ada yang bisa di-post otomatis -> isi form dari group pertama
+      const g0 = groups[0];
+      if (g0?.description) setDescription(g0.description);
+      if (g0 && g0.amount > 0) setCostText(formatIDRInput(String(g0.amount)));
+      if (g0?.category_id) setCategoryId(g0.category_id);
       setVoiceError(
-        data.description || data.amount > 0
-          ? "Nominal/kategori belum kebaca jelas. Lengkapi & simpan manual."
-          : "Suara kurang jelas, coba ulangi.",
+        g0 ? "Nominal/kategori belum kebaca jelas. Lengkapi & simpan manual." : "Suara kurang jelas, coba ulangi.",
       );
       setVoiceState("idle");
     } catch {
@@ -222,11 +237,20 @@ export function ExpenseForm({
     return { id: data?.id };
   }
 
-  async function undoLastSaved() {
-    if (!lastSaved?.id) return;
+  async function undoSaved(id?: string) {
+    if (!id) return;
     const supabase = createClient();
-    await supabase.from("expenses").delete().eq("id", lastSaved.id);
-    setLastSaved(null);
+    await supabase.from("expenses").delete().eq("id", id);
+    setSavedExpenses((prev) => prev.filter((e) => e.id !== id));
+    startTransition(() => router.refresh());
+  }
+
+  async function undoAll() {
+    const ids = savedExpenses.map((e) => e.id).filter(Boolean) as string[];
+    if (ids.length === 0) return;
+    const supabase = createClient();
+    await supabase.from("expenses").delete().in("id", ids);
+    setSavedExpenses([]);
     startTransition(() => router.refresh());
   }
 
@@ -296,42 +320,63 @@ export function ExpenseForm({
                   <Sparkles className="w-3.5 h-3.5" /> Catat pakai suara
                 </p>
                 <p className="text-xs text-slate-500">
-                  Contoh: &quot;Bensin lima puluh ribu&quot; — langsung tersimpan otomatis.
+                  Sebut beberapa item sekaligus — beda kategori otomatis jadi post terpisah.
                 </p>
               </>
             )}
           </div>
         </div>
-        {transcript && voiceState === "idle" && !lastSaved && (
+        {transcript && voiceState === "idle" && savedExpenses.length === 0 && (
           <p className="text-xs text-slate-500 bg-white/70 rounded-lg px-3 py-1.5">
             Terdengar: <span className="text-slate-700">&quot;{transcript}&quot;</span>
           </p>
         )}
-        {lastSaved && voiceState === "idle" && (
-          <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 space-y-1">
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-green-600 shrink-0" />
-              <p className="text-xs text-slate-700 min-w-0 flex-1 truncate">
-                Tersimpan: <span className="font-semibold">{lastSaved.description}</span> ·{" "}
-                <span className="font-semibold">{formatIDR(lastSaved.amount)}</span>
-                {lastSaved.categoryName && ` · ${lastSaved.categoryName}`}
-              </p>
-              <button
-                type="button"
-                onClick={undoLastSaved}
-                className="text-xs font-medium text-red-600 hover:text-red-700 shrink-0"
-              >
-                Batalkan
-              </button>
-            </div>
-            {lastSaved.items.length > 1 && (
-              <p className="text-[11px] text-slate-500 pl-6 leading-snug">
-                {lastSaved.items
-                  .map((it) => `${it.name} ${formatIDR(it.price).replace("Rp ", "")}`)
-                  .join(" + ")}{" "}
-                = {formatIDR(lastSaved.amount).replace("Rp ", "")}
-              </p>
+        {savedExpenses.length > 0 && voiceState === "idle" && (
+          <div className="space-y-1.5">
+            {savedExpenses.length > 1 && (
+              <div className="flex items-center justify-between px-1">
+                <p className="text-xs font-semibold text-green-700 flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5" /> {savedExpenses.length} pengeluaran tersimpan
+                </p>
+                <button
+                  type="button"
+                  onClick={undoAll}
+                  className="text-xs font-medium text-red-600 hover:text-red-700"
+                >
+                  Batalkan semua
+                </button>
+              </div>
             )}
+            {savedExpenses.map((s, i) => (
+              <div
+                key={s.id ?? i}
+                className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 space-y-1"
+              >
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-600 shrink-0" />
+                  <p className="text-xs text-slate-700 min-w-0 flex-1 truncate">
+                    <span className="font-semibold">{s.description}</span> ·{" "}
+                    <span className="font-semibold">{formatIDR(s.amount)}</span>
+                    {s.categoryName && ` · ${s.categoryName}`}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => undoSaved(s.id)}
+                    className="text-xs font-medium text-red-600 hover:text-red-700 shrink-0"
+                  >
+                    Batalkan
+                  </button>
+                </div>
+                {s.items.length > 1 && (
+                  <p className="text-[11px] text-slate-500 pl-6 leading-snug">
+                    {s.items
+                      .map((it) => `${it.name} ${formatIDR(it.price).replace("Rp ", "")}`)
+                      .join(" + ")}{" "}
+                    = {formatIDR(s.amount).replace("Rp ", "")}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         )}
         {voiceError && <p className="text-xs text-red-600 px-1">{voiceError}</p>}
