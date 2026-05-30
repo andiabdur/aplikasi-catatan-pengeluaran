@@ -3,7 +3,7 @@
 import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { formatIDRInput, parseIDRInput, todayISO } from "@/lib/format";
+import { formatIDR, formatIDRInput, parseIDRInput, todayISO } from "@/lib/format";
 import type { Category } from "@/lib/types";
 import { Check, Loader2, Calculator, Mic, Square, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,9 @@ export function ExpenseForm({
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [lastSaved, setLastSaved] = useState<
+    { id?: string; description: string; amount: number; categoryName: string } | null
+  >(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -63,6 +66,7 @@ export function ExpenseForm({
   async function startRecording() {
     setVoiceError(null);
     setTranscript(null);
+    setLastSaved(null);
     if (!navigator.mediaDevices?.getUserMedia) {
       setVoiceError("Browser tidak mendukung rekaman suara.");
       return;
@@ -111,13 +115,48 @@ export function ExpenseForm({
         setVoiceState("idle");
         return;
       }
+
+      setTranscript(data.transcript || null);
+
+      const complete = data.description && data.amount > 0 && data.category_id;
+      if (complete) {
+        // Auto-post langsung tanpa perlu isi form
+        const cat = categories.find((c) => c.id === data.category_id);
+        const { error: err, id } = await saveExpense({
+          description: data.description,
+          amount: data.amount,
+          categoryId: data.category_id,
+          spentAt,
+        });
+        if (err) {
+          // Gagal simpan otomatis -> jatuh ke form manual biar bisa diperbaiki
+          setDescription(data.description);
+          setCostText(formatIDRInput(String(data.amount)));
+          setCategoryId(data.category_id);
+          setVoiceError("Gagal simpan otomatis: " + err + ". Cek & simpan manual.");
+          setVoiceState("idle");
+          return;
+        }
+        setLastSaved({
+          id,
+          description: data.description,
+          amount: data.amount,
+          categoryName: cat?.name ?? "",
+        });
+        setVoiceState("idle");
+        startTransition(() => router.refresh());
+        return;
+      }
+
+      // Hasil kurang lengkap -> isi form untuk dilengkapi manual
       if (data.description) setDescription(data.description);
       if (data.amount > 0) setCostText(formatIDRInput(String(data.amount)));
       if (data.category_id) setCategoryId(data.category_id);
-      setTranscript(data.transcript || null);
-      if (!data.description && data.amount === 0) {
-        setVoiceError("Suara kurang jelas, coba ulangi.");
-      }
+      setVoiceError(
+        data.description || data.amount > 0
+          ? "Nominal/kategori belum kebaca jelas. Lengkapi & simpan manual."
+          : "Suara kurang jelas, coba ulangi.",
+      );
       setVoiceState("idle");
     } catch {
       setVoiceError("Gagal mengirim suara. Cek koneksi.");
@@ -145,6 +184,45 @@ export function ExpenseForm({
     setCalcExpr((e) => e + key);
   }
 
+  async function saveExpense(payload: {
+    description: string;
+    amount: number;
+    categoryId: string;
+    spentAt: string;
+  }): Promise<{ error?: string; id?: string }> {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Belum login." };
+    const { data: member } = await supabase
+      .from("household_members")
+      .select("household_id")
+      .eq("user_id", user.id)
+      .single();
+    if (!member) return { error: "Household tidak ditemukan." };
+    const { data, error } = await supabase
+      .from("expenses")
+      .insert({
+        household_id: member.household_id,
+        category_id: payload.categoryId,
+        spent_at: payload.spentAt,
+        description: payload.description.trim(),
+        amount: payload.amount,
+        created_by: user.id,
+      })
+      .select("id")
+      .single();
+    if (error) return { error: error.message };
+    return { id: data?.id };
+  }
+
+  async function undoLastSaved() {
+    if (!lastSaved?.id) return;
+    const supabase = createClient();
+    await supabase.from("expenses").delete().eq("id", lastSaved.id);
+    setLastSaved(null);
+    startTransition(() => router.refresh());
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -154,24 +232,8 @@ export function ExpenseForm({
     if (!categoryId) return setError("Pilih kategori");
     if (amount <= 0) return setError("Cost harus lebih dari 0");
 
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const { data: member } = await supabase
-      .from("household_members")
-      .select("household_id")
-      .eq("user_id", user!.id)
-      .single();
-
-    const { error: insertError } = await supabase.from("expenses").insert({
-      household_id: member!.household_id,
-      category_id: categoryId,
-      spent_at: spentAt,
-      description: description.trim(),
-      amount,
-      created_by: user!.id,
-    });
-
-    if (insertError) return setError(insertError.message);
+    const { error: err } = await saveExpense({ description, amount, categoryId, spentAt });
+    if (err) return setError(err);
 
     setJustSaved(true);
     setDescription("");
@@ -227,16 +289,33 @@ export function ExpenseForm({
                   <Sparkles className="w-3.5 h-3.5" /> Catat pakai suara
                 </p>
                 <p className="text-xs text-slate-500">
-                  Contoh: &quot;Bensin lima puluh ribu&quot; — nominal & kategori keisi otomatis.
+                  Contoh: &quot;Bensin lima puluh ribu&quot; — langsung tersimpan otomatis.
                 </p>
               </>
             )}
           </div>
         </div>
-        {transcript && voiceState === "idle" && (
+        {transcript && voiceState === "idle" && !lastSaved && (
           <p className="text-xs text-slate-500 bg-white/70 rounded-lg px-3 py-1.5">
             Terdengar: <span className="text-slate-700">&quot;{transcript}&quot;</span>
           </p>
+        )}
+        {lastSaved && voiceState === "idle" && (
+          <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+            <Check className="w-4 h-4 text-green-600 shrink-0" />
+            <p className="text-xs text-slate-700 min-w-0 flex-1 truncate">
+              Tersimpan: <span className="font-semibold">{lastSaved.description}</span> ·{" "}
+              {formatIDR(lastSaved.amount)}
+              {lastSaved.categoryName && ` · ${lastSaved.categoryName}`}
+            </p>
+            <button
+              type="button"
+              onClick={undoLastSaved}
+              className="text-xs font-medium text-red-600 hover:text-red-700 shrink-0"
+            >
+              Batalkan
+            </button>
+          </div>
         )}
         {voiceError && <p className="text-xs text-red-600 px-1">{voiceError}</p>}
       </div>
