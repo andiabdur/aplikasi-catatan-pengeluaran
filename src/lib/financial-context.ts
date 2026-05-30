@@ -62,15 +62,15 @@ export async function buildFinancialContext(
         supabase.from("incomes").select("source, amount").eq("household_id", householdId).eq("month", key),
         supabase
           .from("expenses")
-          .select("date, description, amount, category_id")
+          .select("spent_at, description, amount, category_id")
           .eq("household_id", householdId)
-          .gte("date", range.from)
-          .lte("date", range.to)
-          .order("date", { ascending: true }),
+          .gte("spent_at", range.from)
+          .lte("spent_at", range.to)
+          .order("spent_at", { ascending: true }),
       ]);
       const rows = (sumRes.data ?? []) as MonthlySummaryRow[];
       const income = (incRes.data ?? []).reduce((s, r) => s + Number(r.amount), 0);
-      const items = (expRes.data ?? []) as { date: string; description: string; amount: number; category_id: string }[];
+      const items = (expRes.data ?? []) as { spent_at: string; description: string; amount: number; category_id: string }[];
       return { key, title: periodTitle(lbl), rows, income, items };
     }),
   );
@@ -101,7 +101,7 @@ export async function buildFinancialContext(
         const catName = catNameMap.get(item.category_id) ?? "Lainnya";
         if (!byCat.has(item.category_id)) byCat.set(item.category_id, { name: catName, lines: [] });
         byCat.get(item.category_id)!.lines.push(
-          `     • ${item.date} — ${item.description || "(no desc)"}: ${Math.round(Number(item.amount)).toLocaleString("id-ID")}`,
+          `     • ${item.spent_at} — ${item.description || "(no desc)"}: ${Math.round(Number(item.amount)).toLocaleString("id-ID")}`,
         );
       });
       if (byCat.size === 0) return `${p.title}:\n   (tidak ada transaksi)`;
