@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Wallet, Loader2 } from "lucide-react";
-import InstallPWA from "@/components/install-pwa";
 
 type Mode = "signin" | "signup";
 
@@ -43,7 +42,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-2xl bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-600/30 mb-4">
             <Wallet className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Catatan Keluarga</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Catatan Keuangan Keluarga</h1>
           <p className="text-sm text-slate-600 mt-1">
             {mode === "signin" ? "Masuk ke akun Anda" : "Buat akun baru"}
           </p>
@@ -117,8 +116,11 @@ export default function LoginPage() {
           Daftar sekali pake email + password. Tanpa email konfirmasi.
         </p>
 
-        <div className="mt-5">
-          <InstallPWA />
+        <div className="mt-8 text-center">
+          <p className="text-xs text-slate-500">by andiabdur</p>
+          <p className="text-xs text-slate-400 mt-0.5 flex items-center justify-center gap-1">
+            made with <span className="text-red-500">❤</span> for Umma :D
+          </p>
         </div>
       </div>
     </div>
