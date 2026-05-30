@@ -10,7 +10,7 @@ import { getCurrentHouseholdId } from "@/lib/supabase/household";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
 
 export async function POST(req: Request) {
   const apiKey = process.env.GEMINI_API_KEY;
