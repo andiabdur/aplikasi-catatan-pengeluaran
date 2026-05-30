@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Wallet, Loader2 } from "lucide-react";
+import InstallPWA from "@/components/install-pwa";
 
 type Mode = "signin" | "signup";
 
@@ -115,6 +116,10 @@ export default function LoginPage() {
         <p className="text-xs text-slate-500 text-center mt-4">
           Daftar sekali pake email + password. Tanpa email konfirmasi.
         </p>
+
+        <div className="mt-5">
+          <InstallPWA />
+        </div>
       </div>
     </div>
   );
