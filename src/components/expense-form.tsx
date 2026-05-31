@@ -35,6 +35,29 @@ export function ExpenseForm({
   const [calcOpen, setCalcOpen] = useState(false);
   const [calcExpr, setCalcExpr] = useState("");
   const descRef = useRef<HTMLInputElement>(null);
+  // Voice feedback (TTS) - browser native, Bahasa Indonesia, no API key needed
+  const speakFeedback = useRef((text: string) => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "id-ID";
+    utterance.rate = 0.88;
+    utterance.pitch = 1.05;
+    const voices = window.speechSynthesis.getVoices();
+    const idVoice = voices.find((v) => v.lang.startsWith("id"));
+    if (idVoice) utterance.voice = idVoice;
+    window.speechSynthesis.speak(utterance);
+  }).current;
+
+  // Cancel TTS on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
 
   // Voice note state
   const [voiceState, setVoiceState] = useState<"idle" | "recording" | "processing">("idle");
@@ -79,6 +102,7 @@ export function ExpenseForm({
   }
 
   async function startRecording() {
+    if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
     setVoiceError(null);
     setTranscript(null);
     setSavedExpenses([]);
@@ -173,6 +197,20 @@ export function ExpenseForm({
         setSavedExpenses(saved);
         setVoiceState("idle");
         startTransition(() => router.refresh());
+
+        // Voice feedback: speak what was saved
+        if (saved.length > 0) {
+          const total = saved.reduce((s, e) => s + e.amount, 0);
+          if (saved.length === 1) {
+            const s = saved[0];
+            const cost = formatIDR(s.amount).replace("Rp ", "");
+            const goal = s.goalName ? ", goal " + s.goalName : "";
+            speakFeedback("Oke udah dicatat, " + s.description + " seharga " + cost + " di kategori " + s.categoryName + goal);
+          } else {
+            speakFeedback("Oke udah dicatat " + saved.length + " pengeluaran, total " + formatIDR(total).replace("Rp ", ""));
+          }
+        }
+
         if (saved.length < postable.length) {
           setVoiceError("Sebagian gagal tersimpan, coba ulangi yang kurang.");
         } else if (incomplete.length > 0) {
