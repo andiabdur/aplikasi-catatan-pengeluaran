@@ -1,5 +1,6 @@
 import { BottomNav } from "./bottom-nav";
 import { FloatingChat } from "./floating-chat";
+import { FloatingVoice } from "./floating-voice";
 import { ThemeToggle } from "./theme-toggle";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
 
@@ -33,6 +34,7 @@ export async function PageShell({
       <main className="mx-auto max-w-md px-4 py-4 space-y-4">{children}</main>
       <BottomNav />
       {householdId && <FloatingChat householdId={householdId} />}
+      <FloatingVoice />
     </div>
   );
 }
