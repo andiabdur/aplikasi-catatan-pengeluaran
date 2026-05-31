@@ -85,13 +85,14 @@ export async function POST(req: Request) {
   // STEP 2: Transcribe with Groq Whisper
   let transcript: string;
   try {
-    // Priming prompt: bias Whisper toward Indonesian money slang + the family's
-    // real category names so it transcribes spoken expenses more accurately.
-    const catNames = catList.map((c) => c.name).join(", ");
+    // Priming prompt: Whisper's `prompt` works best as a NATURAL example
+    // sentence in the expected speaking style (NOT a comma-separated word list,
+    // which makes it output fragmented garbage). A full-sentence example biases
+    // it toward Indonesian conversational expense phrasing + rupiah amounts.
     const whisperPrompt =
-      `Catatan pengeluaran keluarga dalam Bahasa Indonesia. ` +
-      `Kategori: ${catNames}. ` +
-      `Istilah uang: ribu, rb, juta, jt, goceng, seceng, ceban, noban, gocap, goban, cepek, gopek, nominal rupiah.`;
+      "Ini catatan pengeluaran belanja keluarga dalam Bahasa Indonesia sehari-hari. " +
+      "Contoh: beli ayam goreng lima belas ribu, beli siomay sepuluh ribu, " +
+      "bayar parkir dua ribu, isi bensin lima puluh ribu, nabung buat umroh lima ratus ribu.";
 
     const whisperForm = new FormData();
     const ext = mimeType.includes("mp4") ? "m4a" : mimeType.includes("ogg") ? "ogg" : "webm";

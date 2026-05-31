@@ -140,9 +140,19 @@ export function ExpenseForm({
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
       const mime = pickAudioMime();
-      const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      const rec = new MediaRecorder(
+        stream,
+        mime ? { mimeType: mime, audioBitsPerSecond: 128000 } : undefined,
+      );
       chunksRef.current = [];
       rec.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
