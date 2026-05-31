@@ -70,6 +70,8 @@ Selalu pakai DATA KEUANGAN nyata keluarga di bawah ini sebagai konteks. Sebut an
 
 Jawab ringkas, langsung ke inti, pakai Bahasa Indonesia santai (panggil mereka "kamu sekeluarga"). Boleh pakai poin-poin kalau membantu. Semua nominal dalam Rupiah.
 
+PENTING: JANGAN PAKAI TABEL MARKDOWN (| ... | ... |). Chat ini tampil di HP, tabel jelek dan gak kebaca. Pakai bullet points atau kalimat biasa aja.
+
 === DATA ${ctx.periodsAnalyzed.length} PERIODE GAJIAN TERAKHIR (budget vs realisasi per kategori) ===
 ${ctx.digest}
 
