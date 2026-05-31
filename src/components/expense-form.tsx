@@ -35,18 +35,45 @@ export function ExpenseForm({
   const [calcOpen, setCalcOpen] = useState(false);
   const [calcExpr, setCalcExpr] = useState("");
   const descRef = useRef<HTMLInputElement>(null);
-  // Voice feedback (TTS) - browser native, Bahasa Indonesia, no API key needed
+  // Voice feedback (TTS) - browser native, Bahasa Indonesia, no API key needed.
+  // NOTE: browsers (esp. iOS/Chrome mobile) only allow speech that originates
+  // from a user gesture. Because we speak AFTER an async fetch, the gesture
+  // context is gone — so we "unlock" the engine on the record tap (see
+  // unlockSpeech) and only then can the later speak() actually produce sound.
+  const unlockSpeech = useRef(() => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    // Speaking a near-silent utterance inside the gesture grants permission.
+    try {
+      const primer = new SpeechSynthesisUtterance(" ");
+      primer.volume = 0;
+      window.speechSynthesis.speak(primer);
+    } catch { /* ignore */ }
+  }).current;
+
   const speakFeedback = useRef((text: string) => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "id-ID";
-    utterance.rate = 0.88;
-    utterance.pitch = 1.05;
-    const voices = window.speechSynthesis.getVoices();
-    const idVoice = voices.find((v) => v.lang.startsWith("id"));
-    if (idVoice) utterance.voice = idVoice;
-    window.speechSynthesis.speak(utterance);
+    const synth = window.speechSynthesis;
+    let done = false;
+    const run = () => {
+      if (done) return;
+      done = true;
+      synth.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "id-ID";
+      utterance.rate = 0.88;
+      utterance.pitch = 1.05;
+      const idVoice = synth.getVoices().find((v) => v.lang.toLowerCase().startsWith("id"));
+      if (idVoice) utterance.voice = idVoice;
+      synth.speak(utterance);
+    };
+    // Voices can load async; if not ready yet, wait once for them.
+    if (synth.getVoices().length === 0) {
+      synth.addEventListener("voiceschanged", run, { once: true });
+      // Fallback in case the event never fires (some browsers).
+      setTimeout(run, 300);
+    } else {
+      run();
+    }
   }).current;
 
   // Cancel TTS on unmount
@@ -103,6 +130,8 @@ export function ExpenseForm({
 
   async function startRecording() {
     if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
+    // Unlock TTS within this user gesture so the post-fetch feedback can speak.
+    unlockSpeech();
     setVoiceError(null);
     setTranscript(null);
     setSavedExpenses([]);
