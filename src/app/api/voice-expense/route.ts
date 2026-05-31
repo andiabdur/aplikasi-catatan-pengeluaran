@@ -9,7 +9,7 @@ import { getCurrentHouseholdId } from "@/lib/supabase/household";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const GROQ_WHISPER_MODEL = "whisper-large-v3-turbo";
+const GROQ_WHISPER_MODEL = "whisper-large-v3";
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
 
 export async function POST(req: Request) {
@@ -85,11 +85,21 @@ export async function POST(req: Request) {
   // STEP 2: Transcribe with Groq Whisper
   let transcript: string;
   try {
+    // Priming prompt: bias Whisper toward Indonesian money slang + the family's
+    // real category names so it transcribes spoken expenses more accurately.
+    const catNames = catList.map((c) => c.name).join(", ");
+    const whisperPrompt =
+      `Catatan pengeluaran keluarga dalam Bahasa Indonesia. ` +
+      `Kategori: ${catNames}. ` +
+      `Istilah uang: ribu, rb, juta, jt, goceng, seceng, ceban, noban, gocap, goban, cepek, gopek, nominal rupiah.`;
+
     const whisperForm = new FormData();
     const ext = mimeType.includes("mp4") ? "m4a" : mimeType.includes("ogg") ? "ogg" : "webm";
     whisperForm.append("file", audioBlob, `audio.${ext}`);
     whisperForm.append("model", GROQ_WHISPER_MODEL);
     whisperForm.append("language", "id");
+    whisperForm.append("prompt", whisperPrompt);
+    whisperForm.append("temperature", "0");
     whisperForm.append("response_format", "json");
 
     const whisperRes = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
