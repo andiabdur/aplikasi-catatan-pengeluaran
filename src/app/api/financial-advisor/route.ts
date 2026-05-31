@@ -64,6 +64,8 @@ Tugasmu (semua dalam Bahasa Indonesia yang santai tapi sopan, panggil mereka "ka
 
 Jujur kalau memang boros, tapi tetap suportif dan beri jalan keluar.
 
+PENTING: JANGAN PAKAI TABEL MARKDOWN dalam jawaban. Chat ini tampil di HP, pakai bullet points atau kalimat biasa saja.
+
 Output JSON dengan field: summary, health, insights (array), action_now (array of string), suggested_budgets (array), goal_advice (array).`;
 
   try {
