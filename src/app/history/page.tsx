@@ -7,9 +7,14 @@ import type { Category } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function HistoryPage() {
+export default async function HistoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cat?: string; period?: string }>;
+}) {
   const supabase = await createClient();
   const householdId = await getCurrentHouseholdId();
+  const params = await searchParams;
 
   const [catRes, hhRes, cpRes] = await Promise.all([
     supabase
@@ -31,7 +36,8 @@ export default async function HistoryPage() {
 
   const payDay = hhRes.data?.pay_day_of_month ?? 25;
   const customPeriods = cpRes.data ?? [];
-  const initialLabelMonth = labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods));
+  const defaultLabelMonth = labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods));
+  const initialLabelMonth = params.period ?? defaultLabelMonth;
 
   return (
     <PageShell title="Riwayat" subtitle="Filter, analisis, & cari">
@@ -40,6 +46,7 @@ export default async function HistoryPage() {
         householdId={householdId ?? ""}
         payDay={payDay}
         initialLabelMonth={initialLabelMonth}
+        initialCatFilter={params.cat ?? ""}
         customPeriods={customPeriods}
       />
     </PageShell>

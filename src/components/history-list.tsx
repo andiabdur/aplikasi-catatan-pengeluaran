@@ -28,12 +28,14 @@ export function HistoryList({
   householdId,
   payDay,
   initialLabelMonth,
+  initialCatFilter = "",
   customPeriods: initialCustomPeriods,
 }: {
   categories: Category[];
   householdId: string;
   payDay: number;
   initialLabelMonth: string;
+  initialCatFilter?: string;
   customPeriods: { label_month: string; start_date: string; end_date: string }[];
 }) {
   const [customPeriods, setCustomPeriods] = useState(initialCustomPeriods);
@@ -41,7 +43,7 @@ export function HistoryList({
   const [labelMonth, setLabelMonth] = useState<Date>(new Date(initialLabelMonth));
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [catFilter, setCatFilter] = useState<string>("");
+  const [catFilter, setCatFilter] = useState<string>(initialCatFilter);
   const [search, setSearch] = useState("");
   const [chartMode, setChartMode] = useState<ChartMode>("pie");
   const [chartOpen, setChartOpen] = useState(true);

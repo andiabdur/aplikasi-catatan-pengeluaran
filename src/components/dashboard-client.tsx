@@ -177,8 +177,14 @@ export function DashboardClient({
           {summary.map((row) => {
             const pct = Math.min(100, Number(row.usage_pct));
             const overBudget = Number(row.spent) > Number(row.budget) && Number(row.budget) > 0;
+            const href = `/history?cat=${row.category_id}&period=${labelMonthKey(labelMonth)}`;
             return (
-              <div key={row.category_id} className="p-4">
+              <Link
+                key={row.category_id}
+                href={href}
+                prefetch={false}
+                className="block p-4 hover:bg-slate-50 dark:hover:bg-slate-700/40 active:bg-slate-100 dark:active:bg-slate-700/60 transition-colors"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span
@@ -187,11 +193,11 @@ export function DashboardClient({
                     />
                     <span className="font-medium text-sm">{row.category_name}</span>
                   </div>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     {formatIDR(row.spent)} / {formatIDR(row.budget)}
                   </span>
                 </div>
-                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div
                     className={cn(
                       "h-full rounded-full transition-all",
@@ -205,14 +211,14 @@ export function DashboardClient({
                   />
                 </div>
                 <div className="flex justify-between mt-1.5 text-xs">
-                  <span className={cn(overBudget ? "text-red-600" : "text-slate-500")}>
+                  <span className={cn(overBudget ? "text-red-600" : "text-slate-500 dark:text-slate-400")}>
                     {overBudget
                       ? `Lebih ${formatIDR(Number(row.spent) - Number(row.budget))}`
                       : `Sisa ${formatIDR(row.remaining)}`}
                   </span>
-                  <span className="text-slate-400">{Number(row.usage_pct).toFixed(1)}%</span>
+                  <span className="text-slate-400 dark:text-slate-500">{Number(row.usage_pct).toFixed(1)}%</span>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
