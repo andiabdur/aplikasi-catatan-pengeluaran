@@ -1,24 +1,23 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
 import { buildFinancialContext } from "@/lib/financial-context";
 
 // AI financial planner. Reads a few recent salary periods (budget vs realisasi
-// per category) + income + goals progress, then asks Gemini to diagnose spending
+// per category) + income + goals progress, then asks DeepSeek to diagnose spending
 // behaviour, give recommendations, and propose next period's budget per category.
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
+const MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
 const PERIODS_TO_ANALYZE = 3;
 
 export async function POST() {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "GEMINI_API_KEY belum di-set di environment." },
+      { error: "DEEPSEEK_API_KEY belum di-set di environment." },
       { status: 500 },
     );
   }
@@ -63,69 +62,52 @@ Tugasmu (semua dalam Bahasa Indonesia yang santai tapi sopan, panggil mereka "ka
 5. "suggested_budgets": usulan budget untuk periode DEPAN per kategori. Tiap item {category_id (harus dari daftar id di atas), category_name, amount (integer rupiah), reason (alasan singkat)}. Realistis: berbasis rata-rata realisasi + buffer, dorong alokasi Nabung kalau memungkinkan.
 6. "goal_advice": saran per goal apakah laju nabung cukup buat capai target tepat waktu. Tiap item {goal_name, advice}. Kalau belum ada goal, kosongkan array.
 
-Jujur kalau memang boros, tapi tetap suportif dan beri jalan keluar.`;
+Jujur kalau memang boros, tapi tetap suportif dan beri jalan keluar.
+
+Output JSON dengan field: summary, health, insights (array), action_now (array of string), suggested_budgets (array), goal_advice (array).`;
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: MODEL,
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: SchemaType.OBJECT,
-          properties: {
-            summary: { type: SchemaType.STRING },
-            health: { type: SchemaType.STRING },
-            insights: {
-              type: SchemaType.ARRAY,
-              items: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  title: { type: SchemaType.STRING },
-                  detail: { type: SchemaType.STRING },
-                  severity: { type: SchemaType.STRING },
-                },
-                required: ["title", "detail", "severity"],
-              },
-            },
-            action_now: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-            suggested_budgets: {
-              type: SchemaType.ARRAY,
-              items: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  category_id: { type: SchemaType.STRING },
-                  category_name: { type: SchemaType.STRING },
-                  amount: { type: SchemaType.NUMBER },
-                  reason: { type: SchemaType.STRING },
-                },
-                required: ["category_id", "category_name", "amount", "reason"],
-              },
-            },
-            goal_advice: {
-              type: SchemaType.ARRAY,
-              items: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  goal_name: { type: SchemaType.STRING },
-                  advice: { type: SchemaType.STRING },
-                },
-                required: ["goal_name", "advice"],
-              },
-            },
-          },
-          required: ["summary", "health", "insights", "action_now", "suggested_budgets", "goal_advice"],
-        },
+    const res = await fetch("https://api.deepseek.com/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          {
+            role: "system",
+            content:
+              "Kamu penasihat keuangan keluarga Indonesia yang membumi, jujur, dan praktis. Selalu output dalam format JSON sesuai instruksi user.",
+          },
+          { role: "user", content: prompt },
+        ],
+        response_format: { type: "json_object" },
+      }),
     });
 
-    const result = await model.generateContent(prompt);
-    const parsed = JSON.parse(result.response.text()) as {
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "");
+      return NextResponse.json(
+        { error: `DeepSeek error: ${res.status}${errBody ? " - " + errBody.slice(0, 300) : ""}` },
+        { status: 502 },
+      );
+    }
+
+    const data = await res.json();
+    const raw = data.choices?.[0]?.message?.content ?? "{}";
+    const parsed = JSON.parse(raw) as {
       summary?: string;
       health?: string;
       insights?: { title?: string; detail?: string; severity?: string }[];
       action_now?: string[];
-      suggested_budgets?: { category_id?: string; category_name?: string; amount?: number; reason?: string }[];
+      suggested_budgets?: {
+        category_id?: string;
+        category_name?: string;
+        amount?: number;
+        reason?: string;
+      }[];
       goal_advice?: { goal_name?: string; advice?: string }[];
     };
 

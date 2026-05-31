@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
 import { buildFinancialContext } from "@/lib/financial-context";
@@ -11,16 +10,16 @@ import { buildFinancialContext } from "@/lib/financial-context";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
-const MAX_HISTORY = 16; // keep the prompt small/cheap
+const MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
+const MAX_HISTORY = 16;
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 export async function POST(req: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "GEMINI_API_KEY belum di-set di environment." },
+      { error: "DEEPSEEK_API_KEY belum di-set di environment." },
       { status: 500 },
     );
   }
@@ -45,7 +44,12 @@ export async function POST(req: Request) {
   }
 
   const cleaned = messages
-    .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.trim())
+    .filter(
+      (m) =>
+        (m.role === "user" || m.role === "assistant") &&
+        typeof m.content === "string" &&
+        m.content.trim(),
+    )
     .slice(-MAX_HISTORY);
 
   if (cleaned.length === 0 || cleaned[cleaned.length - 1].role !== "user") {
@@ -54,10 +58,13 @@ export async function POST(req: Request) {
 
   const ctx = await buildFinancialContext(supabase, householdId);
   if (!ctx) {
-    return NextResponse.json({ error: "Belum ada data keuangan untuk dijadikan konteks." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Belum ada data keuangan untuk dijadikan konteks." },
+      { status: 400 },
+    );
   }
 
-  const systemInstruction = `Kamu "Penasihat Keuangan Keluarga" — asisten AI yang santai, membumi, jujur, dan suportif untuk sebuah keluarga Indonesia. Kamu HANYA membahas hal seputar keuangan keluarga ini (budgeting, penghematan, tabungan, goal/target, perencanaan finansial). Kalau ditanya hal di luar keuangan, arahkan balik dengan halus ke topik keuangan.
+  const systemInstruction = `Kamu "Penasihat Keuangan Keluarga" - asisten AI yang santai, membumi, jujur, dan suportif untuk sebuah keluarga Indonesia. Kamu HANYA membahas hal seputar keuangan keluarga ini (budgeting, penghematan, tabungan, goal/target, perencanaan finansial). Kalau ditanya hal di luar keuangan, arahkan balik dengan halus ke topik keuangan.
 
 Selalu pakai DATA KEUANGAN nyata keluarga di bawah ini sebagai konteks. Sebut angka konkret kalau relevan. Jangan mengarang data yang tidak ada. Kalau butuh data yang tidak tersedia, bilang terus terang dan beri estimasi/asumsi.
 
@@ -75,18 +82,36 @@ ${ctx.goalDigest}
 Periode berikutnya: ${ctx.nextPeriodTitle}.`;
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: MODEL, systemInstruction });
+    const deepseekMessages = [
+      { role: "system" as const, content: systemInstruction },
+      ...cleaned.map((m) => ({
+        role: m.role === "assistant" ? ("assistant" as const) : ("user" as const),
+        content: m.content,
+      })),
+    ];
 
-    const history = cleaned.slice(0, -1).map((m) => ({
-      role: m.role === "assistant" ? ("model" as const) : ("user" as const),
-      parts: [{ text: m.content }],
-    }));
-    const last = cleaned[cleaned.length - 1];
+    const res = await fetch("https://api.deepseek.com/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: deepseekMessages,
+      }),
+    });
 
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessage(last.content);
-    const reply = result.response.text().trim();
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "");
+      return NextResponse.json(
+        { error: `DeepSeek error: ${res.status}${errBody ? " - " + errBody.slice(0, 300) : ""}` },
+        { status: 502 },
+      );
+    }
+
+    const data = await res.json();
+    const reply = (data.choices?.[0]?.message?.content ?? "").trim();
 
     return NextResponse.json({ reply });
   } catch (err) {
