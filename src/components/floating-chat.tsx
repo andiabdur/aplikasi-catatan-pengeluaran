@@ -18,7 +18,7 @@ export function FloatingChat({ householdId }: { householdId: string }) {
         <button
           onClick={() => setOpen(true)}
           aria-label="Chat dengan asisten keuangan"
-          className="fixed bottom-[9.5rem] right-4 z-40 w-14 h-14 rounded-full bg-brand-600 text-white shadow-lg shadow-brand-600/40 flex items-center justify-center active:scale-95 transition-transform"
+          className="fixed bottom-[13.5rem] right-4 z-40 w-14 h-14 rounded-full bg-brand-600 text-white shadow-lg shadow-brand-600/40 flex items-center justify-center active:scale-95 transition-transform"
         >
           <MessageCircle className="w-6 h-6" />
         </button>

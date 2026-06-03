@@ -231,7 +231,7 @@ export function FloatingVoice() {
     <>
       {/* Result toast — appears above buttons */}
       {showResult && (
-        <div className="fixed bottom-[14rem] inset-x-4 z-50 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="fixed bottom-[18rem] inset-x-4 z-50 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
           <div className="flex items-center justify-between px-3 pt-3 pb-2">
             <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
               {savedExpenses.length > 0
