@@ -62,15 +62,16 @@ export async function buildFinancialContext(
         supabase.from("incomes").select("source, amount").eq("household_id", householdId).eq("month", key),
         supabase
           .from("expenses")
-          .select("spent_at, description, amount, category_id")
+          .select("spent_at, created_at, description, amount, category_id")
           .eq("household_id", householdId)
           .gte("spent_at", range.from)
           .lte("spent_at", range.to)
-          .order("spent_at", { ascending: true }),
+          .order("spent_at", { ascending: true })
+          .order("created_at", { ascending: true }),
       ]);
       const rows = (sumRes.data ?? []) as MonthlySummaryRow[];
       const income = (incRes.data ?? []).reduce((s, r) => s + Number(r.amount), 0);
-      const items = (expRes.data ?? []) as { spent_at: string; description: string; amount: number; category_id: string }[];
+      const items = (expRes.data ?? []) as { spent_at: string; created_at: string; description: string; amount: number; category_id: string }[];
       return { key, title: periodTitle(lbl), rows, income, items };
     }),
   );
@@ -93,22 +94,44 @@ export async function buildFinancialContext(
     })
     .join("\n\n");
 
+  const ID_DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  const ID_MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+  function fmtDateLabel(spent_at: string) {
+    const [y, m, d] = spent_at.split("-").map(Number);
+    const dt = new Date(y, m - 1, d);
+    return `${ID_DAYS[dt.getDay()]}, ${d} ${ID_MONTHS[m - 1]} ${y}`;
+  }
+
+  function fmtTime(created_at: string) {
+    // created_at is UTC — convert to WIB (UTC+7)
+    const dt = new Date(created_at);
+    const wib = new Date(dt.getTime() + 7 * 60 * 60 * 1000);
+    const hh = String(wib.getUTCHours()).padStart(2, "0");
+    const mm = String(wib.getUTCMinutes()).padStart(2, "0");
+    return `${hh}:${mm}`;
+  }
+
   const itemDigest = perPeriod
     .map((p) => {
+      if (p.items.length === 0) return `${p.title}:\n   (tidak ada transaksi)`;
       const catNameMap = new Map(p.rows.map((r) => [r.category_id, r.category_name]));
-      const byCat = new Map<string, { name: string; lines: string[] }>();
+
+      // Group by spent_at date
+      const byDate = new Map<string, string[]>();
       p.items.forEach((item) => {
         const catName = catNameMap.get(item.category_id) ?? "Lainnya";
-        if (!byCat.has(item.category_id)) byCat.set(item.category_id, { name: catName, lines: [] });
-        byCat.get(item.category_id)!.lines.push(
-          `     • ${item.spent_at} — ${item.description || "(no desc)"}: ${Math.round(Number(item.amount)).toLocaleString("id-ID")}`,
-        );
+        const time = fmtTime(item.created_at);
+        const line = `     ${time} — ${item.description || "(no desc)"} [${catName}]: ${Math.round(Number(item.amount)).toLocaleString("id-ID")}`;
+        if (!byDate.has(item.spent_at)) byDate.set(item.spent_at, []);
+        byDate.get(item.spent_at)!.push(line);
       });
-      if (byCat.size === 0) return `${p.title}:\n   (tidak ada transaksi)`;
-      const catBlocks = Array.from(byCat.values())
-        .map((cat) => `   [${cat.name}]\n${cat.lines.join("\n")}`)
+
+      const dayBlocks = Array.from(byDate.entries())
+        .map(([date, lines]) => `   ${fmtDateLabel(date)}:\n${lines.join("\n")}`)
         .join("\n");
-      return `${p.title}:\n${catBlocks}`;
+
+      return `${p.title}:\n${dayBlocks}`;
     })
     .join("\n\n");
 
