@@ -3,10 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
 import { buildFinancialContext } from "@/lib/financial-context";
 
-// Free-form chat with the AI financial planner. Every reply is grounded in the
-// family's actual data (same digest the advisor uses), injected as the system
-// instruction so the assistant always stays in financial context.
-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -64,24 +60,43 @@ export async function POST(req: Request) {
     );
   }
 
-  const systemInstruction = `Kamu "Penasihat Keuangan Keluarga" - asisten AI yang santai, membumi, jujur, dan suportif untuk sebuah keluarga Indonesia. Kamu HANYA membahas hal seputar keuangan keluarga ini (budgeting, penghematan, tabungan, goal/target, perencanaan finansial). Kalau ditanya hal di luar keuangan, arahkan balik dengan halus ke topik keuangan.
+  const catLines = ctx.catList.map((c) => `- ${c.name} (id: ${c.id})`).join("\n");
 
-Selalu pakai DATA KEUANGAN nyata keluarga di bawah ini sebagai konteks. Sebut angka konkret kalau relevan. Jangan mengarang data yang tidak ada. Kalau butuh data yang tidak tersedia, bilang terus terang dan beri estimasi/asumsi.
+  const systemInstruction = `Kamu "Penasihat Keuangan Keluarga" — asisten AI yang santai, membumi, jujur, dan suportif untuk sebuah keluarga Indonesia. Kamu HANYA membahas hal seputar keuangan keluarga ini (budgeting, penghematan, tabungan, goal/target, perencanaan finansial). Kalau ditanya hal di luar keuangan, arahkan balik dengan halus ke topik keuangan.
 
-Jawab ringkas, langsung ke inti, pakai Bahasa Indonesia santai (panggil mereka "kamu sekeluarga"). Boleh pakai poin-poin kalau membantu. Semua nominal dalam Rupiah.
+Selalu pakai DATA KEUANGAN nyata keluarga di bawah ini sebagai konteks. Sebut angka konkret kalau relevan. Jangan mengarang data yang tidak ada.
 
-PENTING: JANGAN PAKAI TABEL MARKDOWN (| ... | ... |). Chat ini tampil di HP, tabel jelek dan gak kebaca. Pakai bullet points atau kalimat biasa aja.
+Jawab ringkas, langsung ke inti, pakai Bahasa Indonesia santai (panggil mereka "kamu sekeluarga"). Boleh pakai poin-poin kalau membantu. Semua nominal dalam Rupiah. JANGAN PAKAI TABEL MARKDOWN — pakai bullet atau kalimat biasa, tampil di HP.
 
-=== DATA ${ctx.periodsAnalyzed.length} PERIODE GAJIAN TERAKHIR (budget vs realisasi per kategori) ===
+=== DATA ${ctx.periodsAnalyzed.length} PERIODE GAJIAN TERAKHIR ===
 ${ctx.digest}
 
-=== DETAIL TRANSAKSI PER PERIODE (item, tanggal, nominal) ===
+=== DETAIL TRANSAKSI PER PERIODE ===
 ${ctx.itemDigest}
 
 === GOAL/TARGET TABUNGAN ===
 ${ctx.goalDigest}
 
-Periode berikutnya: ${ctx.nextPeriodTitle}.`;
+Periode berikutnya: ${ctx.nextPeriodTitle}.
+
+=== KEMAMPUAN MENCATAT PENGELUARAN ===
+Kalau user menyebut pengeluaran konkret dengan nominal yang jelas dalam pesannya (contoh: "jajan gorengan 5rb", "beli bensin 50ribu", "bayar listrik 150000", "makan siang 25rb"), ekstrak dan catat sebagai expense. Pilih category_id dari daftar berikut:
+${catLines}
+
+Pahami slang uang Indonesia: rb/ribu=1000, jt/juta=1000000, goceng=5000, ceban=10000, goban=50000, cepek=100000. Satu pesan bisa menghasilkan beberapa expense kalau ada beberapa item.
+
+Dalam "reply", konfirmasi singkat apa yang berhasil dicatat (nama + nominal + kategori), lalu lanjut membantu.
+PENTING: Hanya isi "expenses" kalau user BENAR-BENAR menyebut pengeluaran konkret. Pertanyaan, hipotesis, atau contoh TIDAK dicatat.
+
+=== FORMAT OUTPUT (JSON WAJIB) ===
+Selalu balas dalam format JSON berikut:
+{
+  "reply": "balasan chat kamu dalam Bahasa Indonesia",
+  "expenses": [
+    { "description": "nama pengeluaran", "amount": 5000, "category_id": "uuid-dari-daftar-di-atas" }
+  ]
+}
+Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
 
   try {
     const deepseekMessages = [
@@ -101,6 +116,7 @@ Periode berikutnya: ${ctx.nextPeriodTitle}.`;
       body: JSON.stringify({
         model: MODEL,
         messages: deepseekMessages,
+        response_format: { type: "json_object" },
       }),
     });
 
@@ -113,9 +129,46 @@ Periode berikutnya: ${ctx.nextPeriodTitle}.`;
     }
 
     const data = await res.json();
-    const reply = (data.choices?.[0]?.message?.content ?? "").trim();
+    const raw = (data.choices?.[0]?.message?.content ?? "").trim();
 
-    return NextResponse.json({ reply });
+    let parsed: { reply?: string; expenses?: { description?: string; amount?: number; category_id?: string }[] };
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      // Fallback: treat the whole response as plain reply if JSON parse fails
+      return NextResponse.json({ reply: raw, saved_expenses: [] });
+    }
+
+    const reply = (parsed.reply ?? "").trim();
+
+    // Validate and save expenses server-side
+    const today = new Date().toISOString().slice(0, 10);
+    const rawExpenses = Array.isArray(parsed.expenses) ? parsed.expenses : [];
+    const saved: { id?: string; description: string; amount: number; categoryName: string }[] = [];
+
+    for (const exp of rawExpenses) {
+      const validCat = ctx.catList.find((c) => c.id === exp.category_id);
+      const amount = Math.round(Number(exp.amount) || 0);
+      const description = (exp.description ?? "").trim();
+      if (!validCat || amount <= 0 || !description) continue;
+
+      const { data: inserted } = await supabase
+        .from("expenses")
+        .insert({
+          household_id: householdId,
+          category_id: validCat.id,
+          spent_at: today,
+          description,
+          amount,
+          created_by: user.id,
+        })
+        .select("id")
+        .single();
+
+      saved.push({ id: inserted?.id, description, amount, categoryName: validCat.name });
+    }
+
+    return NextResponse.json({ reply, saved_expenses: saved });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Gagal menjawab.";
     return NextResponse.json({ error: msg }, { status: 502 });
