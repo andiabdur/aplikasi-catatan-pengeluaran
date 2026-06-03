@@ -63,9 +63,9 @@ export function FloatingChat({ householdId }: { householdId: string }) {
           </button>
         </div>
 
-        {/* Chat body */}
+        {/* Chat body — always mounted so localStorage history survives open/close */}
         <div className="p-4 overflow-y-auto" style={{ maxHeight: "calc(85dvh - 80px)" }}>
-          {open && <FinancialChat householdId={householdId} />}
+          <FinancialChat householdId={householdId} />
         </div>
       </div>
     </>
