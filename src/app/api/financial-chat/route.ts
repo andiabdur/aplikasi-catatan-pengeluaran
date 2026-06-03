@@ -103,7 +103,11 @@ Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
       { role: "system" as const, content: systemInstruction },
       ...cleaned.map((m) => ({
         role: m.role === "assistant" ? ("assistant" as const) : ("user" as const),
-        content: m.content,
+        // Wrap assistant history in JSON so the model stays consistent with the format it's asked to produce
+        content:
+          m.role === "assistant"
+            ? JSON.stringify({ reply: m.content, expenses: [] })
+            : m.content,
       })),
     ];
 
@@ -131,15 +135,17 @@ Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
     const data = await res.json();
     const raw = (data.choices?.[0]?.message?.content ?? "").trim();
 
-    let parsed: { reply?: string; expenses?: { description?: string; amount?: number; category_id?: string }[] };
+    let parsed: { reply?: string; message?: string; response?: string; text?: string; expenses?: { description?: string; amount?: number; category_id?: string }[] };
     try {
       parsed = JSON.parse(raw);
     } catch {
-      // Fallback: treat the whole response as plain reply if JSON parse fails
-      return NextResponse.json({ reply: raw, saved_expenses: [] });
+      // JSON parse failed — use raw text as reply
+      return NextResponse.json({ reply: raw || "Maaf, ada gangguan. Coba lagi.", saved_expenses: [] });
     }
 
-    const reply = (parsed.reply ?? "").trim();
+    // Try multiple common field names the model might use
+    const reply = (parsed.reply ?? parsed.message ?? parsed.response ?? parsed.text ?? "").trim()
+      || "Maaf, responnya kosong. Coba tanya ulang.";
 
     // Validate and save expenses server-side
     const today = new Date().toISOString().slice(0, 10);

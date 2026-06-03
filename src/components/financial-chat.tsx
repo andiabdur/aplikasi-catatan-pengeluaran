@@ -77,12 +77,17 @@ export function FinancialChat({ householdId }: { householdId: string }) {
       if (!res.ok) {
         setError(json.error || "Gagal menjawab.");
       } else {
+        const reply = (json.reply || "").trim();
         const saved: SavedExpense[] = Array.isArray(json.saved_expenses) ? json.saved_expenses : [];
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: json.reply || "", savedExpenses: saved.length > 0 ? saved : undefined },
-        ]);
-        if (saved.length > 0) startTransition(() => router.refresh());
+        if (reply) {
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: reply, savedExpenses: saved.length > 0 ? saved : undefined },
+          ]);
+          if (saved.length > 0) startTransition(() => router.refresh());
+        } else {
+          setError("Respons kosong dari AI. Coba tanya ulang.");
+        }
       }
     } catch {
       setError("Gagal terhubung. Cek koneksi.");
