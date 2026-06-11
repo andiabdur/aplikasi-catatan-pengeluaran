@@ -112,44 +112,7 @@ Kalau gambar bukan struk atau tidak terbaca, set groups=[].`;
           ],
         },
       ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "receipt_parsing",
-          strict: true,
-          schema: {
-            type: "object",
-            properties: {
-              merchant: { type: "string" },
-              date: { type: "string" },
-              groups: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    deskripsi: { type: "string" },
-                    category_id: { type: "string" },
-                    goal_id: { type: "string" },
-                    items: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          name: { type: "string" },
-                          price: { type: "number" },
-                        },
-                        required: ["name", "price"],
-                      },
-                    },
-                  },
-                  required: ["deskripsi", "category_id", "items"],
-                },
-              },
-            },
-            required: ["groups", "merchant", "date"],
-          },
-        },
-      },
+      response_format: { type: "json_object" },
     });
 
     const content = response.choices[0]?.message?.content;
