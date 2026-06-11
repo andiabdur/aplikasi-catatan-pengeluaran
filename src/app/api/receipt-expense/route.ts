@@ -1,20 +1,21 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import OpenAI from "openai";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
 
-// Receipt/struk photo -> structured expense groups via Gemini Vision.
+// Receipt/struk photo -> structured expense groups via OpenAI Vision (DivProxy).
 // Same output format as /api/voice-expense so client can reuse the same flow.
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
+const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_BASE_URL = process.env.OPENAI_BASE_URL;
 
 export async function POST(req: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "GEMINI_API_KEY belum di-set." }, { status: 500 });
+  if (!OPENAI_API_KEY) {
+    return NextResponse.json({ error: "OPENAI_API_KEY belum di-set." }, { status: 500 });
   }
 
   const supabase = await createClient();
@@ -89,51 +90,74 @@ Output:
 Kalau gambar bukan struk atau tidak terbaca, set groups=[].`;
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
+    const openai = new OpenAI({
+      apiKey: OPENAI_API_KEY,
+      baseURL: OPENAI_BASE_URL || undefined,
+    });
+
+    const base64Image = imageBuffer.toString("base64");
+    const dataUrl = `data:${mimeType};base64,${base64Image}`;
+
+    const response = await openai.chat.completions.create({
       model: MODEL,
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: SchemaType.OBJECT,
-          properties: {
-            merchant: { type: SchemaType.STRING },
-            date: { type: SchemaType.STRING },
-            groups: {
-              type: SchemaType.ARRAY,
-              items: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  deskripsi: { type: SchemaType.STRING },
-                  category_id: { type: SchemaType.STRING },
-                  goal_id: { type: SchemaType.STRING },
-                  items: {
-                    type: SchemaType.ARRAY,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            {
+              type: "image_url",
+              image_url: { url: dataUrl },
+            },
+          ],
+        },
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "receipt_parsing",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              merchant: { type: "string" },
+              date: { type: "string" },
+              groups: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    deskripsi: { type: "string" },
+                    category_id: { type: "string" },
+                    goal_id: { type: "string" },
                     items: {
-                      type: SchemaType.OBJECT,
-                      properties: {
-                        name: { type: SchemaType.STRING },
-                        price: { type: SchemaType.NUMBER },
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: { type: "string" },
+                          price: { type: "number" },
+                        },
+                        required: ["name", "price"],
                       },
-                      required: ["name", "price"],
                     },
                   },
+                  required: ["deskripsi", "category_id", "items"],
                 },
-                required: ["deskripsi", "category_id", "items"],
               },
             },
+            required: ["groups", "merchant", "date"],
           },
-          required: ["groups", "merchant", "date"],
         },
       },
     });
 
-    const result = await model.generateContent([
-      { text: prompt },
-      { inlineData: { mimeType, data: imageBuffer.toString("base64") } },
-    ]);
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      return NextResponse.json({ error: "Tidak ada respons dari AI." }, { status: 502 });
+    }
 
-    const parsed = JSON.parse(result.response.text()) as {
+    const parsed = JSON.parse(content) as {
       merchant?: string;
       date?: string;
       groups?: {
