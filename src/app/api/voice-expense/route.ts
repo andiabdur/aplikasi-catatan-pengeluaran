@@ -1,22 +1,29 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
 
-// Voice note -> structured expense via Gemini (multimodal, single call).
-// The browser records audio and POSTs it here; we transcribe + extract
-// description, amount (rupiah), and the best-matching category in one shot.
+// Voice note -> structured expense via Groq Whisper + DeepSeek.
+// Step 1: Transcribe audio with Groq Whisper (fast + free tier).
+// Step 2: Extract description, amount (rupiah), and category with DeepSeek.
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
+const GROQ_WHISPER_MODEL = "whisper-large-v3";
+const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
 
 export async function POST(req: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  const groqKey = process.env.GROQ_API_KEY;
+  if (!groqKey) {
     return NextResponse.json(
-      { error: "GEMINI_API_KEY belum di-set di environment." },
+      { error: "GROQ_API_KEY belum di-set di environment." },
+      { status: 500 },
+    );
+  }
+  const deepseekKey = process.env.DEEPSEEK_API_KEY;
+  if (!deepseekKey) {
+    return NextResponse.json(
+      { error: "DEEPSEEK_API_KEY belum di-set di environment." },
       { status: 500 },
     );
   }
@@ -47,7 +54,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Belum ada kategori." }, { status: 400 });
   }
 
-  // Active goals — so a "Nabung" deposit can be tagged to a target by voice.
+  // Active goals
   const { data: goalsData } = await supabase
     .from("goals")
     .select("id,name")
@@ -56,8 +63,8 @@ export async function POST(req: Request) {
     .order("sort_order");
   const goalList = goalsData ?? [];
 
-  // Read the uploaded audio
-  let audioBuffer: Buffer;
+  // STEP 1: Read audio
+  let audioBlob: Blob;
   let mimeType: string;
   try {
     const form = await req.formData();
@@ -66,21 +73,71 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Audio tidak ditemukan." }, { status: 400 });
     }
     mimeType = file.type || "audio/webm";
-    audioBuffer = Buffer.from(await file.arrayBuffer());
+    audioBlob = file;
   } catch {
     return NextResponse.json({ error: "Gagal membaca audio." }, { status: 400 });
   }
 
-  if (audioBuffer.length === 0) {
+  if (audioBlob.size === 0) {
     return NextResponse.json({ error: "Audio kosong." }, { status: 400 });
   }
 
+  // STEP 2: Transcribe with Groq Whisper
+  let transcript: string;
+  try {
+    // Priming prompt: Whisper's `prompt` works best as a NATURAL example
+    // sentence in the expected speaking style (NOT a comma-separated word list,
+    // which makes it output fragmented garbage). A full-sentence example biases
+    // it toward Indonesian conversational expense phrasing + rupiah amounts.
+    const whisperPrompt =
+      "Ini catatan pengeluaran belanja keluarga dalam Bahasa Indonesia sehari-hari. " +
+      "Contoh: beli ayam goreng lima belas ribu, beli siomay sepuluh ribu, " +
+      "bayar parkir dua ribu, isi bensin lima puluh ribu, nabung buat umroh lima ratus ribu.";
+
+    const whisperForm = new FormData();
+    const ext = mimeType.includes("mp4") ? "m4a" : mimeType.includes("ogg") ? "ogg" : "webm";
+    whisperForm.append("file", audioBlob, `audio.${ext}`);
+    whisperForm.append("model", GROQ_WHISPER_MODEL);
+    whisperForm.append("language", "id");
+    whisperForm.append("prompt", whisperPrompt);
+    whisperForm.append("temperature", "0");
+    whisperForm.append("response_format", "json");
+
+    const whisperRes = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${groqKey}` },
+      body: whisperForm,
+    });
+
+    if (!whisperRes.ok) {
+      const errBody = await whisperRes.text().catch(() => "");
+      return NextResponse.json(
+        { error: `Gagal transkrip: ${whisperRes.status}${errBody ? " - " + errBody.slice(0, 200) : ""}` },
+        { status: 502 },
+      );
+    }
+
+    const whisperData = await whisperRes.json();
+    transcript = (whisperData.text ?? "").trim();
+
+    if (!transcript) {
+      return NextResponse.json({ error: "Suara tidak terdengar jelas, coba ulangi." }, { status: 400 });
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Gagal menghubungi Groq Whisper.";
+    return NextResponse.json({ error: msg }, { status: 502 });
+  }
+
+  // STEP 3: Extract structured expense data with DeepSeek
   const catLines = catList.map((c) => `- ${c.name} (id: ${c.id})`).join("\n");
   const goalLines = goalList.length
     ? goalList.map((g) => `- ${g.name} (id: ${g.id})`).join("\n")
     : "(belum ada goal)";
 
-  const prompt = `Kamu asisten pencatat keuangan keluarga Indonesia. Dengarkan rekaman suara ini dan ekstrak pengeluaran.
+  const extractPrompt = `Kamu asisten pencatat keuangan keluarga Indonesia. Ekstrak pengeluaran dari teks transkrip suara berikut.
+
+TRANSCRIPT:
+"${transcript}"
 
 Daftar kategori yang TERSEDIA (pilih id yang paling cocok):
 ${catLines}
@@ -90,7 +147,7 @@ ${goalLines}
 
 Kalau group itu kategorinya Nabung/Tabungan DAN user menyebut nama target (misal "nabung buat umroh", "tabungan jepang"), isi "goal_id" dengan id goal yang paling cocok dari daftar di atas. Kalau tidak menyebut target atau bukan nabung, kosongkan goal_id.
 
-PENTING: Satu rekaman bisa berisi BEBERAPA item, dan item-item itu bisa dari KATEGORI BERBEDA. Kelompokkan item berdasarkan kategori yang paling cocok. SETIAP kategori menjadi SATU pengeluaran terpisah (satu "group"). Item dalam kategori yang sama digabung dan harganya dijumlahkan.
+PENTING: Satu transkrip bisa berisi BEBERAPA item, dan item-item itu bisa dari KATEGORI BERBEDA. Kelompokkan item berdasarkan kategori yang paling cocok. SETIAP kategori menjadi SATU pengeluaran terpisah (satu "group"). Item dalam kategori yang sama digabung dan harganya dijumlahkan.
 
 Contoh: "jeruk 15rb, apel 10rb, kaca spion motor 70rb"
 - group 1 (kategori buah/belanja dapur): jeruk 15000 + apel 10000 -> deskripsi "Jeruk, apel"
@@ -104,58 +161,52 @@ Format tiap "group":
 - "deskripsi": gabungan nama item di group itu, dipisah koma, rapikan kapitalisasi. Kalau 1 item pakai nama item itu.
 - "category_id": HARUS salah satu id dari daftar di atas yang paling cocok untuk group itu.
 
-Output:
-- "groups": array berisi group-group di atas.
-- "transcript": tulis ulang apa yang kamu dengar apa adanya (untuk verifikasi user).
-- Jika audio tidak jelas atau tidak menyebut pengeluaran, set groups=[].`;
+Output dalam format JSON:
+{
+  "groups": [
+    {
+      "deskripsi": "Nama item",
+      "category_id": "uuid-kategori",
+      "goal_id": "uuid-goal atau null",
+      "items": [{ "name": "item", "price": 15000 }]
+    }
+  ]
+}
+
+Jika transkrip tidak menyebut pengeluaran, set groups=[].`;
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: MODEL,
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: SchemaType.OBJECT,
-          properties: {
-            transcript: { type: SchemaType.STRING },
-            groups: {
-              type: SchemaType.ARRAY,
-              items: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  deskripsi: { type: SchemaType.STRING },
-                  category_id: { type: SchemaType.STRING },
-                  goal_id: { type: SchemaType.STRING },
-                  items: {
-                    type: SchemaType.ARRAY,
-                    items: {
-                      type: SchemaType.OBJECT,
-                      properties: {
-                        name: { type: SchemaType.STRING },
-                        price: { type: SchemaType.NUMBER },
-                      },
-                      required: ["name", "price"],
-                    },
-                  },
-                },
-                required: ["deskripsi", "category_id", "items"],
-              },
-            },
-          },
-          required: ["transcript", "groups"],
-        },
+    const extractRes = await fetch("https://api.deepseek.com/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${deepseekKey}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        model: DEEPSEEK_MODEL,
+        messages: [
+          {
+            role: "system",
+            content:
+              "Kamu asisten pencatat keuangan keluarga Indonesia. Output dalam JSON sesuai instruksi user.",
+          },
+          { role: "user", content: extractPrompt },
+        ],
+        response_format: { type: "json_object" },
+      }),
     });
 
-    const result = await model.generateContent([
-      { text: prompt },
-      { inlineData: { mimeType, data: audioBuffer.toString("base64") } },
-    ]);
+    if (!extractRes.ok) {
+      const errBody = await extractRes.text().catch(() => "");
+      return NextResponse.json(
+        { error: `Gagal ekstrak data: ${extractRes.status}${errBody ? " - " + errBody.slice(0, 200) : ""}` },
+        { status: 502 },
+      );
+    }
 
-    const raw = result.response.text();
-    const parsed = JSON.parse(raw) as {
-      transcript?: string;
+    const extractData = await extractRes.json();
+    const rawText = extractData.choices?.[0]?.message?.content ?? "{}";
+    const parsed = JSON.parse(rawText) as {
       groups?: {
         deskripsi?: string;
         category_id?: string;
@@ -164,7 +215,6 @@ Output:
       }[];
     };
 
-    // Build each group: validate its category, recompute total from items
     const groups = (parsed.groups ?? [])
       .map((g) => {
         const validCat = catList.find((c) => c.id === g.category_id);
@@ -189,11 +239,11 @@ Output:
       .filter((g) => g.amount > 0 || g.description);
 
     return NextResponse.json({
-      transcript: (parsed.transcript ?? "").trim(),
+      transcript,
       groups,
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Gagal memproses audio.";
+    const msg = err instanceof Error ? err.message : "Gagal memproses transkrip.";
     return NextResponse.json({ error: msg }, { status: 502 });
   }
 }
