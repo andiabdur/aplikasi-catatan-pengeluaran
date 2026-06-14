@@ -269,12 +269,12 @@ export function SettingsClient({
       {/* Pay day setting */}
       <section>
         <div className="card flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center">
             <CalendarCog className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium">Pay Day (tanggal gajian)</p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Periode dihitung dari tanggal ini setiap bulan
             </p>
           </div>
@@ -288,7 +288,7 @@ export function SettingsClient({
                 const v = Number(e.target.value);
                 if (v !== payDay) savePayDay(v);
               }}
-              className="w-16 border border-slate-200 rounded-lg px-2 py-1.5 text-center text-sm font-semibold"
+              className="w-16 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-center text-sm font-semibold"
             />
             {savingKey === "pd" && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
           </div>
@@ -306,7 +306,7 @@ export function SettingsClient({
         {labelMonthKey(labelMonth) !== labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods)) && (
           <button
             onClick={() => setLabelMonth(currentPeriodLabelWithCustom(payDay, customPeriods))}
-            className="mt-2 text-xs text-brand-600 w-full text-center"
+            className="mt-2 text-xs text-brand-600 dark:text-brand-400 w-full text-center"
           >
             Ke periode sekarang
           </button>
@@ -326,13 +326,13 @@ export function SettingsClient({
       <section>
         <div className="flex items-center justify-between mb-2 px-1">
           <h2 className="font-semibold">Income</h2>
-          <button onClick={addIncome} className="text-xs text-brand-600 flex items-center gap-1">
+          <button onClick={addIncome} className="text-xs text-brand-600 dark:text-brand-400 flex items-center gap-1">
             <Plus className="w-3 h-3" /> Tambah
           </button>
         </div>
-        <div className="card divide-y divide-slate-100 p-0">
+        <div className="card divide-y divide-slate-100 dark:divide-slate-700 p-0">
           {incomes.length === 0 && (
-            <p className="p-4 text-sm text-slate-500">Belum ada income di periode ini.</p>
+            <p className="p-4 text-sm text-slate-500 dark:text-slate-400">Belum ada income di periode ini.</p>
           )}
           {incomes.map((inc) => (
             <IncomeRow
@@ -344,9 +344,9 @@ export function SettingsClient({
             />
           ))}
         </div>
-        <p className="text-xs text-slate-500 mt-2 px-1">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 px-1">
           Total income:{" "}
-          <span className="font-semibold text-slate-700">
+          <span className="font-semibold text-slate-700 dark:text-slate-200">
             {formatIDR(incomes.reduce((s, i) => s + Number(i.amount), 0))}
           </span>
         </p>
@@ -359,17 +359,17 @@ export function SettingsClient({
           <div className="flex items-center gap-3">
             <button
               onClick={copyBudgetsFromPrevPeriod}
-              className="text-xs text-slate-500 hover:text-brand-600"
+              className="text-xs text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
               title="Copy budget dari periode sebelumnya"
             >
               Copy prev
             </button>
-            <button onClick={addCategory} className="text-xs text-brand-600 flex items-center gap-1">
+            <button onClick={addCategory} className="text-xs text-brand-600 dark:text-brand-400 flex items-center gap-1">
               <Plus className="w-3 h-3" /> Tambah
             </button>
           </div>
         </div>
-        <div className="card divide-y divide-slate-100 p-0">
+        <div className="card divide-y divide-slate-100 dark:divide-slate-700 p-0">
           {cats.map((c) => (
             <CategoryRow
               key={c.id + labelKey}
@@ -387,7 +387,7 @@ export function SettingsClient({
       <section>
         <div className="card flex items-center justify-between">
           <div className="min-w-0">
-            <p className="text-xs text-slate-500">Masuk sebagai</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Masuk sebagai</p>
             <p className="font-medium truncate text-sm">{email}</p>
           </div>
           <button onClick={logout} className="btn-ghost text-sm">
@@ -436,12 +436,12 @@ function IncomeRow({
             isFocused.current = false;
             onChange(parseIDRInput(text));
           }}
-          className="w-full border border-slate-200 rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
+          className="w-full border border-slate-200 dark:border-slate-700 rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
           placeholder="0"
         />
       </div>
       {saving && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
-      <button onClick={onDelete} className="p-1.5 text-slate-300 hover:text-red-500">
+      <button onClick={onDelete} className="p-1.5 text-slate-300 dark:text-slate-600 hover:text-red-500">
         <Trash2 className="w-4 h-4" />
       </button>
     </div>
@@ -489,12 +489,12 @@ function CategoryRow({
             isFocused.current = false;
             onBudgetChange(parseIDRInput(text));
           }}
-          className="w-full border border-slate-200 rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
+          className="w-full border border-slate-200 dark:border-slate-700 rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
           placeholder="0"
         />
       </div>
       {saving && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
-      <button onClick={onDelete} className="p-1.5 text-slate-300 hover:text-red-500">
+      <button onClick={onDelete} className="p-1.5 text-slate-300 dark:text-slate-600 hover:text-red-500">
         <Trash2 className="w-4 h-4" />
       </button>
     </div>
@@ -528,10 +528,10 @@ function CustomPeriodEditor({
 
   if (!isEditing) {
     return (
-      <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-        <span className="text-xs text-slate-500">
+      <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-3">
+        <span className="text-xs text-slate-500 dark:text-slate-400">
           {range.isCustom ? (
-            <span className="inline-flex items-center gap-1 text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded">
+            <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded">
               Custom Range
             </span>
           ) : (
@@ -542,7 +542,7 @@ function CustomPeriodEditor({
           {range.isCustom && (
             <button
               onClick={onReset}
-              className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-50 transition"
+              className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition"
               disabled={saving}
             >
               <RotateCcw className="w-3 h-3" /> Reset
@@ -550,7 +550,7 @@ function CustomPeriodEditor({
           )}
           <button
             onClick={() => setIsEditing(true)}
-            className="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-brand-50 transition font-medium"
+            className="text-xs text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-400 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-brand-50 dark:hover:bg-brand-500/10 transition font-medium"
             disabled={saving}
           >
             <Edit3 className="w-3 h-3" /> Ubah Range
@@ -561,32 +561,32 @@ function CustomPeriodEditor({
   }
 
   return (
-    <div className="border-t border-slate-100 pt-3 space-y-3">
-      <p className="text-xs font-semibold text-slate-700">Custom Rentang Tanggal</p>
+    <div className="border-t border-slate-100 dark:border-slate-700 pt-3 space-y-3">
+      <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Custom Rentang Tanggal</p>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-[10px] text-slate-500 block mb-0.5">Mulai</label>
+          <label className="text-[10px] text-slate-500 dark:text-slate-400 block mb-0.5">Mulai</label>
           <input
             type="date"
             value={start}
             onChange={(e) => setStart(e.target.value)}
-            className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
+            className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
           />
         </div>
         <div>
-          <label className="text-[10px] text-slate-500 block mb-0.5">Selesai</label>
+          <label className="text-[10px] text-slate-500 dark:text-slate-400 block mb-0.5">Selesai</label>
           <input
             type="date"
             value={end}
             onChange={(e) => setEnd(e.target.value)}
-            className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
+            className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
           />
         </div>
       </div>
       <div className="flex gap-2 justify-end">
         <button
           onClick={() => setIsEditing(false)}
-          className="text-xs text-slate-500 px-3 py-1.5 rounded hover:bg-slate-50 transition"
+          className="text-xs text-slate-500 dark:text-slate-400 px-3 py-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition"
           disabled={saving}
         >
           Batal

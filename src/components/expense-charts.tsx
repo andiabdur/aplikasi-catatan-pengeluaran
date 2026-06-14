@@ -60,7 +60,7 @@ export function CategoryPieChart({ data, total }: { data: ChartRow[]; total: num
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <p className="text-xs text-slate-500">Total</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Total</p>
           <p className="text-lg font-bold">{formatIDR(total)}</p>
         </div>
       </div>
@@ -71,8 +71,8 @@ export function CategoryPieChart({ data, total }: { data: ChartRow[]; total: num
               className="w-2 h-2 rounded-full shrink-0"
               style={{ background: d.color }}
             />
-            <span className="truncate text-slate-700">{d.name}</span>
-            <span className="ml-auto text-slate-500 font-medium">
+            <span className="truncate text-slate-700 dark:text-slate-200">{d.name}</span>
+            <span className="ml-auto text-slate-500 dark:text-slate-400 font-medium">
               {((d.value / total) * 100).toFixed(0)}%
             </span>
           </div>

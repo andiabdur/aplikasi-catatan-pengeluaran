@@ -87,7 +87,7 @@ export default function InstallPWA() {
       <button
         type="button"
         onClick={handleClick}
-        className="w-full flex items-center justify-center gap-2 rounded-xl border border-brand-200 bg-white text-brand-700 font-medium py-2.5 text-sm shadow-sm active:scale-[0.99] transition"
+        className="w-full flex items-center justify-center gap-2 rounded-xl border border-brand-200 dark:border-brand-500/30 bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-400 font-medium py-2.5 text-sm shadow-sm active:scale-[0.99] transition"
       >
         <Download className="w-4 h-4" />
         Install aplikasi di HP
@@ -99,11 +99,11 @@ export default function InstallPWA() {
           onClick={() => setShowIOS(false)}
         >
           <div
-            className="w-full max-w-sm bg-white rounded-2xl p-5 shadow-xl"
+            className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-slate-900">Install di iPhone/iPad</h2>
+              <h2 className="font-bold text-slate-900 dark:text-slate-100">Install di iPhone/iPad</h2>
               <button
                 type="button"
                 onClick={() => setShowIOS(false)}
@@ -113,29 +113,29 @@ export default function InstallPWA() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <ol className="space-y-3 text-sm text-slate-700">
+            <ol className="space-y-3 text-sm text-slate-700 dark:text-slate-200">
               <li className="flex items-start gap-2">
-                <span className="font-semibold text-brand-600">1.</span>
+                <span className="font-semibold text-brand-600 dark:text-brand-400">1.</span>
                 <span className="flex items-center gap-1 flex-wrap">
                   Tap tombol <Share className="inline w-4 h-4 text-blue-500" />{" "}
                   <b>Share</b> di bawah layar Safari.
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-semibold text-brand-600">2.</span>
+                <span className="font-semibold text-brand-600 dark:text-brand-400">2.</span>
                 <span className="flex items-center gap-1 flex-wrap">
                   Pilih <b>Add to Home Screen</b>{" "}
-                  <Plus className="inline w-4 h-4 text-slate-500" />.
+                  <Plus className="inline w-4 h-4 text-slate-500 dark:text-slate-400" />.
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-semibold text-brand-600">3.</span>
+                <span className="font-semibold text-brand-600 dark:text-brand-400">3.</span>
                 <span>
                   Tap <b>Add</b>. Aplikasi muncul di layar utama seperti app biasa.
                 </span>
               </li>
             </ol>
-            <p className="text-xs text-slate-500 mt-4">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-4">
               Catatan: harus dibuka di <b>Safari</b> (bukan Chrome) supaya menu ini muncul.
             </p>
           </div>

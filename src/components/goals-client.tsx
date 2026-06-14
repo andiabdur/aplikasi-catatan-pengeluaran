@@ -62,8 +62,8 @@ export function GoalsClient({
 
       {active.length === 0 && done.length === 0 && (
         <div className="card text-center py-10">
-          <Target className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-sm text-slate-500">
+          <Target className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Belum ada goal. Bikin target pertama keluarga lu —<br />Umroh, jalan-jalan, DP rumah, dll.
           </p>
         </div>
@@ -152,7 +152,7 @@ function GoalCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <h3 className="font-semibold text-slate-900 truncate">{goal.name}</h3>
+            <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">{goal.name}</h3>
             {goal.status === "achieved" && (
               <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
             )}
@@ -160,7 +160,7 @@ function GoalCard({
               <Archive className="w-4 h-4 text-slate-400 shrink-0" />
             )}
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {formatIDR(goal.saved)} dari {formatIDR(goal.target_amount)}
             {goal.target_date && ` · target ${formatTargetDate(goal.target_date)}`}
           </p>
@@ -168,14 +168,14 @@ function GoalCard({
         <span
           className={cn(
             "text-sm font-bold shrink-0",
-            reached ? "text-green-600" : "text-slate-700",
+            reached ? "text-green-600 dark:text-green-400" : "text-slate-700 dark:text-slate-200",
           )}
         >
           {pct}%
         </span>
       </div>
 
-      <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden">
+      <div className="h-2.5 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
         <div
           className="h-full rounded-full transition-all"
           style={{
@@ -186,11 +186,11 @@ function GoalCard({
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           {reached ? (
-            <span className="text-green-600 font-medium">Target tercapai! 🎉</span>
+            <span className="text-green-600 dark:text-green-400 font-medium">Target tercapai! 🎉</span>
           ) : (
-            <>Kurang <span className="font-medium text-slate-700">{formatIDR(remaining)}</span></>
+            <>Kurang <span className="font-medium text-slate-700 dark:text-slate-200">{formatIDR(remaining)}</span></>
           )}
         </p>
         <div className="flex items-center gap-1">
@@ -199,7 +199,7 @@ function GoalCard({
           ) : (
             <>
               {isActive && onAchieve && reached && (
-                <IconBtn title="Tandai tercapai" onClick={onAchieve} className="text-green-600">
+                <IconBtn title="Tandai tercapai" onClick={onAchieve} className="text-green-600 dark:text-green-400">
                   <Check className="w-4 h-4" />
                 </IconBtn>
               )}
@@ -209,11 +209,11 @@ function GoalCard({
                 </IconBtn>
               )}
               {!isActive && onReactivate && (
-                <IconBtn title="Aktifkan lagi" onClick={onReactivate} className="text-brand-600">
+                <IconBtn title="Aktifkan lagi" onClick={onReactivate} className="text-brand-600 dark:text-brand-400">
                   <Target className="w-4 h-4" />
                 </IconBtn>
               )}
-              <IconBtn title="Edit" onClick={onEdit} className="text-slate-500">
+              <IconBtn title="Edit" onClick={onEdit} className="text-slate-500 dark:text-slate-400">
                 <Pencil className="w-4 h-4" />
               </IconBtn>
               <IconBtn title="Hapus" onClick={onDelete} className="text-red-500">
@@ -240,7 +240,7 @@ function IconBtn({
       type="button"
       onClick={onClick}
       title={title}
-      className={cn("p-1.5 rounded-lg hover:bg-slate-100 transition", className)}
+      className={cn("p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition", className)}
     >
       {children}
     </button>
@@ -297,11 +297,11 @@ function GoalEditor({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm bg-white rounded-2xl p-5 shadow-xl space-y-4 max-h-[90dvh] overflow-y-auto"
+        className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-xl space-y-4 max-h-[90dvh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h2 className="font-bold text-slate-900">
+          <h2 className="font-bold text-slate-900 dark:text-slate-100">
             {goal ? "Edit Goal" : "Goal Baru"}
           </h2>
           <button type="button" onClick={onClose} className="text-slate-400 p-1">
@@ -320,8 +320,8 @@ function GoalEditor({
                 className={cn(
                   "w-9 h-9 rounded-lg text-lg flex items-center justify-center border transition",
                   emoji === e
-                    ? "border-brand-500 bg-brand-50"
-                    : "border-slate-200 hover:border-slate-300",
+                    ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10"
+                    : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600",
                 )}
               >
                 {e}
@@ -364,7 +364,7 @@ function GoalEditor({
           />
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
         <button
           type="button"

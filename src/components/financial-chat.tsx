@@ -119,7 +119,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
       <div ref={scrollRef} className="space-y-3 max-h-[55dvh] overflow-y-auto pr-0.5">
         {messages.length === 0 && (
           <div className="card text-center py-6 space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-2xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center mx-auto">
               <Sparkles className="w-6 h-6" />
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -161,7 +161,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                     key={exp.id}
                     className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl px-3 py-2"
                   >
-                    <Check className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                    <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                         {exp.description}
@@ -193,7 +193,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
         )}
       </div>
 
-      {error && <p className="text-xs text-red-600 px-1">{error}</p>}
+      {error && <p className="text-xs text-red-600 dark:text-red-400 px-1">{error}</p>}
 
       <form
         onSubmit={(e) => {

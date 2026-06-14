@@ -22,7 +22,7 @@ export function PeriodSelector({
         type="button"
         onClick={() => onChange(shiftPeriod(labelMonth, -1))}
         aria-label="Periode sebelumnya"
-        className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
@@ -30,13 +30,13 @@ export function PeriodSelector({
         <p className={compact ? "text-sm font-semibold" : "font-semibold"}>
           {periodTitle(labelMonth)}
         </p>
-        <p className="text-xs text-slate-500">{customRangeText ?? periodRangeText(labelMonth, payDay)}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">{customRangeText ?? periodRangeText(labelMonth, payDay)}</p>
       </div>
       <button
         type="button"
         onClick={() => onChange(shiftPeriod(labelMonth, 1))}
         aria-label="Periode berikutnya"
-        className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
       >
         <ChevronRight className="w-5 h-5" />
       </button>

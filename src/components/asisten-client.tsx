@@ -93,13 +93,13 @@ export function AsistenClient({ householdId }: { householdId: string }) {
   }
 
   const tabBar = (
-    <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-xl">
+    <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-700 rounded-xl">
       <button
         type="button"
         onClick={() => setTab("analisa")}
         className={cn(
           "flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition",
-          tab === "analisa" ? "bg-white text-brand-700 shadow-sm" : "text-slate-500",
+          tab === "analisa" ? "bg-white dark:bg-slate-600 text-brand-700 dark:text-brand-300 shadow-sm" : "text-slate-500 dark:text-slate-400",
         )}
       >
         <BarChart3 className="w-4 h-4" /> Analisa
@@ -109,7 +109,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
         onClick={() => setTab("chat")}
         className={cn(
           "flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition",
-          tab === "chat" ? "bg-white text-brand-700 shadow-sm" : "text-slate-500",
+          tab === "chat" ? "bg-white dark:bg-slate-600 text-brand-700 dark:text-brand-300 shadow-sm" : "text-slate-500 dark:text-slate-400",
         )}
       >
         <MessageCircle className="w-4 h-4" /> Chat
@@ -131,12 +131,12 @@ export function AsistenClient({ householdId }: { householdId: string }) {
       <div className="space-y-4">
         {tabBar}
         <div className="card text-center py-8 space-y-3">
-          <div className="w-14 h-14 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 flex items-center justify-center mx-auto">
             <Sparkles className="w-7 h-7" />
           </div>
           <div>
-            <h2 className="font-semibold text-slate-900">Minta saran dari AI</h2>
-            <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+            <h2 className="font-semibold text-slate-900 dark:text-slate-100">Minta saran dari AI</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
               AI bakal baca pola belanja keluarga lu beberapa periode terakhir, kasih diagnosa,
               hal yang harus ditekan, dan usulan budget buat periode depan.
             </p>
@@ -148,7 +148,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
               <><Sparkles className="w-5 h-5" /> Analisa keuangan keluarga gue</>
             )}
           </button>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         </div>
       </div>
     );
@@ -165,7 +165,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
           </span>
           <HealthBadge health={data.health} />
         </div>
-        <p className="text-sm text-slate-700 leading-relaxed">{data.summary}</p>
+        <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">{data.summary}</p>
         {data.periods_analyzed.length > 0 && (
           <p className="text-[11px] text-slate-400">
             Berdasarkan: {data.periods_analyzed.join(", ")}
@@ -182,8 +182,8 @@ export function AsistenClient({ householdId }: { householdId: string }) {
               <div key={i} className="flex gap-2.5">
                 <SeverityIcon severity={ins.severity} />
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-800">{ins.title}</p>
-                  <p className="text-xs text-slate-500 leading-snug">{ins.detail}</p>
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{ins.title}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">{ins.detail}</p>
                 </div>
               </div>
             ))}
@@ -197,8 +197,8 @@ export function AsistenClient({ householdId }: { householdId: string }) {
           <SectionTitle icon={ListChecks}>Yang harus ditekan sekarang</SectionTitle>
           <ul className="space-y-2">
             {data.action_now.map((a, i) => (
-              <li key={i} className="flex gap-2 text-sm text-slate-700">
-                <span className="text-brand-600 font-bold shrink-0">{i + 1}.</span>
+              <li key={i} className="flex gap-2 text-sm text-slate-700 dark:text-slate-200">
+                <span className="text-brand-600 dark:text-brand-400 font-bold shrink-0">{i + 1}.</span>
                 <span>{a}</span>
               </li>
             ))}
@@ -213,8 +213,8 @@ export function AsistenClient({ householdId }: { householdId: string }) {
           <div className="space-y-2.5">
             {data.goal_advice.map((g, i) => (
               <div key={i}>
-                <p className="text-sm font-medium text-slate-800">{g.goal_name}</p>
-                <p className="text-xs text-slate-500 leading-snug">{g.advice}</p>
+                <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{g.goal_name}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">{g.advice}</p>
               </div>
             ))}
           </div>
@@ -227,14 +227,14 @@ export function AsistenClient({ householdId }: { householdId: string }) {
           <SectionTitle icon={Wallet}>
             Usulan budget — {data.next_period_title}
           </SectionTitle>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {data.suggested_budgets.map((s) => (
               <div key={s.category_id} className="py-2 flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-800">{s.category_name}</p>
-                  {s.reason && <p className="text-xs text-slate-500 leading-snug">{s.reason}</p>}
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{s.category_name}</p>
+                  {s.reason && <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">{s.reason}</p>}
                 </div>
-                <span className="text-sm font-semibold text-slate-900 shrink-0">
+                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 shrink-0">
                   {formatIDR(s.amount)}
                 </span>
               </div>
@@ -242,7 +242,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
           </div>
 
           {applied ? (
-            <div className="flex items-center gap-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg p-2.5">
+            <div className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-500/10 rounded-lg p-2.5">
               <Check className="w-4 h-4" /> Budget {data.next_period_title} berhasil di-set!
             </div>
           ) : (
@@ -260,12 +260,12 @@ export function AsistenClient({ householdId }: { householdId: string }) {
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600 px-1">{error}</p>}
+      {error && <p className="text-sm text-red-600 dark:text-red-400 px-1">{error}</p>}
 
       <button
         onClick={analyze}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-slate-600 font-medium py-2.5 text-sm hover:bg-slate-50 transition disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition disabled:opacity-60"
       >
         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Analisa ulang"}
       </button>
@@ -275,8 +275,8 @@ export function AsistenClient({ householdId }: { householdId: string }) {
 
 function SectionTitle({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-      <Icon className="w-4 h-4 text-brand-600" />
+    <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
+      <Icon className="w-4 h-4 text-brand-600 dark:text-brand-400" />
       {children}
     </h3>
   );
@@ -284,11 +284,11 @@ function SectionTitle({ icon: Icon, children }: { icon: React.ElementType; child
 
 function HealthBadge({ health }: { health: string }) {
   const map: Record<string, { label: string; cls: string }> = {
-    sehat: { label: "Sehat", cls: "bg-green-100 text-green-700" },
-    waspada: { label: "Waspada", cls: "bg-amber-100 text-amber-700" },
-    boncos: { label: "Boncos", cls: "bg-red-100 text-red-700" },
+    sehat: { label: "Sehat", cls: "bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400" },
+    waspada: { label: "Waspada", cls: "bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400" },
+    boncos: { label: "Boncos", cls: "bg-red-100 dark:bg-red-500/15 text-red-700 dark:text-red-400" },
   };
-  const m = map[health] ?? { label: health || "—", cls: "bg-slate-100 text-slate-600" };
+  const m = map[health] ?? { label: health || "—", cls: "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300" };
   return <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-full capitalize", m.cls)}>{m.label}</span>;
 }
 

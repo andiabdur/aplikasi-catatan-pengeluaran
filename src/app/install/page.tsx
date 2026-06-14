@@ -25,16 +25,16 @@ export default function InstallPage() {
   }, []);
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-6 bg-gradient-to-br from-brand-50 to-slate-100">
+    <div className="min-h-dvh flex flex-col items-center justify-center px-6 bg-gradient-to-br from-brand-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <div className="w-full max-w-sm text-center">
         <div className="flex flex-col items-center mb-8">
           <div className="w-20 h-20 rounded-3xl bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-600/30 mb-5">
             <Wallet className="w-10 h-10" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             Catatan Keuangan Keluarga
           </h1>
-          <p className="text-sm text-slate-600 mt-2 leading-relaxed">
+          <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
             Catat pengeluaran keluarga cukup dengan ngomong. Install dulu ke HP,
             lalu buat akun sendiri.
           </p>
@@ -42,12 +42,12 @@ export default function InstallPage() {
 
         <div className="card space-y-4">
           {mounted && installed ? (
-            <p className="text-sm text-brand-700 bg-brand-50 border border-brand-200 rounded-lg p-3">
+            <p className="text-sm text-brand-700 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 rounded-lg p-3">
               Aplikasi sudah ter-install di HP ini. Buka dari layar utama ya. 🎉
             </p>
           ) : (
             <>
-              <div className="flex items-center justify-center gap-2 text-slate-500 text-sm">
+              <div className="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
                 <Smartphone className="w-4 h-4" />
                 Tap tombol di bawah untuk pasang
               </div>
@@ -57,7 +57,7 @@ export default function InstallPage() {
 
           <a
             href="/login"
-            className="block text-sm text-brand-600 font-medium pt-2 border-t border-slate-100"
+            className="block text-sm text-brand-600 dark:text-brand-400 font-medium pt-2 border-t border-slate-100 dark:border-slate-700"
           >
             Lewati, langsung buka aplikasi →
           </a>
@@ -72,7 +72,7 @@ export default function InstallPage() {
 function Footer() {
   return (
     <div className="mt-8 text-center">
-      <p className="text-xs text-slate-500">by andiabdur</p>
+      <p className="text-xs text-slate-500 dark:text-slate-400">by andiabdur</p>
       <p className="text-xs text-slate-400 mt-0.5 flex items-center justify-center gap-1">
         made with <span className="text-red-500">❤</span> for Umma :D
       </p>

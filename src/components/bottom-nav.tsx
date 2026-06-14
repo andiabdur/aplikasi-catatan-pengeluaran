@@ -27,7 +27,7 @@ export function BottomNav() {
               prefetch={false}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 py-2.5 text-xs",
-                active ? "text-brand-600" : "text-slate-500 dark:text-slate-400",
+                active ? "text-brand-600 dark:text-brand-400" : "text-slate-500 dark:text-slate-400",
               )}
             >
               <span
@@ -41,7 +41,7 @@ export function BottomNav() {
               >
                 <Icon className={primary ? "w-6 h-6" : "w-5 h-5"} />
               </span>
-              <span className={cn(primary && "text-brand-600 font-medium")}>{label}</span>
+              <span className={cn(primary && "text-brand-600 dark:text-brand-400 font-medium")}>{label}</span>
             </Link>
           );
         })}

@@ -93,7 +93,7 @@ export function DashboardClient({
         {!isCurrent && (
           <button
             onClick={() => setLabelMonth(currentPeriodLabelWithCustom(payDay, customPeriods))}
-            className="mt-2 text-xs text-brand-600 w-full text-center"
+            className="mt-2 text-xs text-brand-600 dark:text-brand-400 w-full text-center"
           >
             Ke periode sekarang
           </button>
@@ -145,34 +145,34 @@ export function DashboardClient({
       {/* AI assistant entry */}
       <Link
         href="/asisten"
-        className="flex items-center gap-3 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-4 shadow-sm active:scale-[0.99] transition"
+        className="flex items-center gap-3 rounded-2xl border border-brand-200 dark:border-brand-500/30 bg-gradient-to-br from-brand-50 to-white dark:from-brand-500/10 dark:to-slate-800 p-4 shadow-sm active:scale-[0.99] transition"
       >
         <div className="w-11 h-11 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0">
           <Sparkles className="w-5 h-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-slate-900">Asisten Keuangan AI</p>
-          <p className="text-xs text-slate-500 leading-snug">
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Asisten Keuangan AI</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">
             Minta analisa pola belanja & usulan budget bulan depan.
           </p>
         </div>
-        <ArrowUpRight className="w-5 h-5 text-brand-600 shrink-0" />
+        <ArrowUpRight className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" />
       </Link>
 
       {/* Categories */}
       <section className="space-y-2">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold">Budget per Kategori</h2>
-          <Link href="/settings" className="text-xs text-brand-600">
+          <Link href="/settings" className="text-xs text-brand-600 dark:text-brand-400">
             Atur
           </Link>
         </div>
-        <div className="card divide-y divide-slate-100 p-0">
+        <div className="card divide-y divide-slate-100 dark:divide-slate-700 p-0">
           {loading && (
-            <p className="p-4 text-sm text-slate-500 text-center">Memuat...</p>
+            <p className="p-4 text-sm text-slate-500 dark:text-slate-400 text-center">Memuat...</p>
           )}
           {!loading && summary.length === 0 && (
-            <p className="p-4 text-sm text-slate-500">Belum ada kategori.</p>
+            <p className="p-4 text-sm text-slate-500 dark:text-slate-400">Belum ada kategori.</p>
           )}
           {summary.map((row) => {
             const pct = Math.min(100, Number(row.usage_pct));
@@ -211,7 +211,7 @@ export function DashboardClient({
                   />
                 </div>
                 <div className="flex justify-between mt-1.5 text-xs">
-                  <span className={cn(overBudget ? "text-red-600" : "text-slate-500 dark:text-slate-400")}>
+                  <span className={cn(overBudget ? "text-red-600 dark:text-red-400" : "text-slate-500 dark:text-slate-400")}>
                     {overBudget
                       ? `Lebih ${formatIDR(Number(row.spent) - Number(row.budget))}`
                       : `Sisa ${formatIDR(row.remaining)}`}
@@ -228,13 +228,13 @@ export function DashboardClient({
       <section className="space-y-2">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold">Pengeluaran Terbaru</h2>
-          <Link href="/history" className="text-xs text-brand-600 flex items-center gap-0.5">
+          <Link href="/history" className="text-xs text-brand-600 dark:text-brand-400 flex items-center gap-0.5">
             Lihat semua <ArrowUpRight className="w-3 h-3" />
           </Link>
         </div>
-        <div className="card divide-y divide-slate-100 p-0">
+        <div className="card divide-y divide-slate-100 dark:divide-slate-700 p-0">
           {recent.length === 0 && !loading && (
-            <p className="p-4 text-sm text-slate-500 text-center">
+            <p className="p-4 text-sm text-slate-500 dark:text-slate-400 text-center">
               Belum ada pengeluaran di periode ini.
             </p>
           )}
@@ -248,7 +248,7 @@ export function DashboardClient({
                   />
                   <p className="font-medium truncate">{e.description}</p>
                 </div>
-                <p className="text-xs text-slate-500 ml-4 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 ml-4 mt-0.5">
                   {e.categories?.name} ·{" "}
                   {new Date(e.spent_at).toLocaleDateString("id-ID", {
                     day: "numeric",

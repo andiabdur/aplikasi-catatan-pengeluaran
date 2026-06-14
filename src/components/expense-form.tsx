@@ -376,7 +376,7 @@ export function ExpenseForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Voice note */}
-      <div className="card bg-brand-50 border-brand-200 space-y-2">
+      <div className="card bg-brand-50 dark:bg-brand-500/10 border-brand-200 dark:border-brand-500/30 space-y-2">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -403,22 +403,22 @@ export function ExpenseForm({
           <div className="min-w-0 flex-1">
             {voiceState === "recording" ? (
               <>
-                <p className="text-sm font-semibold text-red-600">
+                <p className="text-sm font-semibold text-red-600 dark:text-red-400">
                   Merekam... {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}
                 </p>
-                <p className="text-xs text-slate-500">Tap tombol stop kalau sudah selesai ngomong.</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Tap tombol stop kalau sudah selesai ngomong.</p>
               </>
             ) : voiceState === "processing" ? (
               <>
-                <p className="text-sm font-semibold text-slate-700">Mendengarkan & menulis...</p>
-                <p className="text-xs text-slate-500">Lagi diproses AI sebentar.</p>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Mendengarkan & menulis...</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Lagi diproses AI sebentar.</p>
               </>
             ) : (
               <>
-                <p className="text-sm font-semibold text-brand-800 flex items-center gap-1">
+                <p className="text-sm font-semibold text-brand-800 dark:text-brand-300 flex items-center gap-1">
                   <Sparkles className="w-3.5 h-3.5" /> Catat pakai suara
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Sebut beberapa item sekaligus — beda kategori otomatis jadi post terpisah.
                 </p>
               </>
@@ -426,21 +426,21 @@ export function ExpenseForm({
           </div>
         </div>
         {transcript && voiceState === "idle" && savedExpenses.length === 0 && (
-          <p className="text-xs text-slate-500 bg-white/70 rounded-lg px-3 py-1.5">
-            Terdengar: <span className="text-slate-700">&quot;{transcript}&quot;</span>
+          <p className="text-xs text-slate-500 dark:text-slate-400 bg-white/70 dark:bg-slate-900/40 rounded-lg px-3 py-1.5">
+            Terdengar: <span className="text-slate-700 dark:text-slate-200">&quot;{transcript}&quot;</span>
           </p>
         )}
         {savedExpenses.length > 0 && voiceState === "idle" && (
           <div className="space-y-1.5">
             {savedExpenses.length > 1 && (
               <div className="flex items-center justify-between px-1">
-                <p className="text-xs font-semibold text-green-700 flex items-center gap-1">
+                <p className="text-xs font-semibold text-green-700 dark:text-green-400 flex items-center gap-1">
                   <Check className="w-3.5 h-3.5" /> {savedExpenses.length} pengeluaran tersimpan
                 </p>
                 <button
                   type="button"
                   onClick={undoAll}
-                  className="text-xs font-medium text-red-600 hover:text-red-700"
+                  className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700"
                 >
                   Batalkan semua
                 </button>
@@ -449,11 +449,11 @@ export function ExpenseForm({
             {savedExpenses.map((s, i) => (
               <div
                 key={s.id ?? i}
-                className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 space-y-1"
+                className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30 rounded-lg px-3 py-2 space-y-1"
               >
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-600 shrink-0" />
-                  <p className="text-xs text-slate-700 min-w-0 flex-1 truncate">
+                  <Check className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0" />
+                  <p className="text-xs text-slate-700 dark:text-slate-200 min-w-0 flex-1 truncate">
                     <span className="font-semibold">{s.description}</span> ·{" "}
                     <span className="font-semibold">{formatIDR(s.amount)}</span>
                     {s.categoryName && ` · ${s.categoryName}`}
@@ -462,13 +462,13 @@ export function ExpenseForm({
                   <button
                     type="button"
                     onClick={() => undoSaved(s.id)}
-                    className="text-xs font-medium text-red-600 hover:text-red-700 shrink-0"
+                    className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 shrink-0"
                   >
                     Batalkan
                   </button>
                 </div>
                 {s.items.length > 1 && (
-                  <p className="text-[11px] text-slate-500 pl-6 leading-snug">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 pl-6 leading-snug">
                     {s.items
                       .map((it) => `${it.name} ${formatIDR(it.price).replace("Rp ", "")}`)
                       .join(" + ")}{" "}
@@ -479,7 +479,7 @@ export function ExpenseForm({
             ))}
           </div>
         )}
-        {voiceError && <p className="text-xs text-red-600 px-1">{voiceError}</p>}
+        {voiceError && <p className="text-xs text-red-600 dark:text-red-400 px-1">{voiceError}</p>}
       </div>
 
       {/* Tanggal */}
@@ -517,7 +517,7 @@ export function ExpenseForm({
                 "flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg transition",
                 calcOpen
                   ? "bg-brand-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200",
+                  : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600",
               )}
             >
               <Calculator className="w-3.5 h-3.5" />
@@ -541,13 +541,13 @@ export function ExpenseForm({
 
           {/* Calculator panel */}
           {calcOpen && (
-            <div className="mt-2 border border-slate-200 rounded-xl overflow-hidden">
-              <div className="px-3 py-2 bg-slate-50 border-b border-slate-100 text-right min-h-9 flex items-center justify-end">
-                <span className="text-sm font-mono text-slate-600 truncate">
+            <div className="mt-2 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+              <div className="px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-700 text-right min-h-9 flex items-center justify-end">
+                <span className="text-sm font-mono text-slate-600 dark:text-slate-300 truncate">
                   {calcExpr || "0"}
                 </span>
               </div>
-              <div className="grid grid-cols-4 gap-px bg-slate-100">
+              <div className="grid grid-cols-4 gap-px bg-slate-100 dark:bg-slate-700">
                 {(["AC", "⌫", "÷", "×", "7", "8", "9", "-", "4", "5", "6", "+", "1", "2", "3", "=", "0", "00", "000", "."] as const).map(
                   (k) => (
                     <button
@@ -555,10 +555,10 @@ export function ExpenseForm({
                       key={k}
                       onClick={() => calcPress(k)}
                       className={cn(
-                        "py-3.5 text-sm font-semibold bg-white hover:bg-slate-50 active:bg-slate-100 transition",
+                        "py-3.5 text-sm font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 active:bg-slate-100 dark:active:bg-slate-700 transition",
                         (k === "AC" || k === "⌫") && "text-red-500",
                         (k === "÷" || k === "×" || k === "-" || k === "+") &&
-                          "text-brand-600",
+                          "text-brand-600 dark:text-brand-400",
                         k === "=" && "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800",
                       )}
                     >
@@ -579,7 +579,7 @@ export function ExpenseForm({
                   onClick={() =>
                     setCostText(formatIDRInput(String(parseIDRInput(costText) + v)))
                   }
-                  className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
                 >
                   +{(v / 1000).toFixed(0)}rb
                 </button>
@@ -594,7 +594,7 @@ export function ExpenseForm({
         <label className="label">Kategori</label>
         {topCategories.length > 0 && (
           <div>
-            <p className="text-xs text-slate-500 mb-2">Sering dipakai</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Sering dipakai</p>
             <div className="flex flex-wrap gap-2">
               {topCategories.map((c) => (
                 <CategoryChip
@@ -608,7 +608,7 @@ export function ExpenseForm({
           </div>
         )}
         <div>
-          <p className="text-xs text-slate-500 mb-2">Semua kategori</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Semua kategori</p>
           <div className="grid grid-cols-2 gap-2">
             {categories.map((c) => (
               <CategoryChip
@@ -625,9 +625,9 @@ export function ExpenseForm({
 
       {/* Goal picker — only when a savings (Nabung) category is selected */}
       {isSavingsCategory(categories.find((c) => c.id === categoryId)?.name) && goals.length > 0 && (
-        <div className="card space-y-2 border-brand-200 bg-brand-50/50">
+        <div className="card space-y-2 border-brand-200 dark:border-brand-500/30 bg-brand-50/50 dark:bg-brand-500/10">
           <label className="label flex items-center gap-1.5">
-            <Target className="w-3.5 h-3.5 text-brand-600" /> Nabung buat goal? (opsional)
+            <Target className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" /> Nabung buat goal? (opsional)
           </label>
           <div className="flex flex-wrap gap-2">
             <button
@@ -637,7 +637,7 @@ export function ExpenseForm({
                 "px-3 py-2 rounded-xl text-sm border transition",
                 goalId === ""
                   ? "bg-slate-700 border-slate-700 text-white font-medium"
-                  : "bg-white border-slate-200 text-slate-600 hover:border-slate-300",
+                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600",
               )}
             >
               Tanpa goal
@@ -650,8 +650,8 @@ export function ExpenseForm({
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm border transition",
                   goalId === g.id
-                    ? "bg-brand-50 border-brand-500 text-brand-700 font-medium"
-                    : "bg-white border-slate-200 text-slate-700 hover:border-slate-300",
+                    ? "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 font-medium"
+                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600",
                 )}
               >
                 <span>{g.emoji}</span>
@@ -662,7 +662,7 @@ export function ExpenseForm({
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600 px-1">{error}</p>}
+      {error && <p className="text-sm text-red-600 dark:text-red-400 px-1">{error}</p>}
 
       <button type="submit" disabled={pending} className="btn-primary w-full text-base py-3.5">
         {pending ? (
@@ -676,7 +676,7 @@ export function ExpenseForm({
         )}
       </button>
 
-      <p className="text-xs text-slate-500 text-center">
+      <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
         Setelah simpan, form kosong otomatis biar Anda bisa input cepat berturut-turut.
       </p>
     </form>
@@ -702,8 +702,8 @@ function CategoryChip({
         "flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition",
         full ? "w-full justify-start" : "",
         selected
-          ? "bg-brand-50 border-brand-500 text-brand-700 font-medium"
-          : "bg-white border-slate-200 text-slate-700 hover:border-slate-300",
+          ? "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 font-medium"
+          : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600",
       )}
     >
       <span

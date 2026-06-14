@@ -47,7 +47,7 @@ export function FloatingChat({ householdId }: { householdId: string }) {
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-2 pb-3 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>

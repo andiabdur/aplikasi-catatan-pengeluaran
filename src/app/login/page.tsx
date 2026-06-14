@@ -36,14 +36,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-6 bg-gradient-to-br from-brand-50 to-slate-100">
+    <div className="min-h-dvh flex flex-col items-center justify-center px-6 bg-gradient-to-br from-brand-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <div className="w-16 h-16 rounded-2xl bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-600/30 mb-4">
             <Wallet className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Catatan Keuangan Keluarga</h1>
-          <p className="text-sm text-slate-600 mt-1">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Catatan Keuangan Keluarga</h1>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
             {mode === "signin" ? "Masuk ke akun Anda" : "Buat akun baru"}
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function LoginPage() {
             />
           </div>
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5">
+            <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg p-2.5">
               {error}
             </p>
           )}
@@ -91,33 +91,33 @@ export default function LoginPage() {
             )}
           </button>
 
-          <div className="text-center pt-2 border-t border-slate-100">
+          <div className="text-center pt-2 border-t border-slate-100 dark:border-slate-700">
             {mode === "signin" ? (
               <button
                 type="button"
                 onClick={() => { setMode("signup"); setError(null); }}
-                className="text-sm text-slate-600"
+                className="text-sm text-slate-600 dark:text-slate-300"
               >
-                Belum punya akun? <span className="text-brand-600 font-medium">Daftar</span>
+                Belum punya akun? <span className="text-brand-600 dark:text-brand-400 font-medium">Daftar</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={() => { setMode("signin"); setError(null); }}
-                className="text-sm text-slate-600"
+                className="text-sm text-slate-600 dark:text-slate-300"
               >
-                Sudah punya akun? <span className="text-brand-600 font-medium">Masuk</span>
+                Sudah punya akun? <span className="text-brand-600 dark:text-brand-400 font-medium">Masuk</span>
               </button>
             )}
           </div>
         </form>
 
-        <p className="text-xs text-slate-500 text-center mt-4">
+        <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-4">
           Daftar sekali pake email + password. Tanpa email konfirmasi.
         </p>
 
         <div className="mt-8 text-center">
-          <p className="text-xs text-slate-500">by andiabdur</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">by andiabdur</p>
           <p className="text-xs text-slate-400 mt-0.5 flex items-center justify-center gap-1">
             made with <span className="text-red-500">❤</span> for Umma :D
           </p>
