@@ -2,11 +2,13 @@
 
 import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { formatIDR, formatIDRInput, parseIDRInput, todayISO } from "@/lib/format";
 import type { Category, Goal } from "@/lib/types";
-import { Check, Loader2, Calculator, Mic, Square, Sparkles, Target } from "lucide-react";
+import { Check, Loader2, Calculator as CalcIcon, Mic, Square, Sparkles, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useVoiceFeedback } from "@/hooks/useVoiceFeedback";
+import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
+import { Calculator } from "@/components/calculator";
 
 // A category counts as "savings" if its name mentions nabung/tabung.
 function isSavingsCategory(name: string | undefined): boolean {
@@ -33,319 +35,35 @@ export function ExpenseForm({
   const [error, setError] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
-  const [calcExpr, setCalcExpr] = useState("");
   const descRef = useRef<HTMLInputElement>(null);
-  // Voice feedback (TTS) - browser native, Bahasa Indonesia, no API key needed.
-  // NOTE: browsers (esp. iOS/Chrome mobile) only allow speech that originates
-  // from a user gesture. Because we speak AFTER an async fetch, the gesture
-  // context is gone — so we "unlock" the engine on the record tap (see
-  // unlockSpeech) and only then can the later speak() actually produce sound.
-  const unlockSpeech = useRef(() => {
-    if (typeof window === "undefined" || !window.speechSynthesis) return;
-    // Speaking a near-silent utterance inside the gesture grants permission.
-    try {
-      const primer = new SpeechSynthesisUtterance(" ");
-      primer.volume = 0;
-      window.speechSynthesis.speak(primer);
-    } catch { /* ignore */ }
-  }).current;
 
-  const speakFeedback = useRef((text: string) => {
-    if (typeof window === "undefined" || !window.speechSynthesis) return;
-    const synth = window.speechSynthesis;
-    let done = false;
-    const run = () => {
-      if (done) return;
-      done = true;
-      synth.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "id-ID";
-      utterance.rate = 0.88;
-      utterance.pitch = 1.05;
-      const idVoice = synth.getVoices().find((v) => v.lang.toLowerCase().startsWith("id"));
-      if (idVoice) utterance.voice = idVoice;
-      synth.speak(utterance);
-    };
-    // Voices can load async; if not ready yet, wait once for them.
-    if (synth.getVoices().length === 0) {
-      synth.addEventListener("voiceschanged", run, { once: true });
-      // Fallback in case the event never fires (some browsers).
-      setTimeout(run, 300);
-    } else {
-      run();
-    }
-  }).current;
+  // Hook 1: Text to Speech voice feedbacks
+  const { unlockSpeech, speakFeedback } = useVoiceFeedback();
 
-  // Cancel TTS on unmount
-  useEffect(() => {
-    return () => {
-      if (typeof window !== "undefined" && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
-
-  // Voice note state
-  const [voiceState, setVoiceState] = useState<"idle" | "recording" | "processing">("idle");
-  const [voiceError, setVoiceError] = useState<string | null>(null);
-  const [transcript, setTranscript] = useState<string | null>(null);
-  const [elapsed, setElapsed] = useState(0);
-  type SavedExpense = {
-    id?: string;
-    description: string;
-    amount: number;
-    categoryName: string;
-    goalName?: string | null;
-    items: { name: string; price: number }[];
-  };
-  const [savedExpenses, setSavedExpenses] = useState<SavedExpense[]>([]);
-  const recorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Hook 2: Voice recorder and API processor
+  const {
+    voiceState,
+    voiceError,
+    transcript,
+    elapsed,
+    savedExpenses,
+    startRecording,
+    stopRecording,
+    undoSaved,
+    undoAll,
+    saveExpense,
+  } = useVoiceRecorder({
+    spentAt,
+    setDescription,
+    setCostText,
+    setCategoryId,
+    speakFeedback,
+    unlockSpeech,
+  });
 
   useEffect(() => {
     descRef.current?.focus();
   }, []);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
-  function pickAudioMime(): string {
-    const candidates = [
-      "audio/webm;codecs=opus",
-      "audio/webm",
-      "audio/mp4",
-      "audio/ogg;codecs=opus",
-    ];
-    if (typeof MediaRecorder === "undefined") return "";
-    for (const c of candidates) {
-      if (MediaRecorder.isTypeSupported(c)) return c;
-    }
-    return "";
-  }
-
-  async function startRecording() {
-    if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
-    // Unlock TTS within this user gesture so the post-fetch feedback can speak.
-    unlockSpeech();
-    setVoiceError(null);
-    setTranscript(null);
-    setSavedExpenses([]);
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setVoiceError("Browser tidak mendukung rekaman suara.");
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        },
-      });
-      const mime = pickAudioMime();
-      const rec = new MediaRecorder(
-        stream,
-        mime ? { mimeType: mime, audioBitsPerSecond: 128000 } : undefined,
-      );
-      chunksRef.current = [];
-      rec.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
-      };
-      rec.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop());
-        if (timerRef.current) clearInterval(timerRef.current);
-        const blob = new Blob(chunksRef.current, { type: rec.mimeType || mime || "audio/webm" });
-        await processAudio(blob);
-      };
-      rec.start();
-      recorderRef.current = rec;
-      setElapsed(0);
-      setVoiceState("recording");
-      timerRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
-    } catch {
-      setVoiceError("Mikrofon tidak bisa diakses. Cek izin mikrofon di browser.");
-      setVoiceState("idle");
-    }
-  }
-
-  function stopRecording() {
-    if (recorderRef.current && recorderRef.current.state !== "inactive") {
-      setVoiceState("processing");
-      recorderRef.current.stop();
-    }
-  }
-
-  async function processAudio(blob: Blob) {
-    try {
-      const fd = new FormData();
-      const ext = blob.type.includes("mp4") ? "m4a" : blob.type.includes("ogg") ? "ogg" : "webm";
-      fd.append("audio", blob, `voice.${ext}`);
-      const res = await fetch("/api/voice-expense", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) {
-        setVoiceError(data.error || "Gagal memproses suara.");
-        setVoiceState("idle");
-        return;
-      }
-
-      setTranscript(data.transcript || null);
-
-      type Group = {
-        description: string;
-        amount: number;
-        category_id: string | null;
-        category_name: string | null;
-        goal_id: string | null;
-        goal_name: string | null;
-        items: { name: string; price: number }[];
-      };
-      const groups: Group[] = Array.isArray(data.groups) ? data.groups : [];
-
-      // Groups siap di-post: punya kategori valid + nominal > 0
-      const postable = groups.filter((g) => g.category_id && g.amount > 0);
-      // Groups yang kategorinya gak kebaca (perlu dilengkapi manual)
-      const incomplete = groups.filter((g) => !g.category_id && (g.description || g.amount > 0));
-
-      if (postable.length > 0) {
-        const saved: SavedExpense[] = [];
-        for (const g of postable) {
-          const { error: err, id } = await saveExpense({
-            description: g.description,
-            amount: g.amount,
-            categoryId: g.category_id!,
-            spentAt,
-            goalId: g.goal_id,
-          });
-          if (!err) {
-            saved.push({
-              id,
-              description: g.description,
-              amount: g.amount,
-              categoryName: g.category_name ?? "",
-              goalName: g.goal_name,
-              items: g.items ?? [],
-            });
-          }
-        }
-        setSavedExpenses(saved);
-        setVoiceState("idle");
-        startTransition(() => router.refresh());
-
-        // Voice feedback: speak what was saved
-        if (saved.length > 0) {
-          const total = saved.reduce((s, e) => s + e.amount, 0);
-          if (saved.length === 1) {
-            const s = saved[0];
-            const cost = formatIDR(s.amount).replace("Rp ", "");
-            const goal = s.goalName ? ", goal " + s.goalName : "";
-            speakFeedback("Oke udah dicatat, " + s.description + " seharga " + cost + " di kategori " + s.categoryName + goal);
-          } else {
-            speakFeedback("Oke udah dicatat " + saved.length + " pengeluaran, total " + formatIDR(total).replace("Rp ", ""));
-          }
-        }
-
-        if (saved.length < postable.length) {
-          setVoiceError("Sebagian gagal tersimpan, coba ulangi yang kurang.");
-        } else if (incomplete.length > 0) {
-          // Satu group kategorinya gak kebaca -> bantu isi ke form
-          const g = incomplete[0];
-          if (g.description) setDescription(g.description);
-          if (g.amount > 0) setCostText(formatIDRInput(String(g.amount)));
-          setVoiceError(`"${incomplete[0].description}" belum dapat kategori — lengkapi & simpan manual.`);
-        }
-        return;
-      }
-
-      // Tidak ada yang bisa di-post otomatis -> isi form dari group pertama
-      const g0 = groups[0];
-      if (g0?.description) setDescription(g0.description);
-      if (g0 && g0.amount > 0) setCostText(formatIDRInput(String(g0.amount)));
-      if (g0?.category_id) setCategoryId(g0.category_id);
-      setVoiceError(
-        g0 ? "Nominal/kategori belum kebaca jelas. Lengkapi & simpan manual." : "Suara kurang jelas, coba ulangi.",
-      );
-      setVoiceState("idle");
-    } catch {
-      setVoiceError("Gagal mengirim suara. Cek koneksi.");
-      setVoiceState("idle");
-    }
-  }
-
-  function calcPress(key: string) {
-    if (key === "AC") { setCalcExpr(""); return; }
-    if (key === "⌫") { setCalcExpr((e) => e.slice(0, -1)); return; }
-    if (key === "=") {
-      const clean = calcExpr.replace(/×/g, "*").replace(/÷/g, "/");
-      if (!/^[\d\s+\-*/().]+$/.test(clean)) return;
-      try {
-        // eslint-disable-next-line no-new-func
-        const result = Function('"use strict"; return (' + clean + ")")() as number;
-        if (isFinite(result) && result >= 0) {
-          setCostText(formatIDRInput(String(Math.round(result))));
-          setCalcOpen(false);
-          setCalcExpr("");
-        }
-      } catch { /* ignore bad expr */ }
-      return;
-    }
-    setCalcExpr((e) => e + key);
-  }
-
-  async function saveExpense(payload: {
-    description: string;
-    amount: number;
-    categoryId: string;
-    spentAt: string;
-    goalId?: string | null;
-  }): Promise<{ error?: string; id?: string }> {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { error: "Belum login." };
-    const { data: member } = await supabase
-      .from("household_members")
-      .select("household_id")
-      .eq("user_id", user.id)
-      .single();
-    if (!member) return { error: "Household tidak ditemukan." };
-    const { data, error } = await supabase
-      .from("expenses")
-      .insert({
-        household_id: member.household_id,
-        category_id: payload.categoryId,
-        spent_at: payload.spentAt,
-        description: payload.description.trim(),
-        amount: payload.amount,
-        goal_id: payload.goalId || null,
-        created_by: user.id,
-      })
-      .select("id")
-      .single();
-    if (error) return { error: error.message };
-    return { id: data?.id };
-  }
-
-  async function undoSaved(id?: string) {
-    if (!id) return;
-    const supabase = createClient();
-    await supabase.from("expenses").delete().eq("id", id);
-    setSavedExpenses((prev) => prev.filter((e) => e.id !== id));
-    startTransition(() => router.refresh());
-  }
-
-  async function undoAll() {
-    const ids = savedExpenses.map((e) => e.id).filter(Boolean) as string[];
-    if (ids.length === 0) return;
-    const supabase = createClient();
-    await supabase.from("expenses").delete().in("id", ids);
-    setSavedExpenses([]);
-    startTransition(() => router.refresh());
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -360,7 +78,11 @@ export function ExpenseForm({
     const goalForSave = isSavingsCategory(selectedCat?.name) ? goalId : null;
 
     const { error: err } = await saveExpense({
-      description, amount, categoryId, spentAt, goalId: goalForSave,
+      description,
+      amount,
+      categoryId,
+      spentAt,
+      goalId: goalForSave,
     });
     if (err) return setError(err);
 
@@ -512,7 +234,7 @@ export function ExpenseForm({
             <label className="label mb-0">Cost (Rp)</label>
             <button
               type="button"
-              onClick={() => { setCalcOpen((o) => !o); setCalcExpr(""); }}
+              onClick={() => { setCalcOpen((o) => !o); }}
               className={cn(
                 "flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg transition",
                 calcOpen
@@ -520,7 +242,7 @@ export function ExpenseForm({
                   : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600",
               )}
             >
-              <Calculator className="w-3.5 h-3.5" />
+              <CalcIcon className="w-3.5 h-3.5" />
               Kalkulator
             </button>
           </div>
@@ -541,33 +263,10 @@ export function ExpenseForm({
 
           {/* Calculator panel */}
           {calcOpen && (
-            <div className="mt-2 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
-              <div className="px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-700 text-right min-h-9 flex items-center justify-end">
-                <span className="text-sm font-mono text-slate-600 dark:text-slate-300 truncate">
-                  {calcExpr || "0"}
-                </span>
-              </div>
-              <div className="grid grid-cols-4 gap-px bg-slate-100 dark:bg-slate-700">
-                {(["AC", "⌫", "÷", "×", "7", "8", "9", "-", "4", "5", "6", "+", "1", "2", "3", "=", "0", "00", "000", "."] as const).map(
-                  (k) => (
-                    <button
-                      type="button"
-                      key={k}
-                      onClick={() => calcPress(k)}
-                      className={cn(
-                        "py-3.5 text-sm font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 active:bg-slate-100 dark:active:bg-slate-700 transition",
-                        (k === "AC" || k === "⌫") && "text-red-500",
-                        (k === "÷" || k === "×" || k === "-" || k === "+") &&
-                          "text-brand-600 dark:text-brand-400",
-                        k === "=" && "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800",
-                      )}
-                    >
-                      {k}
-                    </button>
-                  ),
-                )}
-              </div>
-            </div>
+            <Calculator
+              onResult={(result) => setCostText(formatIDRInput(String(result)))}
+              onClose={() => setCalcOpen(false)}
+            />
           )}
 
           {!calcOpen && (
