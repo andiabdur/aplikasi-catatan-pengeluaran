@@ -2,6 +2,7 @@
 
 import { useVoiceFeedback } from "@/hooks/useVoiceFeedback";
 import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
+import { Calculator } from "@/components/calculator";
 import { useState } from "react";
 
 export default function TestRefactorPage() {
@@ -9,13 +10,13 @@ export default function TestRefactorPage() {
   const [description, setDescription] = useState("");
   const [costText, setCostText] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [calcOpen, setCalcOpen] = useState(false);
 
   const {
     voiceState,
     voiceError,
     transcript,
     elapsed,
-    savedExpenses,
     startRecording,
     stopRecording,
   } = useVoiceRecorder({
@@ -29,12 +30,23 @@ export default function TestRefactorPage() {
 
   return (
     <div className="p-8 max-w-md mx-auto space-y-4">
-      <h1 className="text-xl font-bold">Test Voice Recorder Hook</h1>
-      <div className="p-4 border rounded space-y-2">
-        <p>Voice State: <span className="font-semibold">{voiceState}</span></p>
-        <p>Elapsed Time: <span className="font-semibold">{elapsed}s</span></p>
-        <p>Transcript: <span className="font-semibold">{transcript || "None"}</span></p>
-        {voiceError && <p className="text-red-500">{voiceError}</p>}
+      <h1 className="text-xl font-bold">Test Calculator & Voice Hook</h1>
+
+      <div className="space-y-2">
+        <p>Form Description: <span className="font-semibold">{description}</span></p>
+        <p>Form Cost: <span className="font-semibold">{costText}</span></p>
+        <button
+          onClick={() => setCalcOpen(!calcOpen)}
+          className="bg-brand-500 text-white px-4 py-2 rounded"
+        >
+          {calcOpen ? "Close Calculator" : "Open Calculator"}
+        </button>
+        {calcOpen && (
+          <Calculator
+            onResult={(res) => setCostText(String(res))}
+            onClose={() => setCalcOpen(false)}
+          />
+        )}
       </div>
 
       <div className="space-x-2">
@@ -44,12 +56,6 @@ export default function TestRefactorPage() {
         >
           {voiceState === "recording" ? "Stop Recording" : "Start Recording"}
         </button>
-      </div>
-
-      <div className="space-y-2">
-        <p>Form Description: <span className="font-semibold">{description}</span></p>
-        <p>Form Cost: <span className="font-semibold">{costText}</span></p>
-        <p>Form Category ID: <span className="font-semibold">{categoryId}</span></p>
       </div>
     </div>
   );
