@@ -377,22 +377,36 @@ export function SettingsClient({
         {budgets.some((b) => b.amount > 0) && (() => {
           const totalSpent = summary.reduce((s, r) => s + Number(r.spent), 0);
           const totalBudget = budgets.reduce((s, b) => s + Number(b.amount), 0);
+          const totalIncome = incomes.reduce((s, i) => s + Number(i.amount), 0);
           const sisa = totalBudget - totalSpent;
+          const vsIncome = totalIncome - totalBudget;
           return (
-            <div className="flex gap-2 mb-3">
-              <div className="flex-1 rounded-xl px-3 py-2.5 bg-red-50 dark:bg-red-500/10">
-                <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 uppercase tracking-wide mb-0.5">Terpakai</p>
-                <p className="text-sm font-bold text-red-600 dark:text-red-400">{formatIDR(totalSpent)}</p>
+            <>
+              <div className="flex gap-2 mb-2">
+                <div className="flex-1 rounded-xl px-3 py-2.5 bg-red-50 dark:bg-red-500/10">
+                  <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 uppercase tracking-wide mb-0.5">Terpakai</p>
+                  <p className="text-sm font-bold text-red-600 dark:text-red-400">{formatIDR(totalSpent)}</p>
+                </div>
+                <div className={`flex-1 rounded-xl px-3 py-2.5 ${sisa >= 0 ? "bg-green-50 dark:bg-green-500/10" : "bg-red-50 dark:bg-red-500/10"}`}>
+                  <p className={`text-[10px] font-semibold uppercase tracking-wide mb-0.5 ${sisa >= 0 ? "text-green-500 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>Sisa Budget</p>
+                  <p className={`text-sm font-bold ${sisa >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>{formatIDR(sisa)}</p>
+                </div>
+                <div className="flex-1 rounded-xl px-3 py-2.5 bg-blue-50 dark:bg-blue-500/10">
+                  <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wide mb-0.5">Total Budget</p>
+                  <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatIDR(totalBudget)}</p>
+                </div>
               </div>
-              <div className={`flex-1 rounded-xl px-3 py-2.5 ${sisa >= 0 ? "bg-green-50 dark:bg-green-500/10" : "bg-red-50 dark:bg-red-500/10"}`}>
-                <p className={`text-[10px] font-semibold uppercase tracking-wide mb-0.5 ${sisa >= 0 ? "text-green-500 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>Sisa</p>
-                <p className={`text-sm font-bold ${sisa >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>{formatIDR(sisa)}</p>
-              </div>
-              <div className="flex-1 rounded-xl px-3 py-2.5 bg-blue-50 dark:bg-blue-500/10">
-                <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wide mb-0.5">Total Budget</p>
-                <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatIDR(totalBudget)}</p>
-              </div>
-            </div>
+              {totalIncome > 0 && (
+                <div className={`flex items-center justify-between rounded-xl px-3 py-2 mb-3 text-xs ${vsIncome >= 0 ? "bg-green-50 dark:bg-green-500/10" : "bg-red-50 dark:bg-red-500/10"}`}>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Budget vs Income <span className="font-medium text-slate-600 dark:text-slate-300">({formatIDR(totalIncome)})</span>
+                  </span>
+                  <span className={`font-bold ${vsIncome >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                    {vsIncome >= 0 ? `Surplus ${formatIDR(vsIncome)}` : `Defisit ${formatIDR(Math.abs(vsIncome))}`}
+                  </span>
+                </div>
+              )}
+            </>
           );
         })()}
 
