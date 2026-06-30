@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import { currentPeriodLabelWithCustom, labelMonthKey, periodTitle, getPeriodRange, periodRangeTextWithCustom } from "@/lib/period";
 import { PeriodSelector } from "@/components/period-selector";
-import type { Category, Budget, Income, CustomPeriod } from "@/lib/types";
+import type { Category, Budget, Income, CustomPeriod, MonthlySummaryRow } from "@/lib/types";
 import { Plus, Trash2, LogOut, Save, CalendarCog, Edit3, RotateCcw } from "lucide-react";
 
 const COLORS = [
@@ -37,20 +37,23 @@ export function SettingsClient({
   const [labelMonth, setLabelMonth] = useState<Date>(new Date(initialLabelMonth));
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [incomes, setIncomes] = useState<Income[]>([]);
+  const [summary, setSummary] = useState<MonthlySummaryRow[]>([]);
   const [savingKey, setSavingKey] = useState<string | null>(null);
 
 
   const labelKey = labelMonthKey(labelMonth);
 
-  // Reload budgets/incomes when period changes
+  // Reload budgets/incomes/summary when period changes
   useEffect(() => {
     if (!householdId) return;
     Promise.all([
       supabase.from("budgets").select("*").eq("household_id", householdId).eq("month", labelKey),
       supabase.from("incomes").select("*").eq("household_id", householdId).eq("month", labelKey),
-    ]).then(([bRes, iRes]) => {
+      supabase.rpc("f_period_summary", { p_household_id: householdId, p_label_month: labelKey }),
+    ]).then(([bRes, iRes, sRes]) => {
       setBudgets((bRes.data ?? []) as Budget[]);
       setIncomes((iRes.data ?? []) as Income[]);
+      setSummary((sRes.data ?? []) as MonthlySummaryRow[]);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [labelKey, householdId]);
@@ -369,6 +372,44 @@ export function SettingsClient({
             </button>
           </div>
         </div>
+
+        {/* Budget spent summary pills — hanya muncul kalau ada minimal 1 budget yang di-set */}
+        {budgets.some((b) => b.amount > 0) && (() => {
+          const totalSpent = summary.reduce((s, r) => s + Number(r.spent), 0);
+          const totalBudget = budgets.reduce((s, b) => s + Number(b.amount), 0);
+          const totalIncome = incomes.reduce((s, i) => s + Number(i.amount), 0);
+          const sisa = totalBudget - totalSpent;
+          const vsIncome = totalIncome - totalBudget;
+          return (
+            <>
+              <div className="flex gap-2 mb-2">
+                <div className="flex-1 rounded-xl px-3 py-2.5 bg-red-50 dark:bg-red-500/10">
+                  <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 uppercase tracking-wide mb-0.5">Terpakai</p>
+                  <p className="text-sm font-bold text-red-600 dark:text-red-400">{formatIDR(totalSpent)}</p>
+                </div>
+                <div className={`flex-1 rounded-xl px-3 py-2.5 ${sisa >= 0 ? "bg-green-50 dark:bg-green-500/10" : "bg-red-50 dark:bg-red-500/10"}`}>
+                  <p className={`text-[10px] font-semibold uppercase tracking-wide mb-0.5 ${sisa >= 0 ? "text-green-500 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>Sisa Budget</p>
+                  <p className={`text-sm font-bold ${sisa >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>{formatIDR(sisa)}</p>
+                </div>
+                <div className="flex-1 rounded-xl px-3 py-2.5 bg-blue-50 dark:bg-blue-500/10">
+                  <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wide mb-0.5">Total Budget</p>
+                  <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatIDR(totalBudget)}</p>
+                </div>
+              </div>
+              {totalIncome > 0 && (
+                <div className={`flex items-center justify-between rounded-xl px-3 py-2 mb-3 text-xs ${vsIncome >= 0 ? "bg-green-50 dark:bg-green-500/10" : "bg-red-50 dark:bg-red-500/10"}`}>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Budget vs Income <span className="font-medium text-slate-600 dark:text-slate-300">({formatIDR(totalIncome)})</span>
+                  </span>
+                  <span className={`font-bold ${vsIncome >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                    {vsIncome >= 0 ? `Surplus ${formatIDR(vsIncome)}` : `Defisit ${formatIDR(Math.abs(vsIncome))}`}
+                  </span>
+                </div>
+              )}
+            </>
+          );
+        })()}
+
         <div className="card divide-y divide-slate-100 dark:divide-slate-700 p-0">
           {cats.map((c) => (
             <CategoryRow
