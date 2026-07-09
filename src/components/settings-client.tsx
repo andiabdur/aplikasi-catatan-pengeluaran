@@ -269,6 +269,23 @@ export function SettingsClient({
 
   return (
     <div className="space-y-4">
+      <section>
+        <Link href="/events" className="card flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+           <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                <Tent className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">Kelola Event / Perjalanan</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Grup pengeluaran untuk liburan dsb.
+                </p>
+              </div>
+           </div>
+           <p className="text-slate-400 text-lg">›</p>
+        </Link>
+      </section>
+
       {/* Pay day setting */}
       <section>
         <div className="card flex items-center gap-3">

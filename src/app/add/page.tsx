@@ -25,6 +25,14 @@ export default async function AddPage() {
     .order("sort_order");
   const goals = (goalsData ?? []) as Goal[];
 
+  const { data: eventsData } = await supabase
+    .from("events")
+    .select("*")
+    .eq("household_id", householdId ?? "")
+    .eq("status", "active")
+    .order("start_date", { ascending: false });
+  const events = eventsData ?? [];
+
   // Most-used categories last 30 days
   const since = new Date();
   since.setDate(since.getDate() - 30);
@@ -46,7 +54,7 @@ export default async function AddPage() {
 
   return (
     <PageShell title="Catat Pengeluaran" subtitle="Form simpel, langsung kelar">
-      <ExpenseForm categories={categories} topCategories={top} goals={goals} />
+      <ExpenseForm categories={categories} topCategories={top} goals={goals} activeEvents={events} />
     </PageShell>
   );
 }
