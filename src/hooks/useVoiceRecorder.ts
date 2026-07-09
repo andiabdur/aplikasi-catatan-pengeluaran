@@ -9,6 +9,7 @@ export type SavedExpense = {
   amount: number;
   categoryName: string;
   goalName?: string | null;
+  eventId?: string | null;
   items: { name: string; price: number }[];
 };
 
@@ -186,6 +187,7 @@ export function useVoiceRecorder({
             categoryId: g.category_id!,
             spentAt,
             goalId: g.goal_id,
+            eventId: g.event_id,
           });
           if (!err) {
             saved.push({
