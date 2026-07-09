@@ -3,7 +3,7 @@
 import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { formatIDR, formatIDRInput, parseIDRInput, todayISO } from "@/lib/format";
-import type { Category, Goal } from "@/lib/types";
+import type { Category, Goal, Event } from "@/lib/types";
 import { Check, Loader2, Calculator as CalcIcon, Mic, Square, Sparkles, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useVoiceFeedback } from "@/hooks/useVoiceFeedback";
@@ -20,10 +20,12 @@ export function ExpenseForm({
   categories,
   topCategories,
   goals = [],
+  activeEvents = [],
 }: {
   categories: Category[];
   topCategories: Category[];
   goals?: Goal[];
+  activeEvents?: Event[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -78,6 +80,7 @@ export function ExpenseForm({
     const goalForSave = isSavingsCategory(selectedCat?.name) ? goalId : null;
 
     const { error: err } = await saveExpense({
+      eventId: selectedEventId,
       description,
       amount,
       categoryId,
@@ -323,6 +326,41 @@ export function ExpenseForm({
       </div>
 
       {/* Goal picker — only when a savings (Nabung) category is selected */}
+      {/* Event Link Picker */}
+      {activeEvents.length > 0 && (
+        <div className="card space-y-2 border-slate-200 dark:border-slate-800">
+          <label className="label">Tautkan ke Event (Opsional)</label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedEventId(null)}
+              className={cn(
+                "px-3 py-2 rounded-xl text-sm border transition",
+                selectedEventId === null
+                  ? "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 font-medium"
+                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
+              )}
+            >
+              Tanpa Event
+            </button>
+            {activeEvents.map((evt) => (
+              <button
+                key={evt.id}
+                type="button"
+                onClick={() => setSelectedEventId(evt.id)}
+                className={cn(
+                  "px-3 py-2 rounded-xl text-sm border transition",
+                  selectedEventId === evt.id
+                    ? "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 font-medium"
+                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
+                )}
+              >
+                {evt.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {isSavingsCategory(categories.find((c) => c.id === categoryId)?.name) && goals.length > 0 && (
         <div className="card space-y-2 border-brand-200 dark:border-brand-500/30 bg-brand-50/50 dark:bg-brand-500/10">
           <label className="label flex items-center gap-1.5">

@@ -68,6 +68,7 @@ export function useVoiceRecorder({
     categoryId: string;
     spentAt: string;
     goalId?: string | null;
+    eventId?: string | null;
   }): Promise<{ error?: string; id?: string }> {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -87,6 +88,7 @@ export function useVoiceRecorder({
         description: payload.description.trim(),
         amount: payload.amount,
         goal_id: payload.goalId || null,
+        event_id: payload.eventId || null,
         created_by: user.id,
       })
       .select("id")
