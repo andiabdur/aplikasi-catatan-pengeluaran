@@ -61,6 +61,12 @@ export async function POST(req: Request) {
     .eq("household_id", householdId)
     .eq("status", "active")
     .order("sort_order");
+
+  const { data: eventsData } = await supabase
+    .from("events")
+    .select("id,name")
+    .eq("household_id", householdId)
+    .eq("status", "active");
   const goalList = goalsData ?? [];
 
   // STEP 1: Read audio
@@ -134,6 +140,10 @@ export async function POST(req: Request) {
     ? goalList.map((g) => `- ${g.name} (id: ${g.id})`).join("\n")
     : "(belum ada goal)";
 
+  const eventLines = eventsData && eventsData.length > 0
+    ? eventsData.map((e) => `- ${e.name} (id: ${e.id})`).join("\n")
+    : "(belum ada event)";
+
   const extractPrompt = `Kamu asisten pencatat keuangan keluarga Indonesia. Ekstrak pengeluaran dari teks transkrip suara berikut.
 
 TRANSCRIPT:
@@ -145,9 +155,14 @@ ${catLines}
 Daftar GOAL/target tabungan keluarga (untuk setoran ke kategori Nabung/Tabungan):
 ${goalLines}
 
+Daftar EVENT/kegiatan aktif (liburan, dinas, kondangan, dll):
+${eventLines}
+
 Kalau group itu kategorinya Nabung/Tabungan DAN user menyebut nama target (misal "nabung buat umroh", "tabungan jepang"), isi "goal_id" dengan id goal yang paling cocok dari daftar di atas. Kalau tidak menyebut target atau bukan nabung, kosongkan goal_id.
 
 PENTING: Satu transkrip bisa berisi BEBERAPA item, dan item-item itu bisa dari KATEGORI BERBEDA. Kelompokkan item berdasarkan kategori yang paling cocok. SETIAP kategori menjadi SATU pengeluaran terpisah (satu "group"). Item dalam kategori yang sama digabung dan harganya dijumlahkan.
+
+Jika transkrip menyebutkan kegiatan/acara (liburan, dinas, dll), periksa apakah cocok dengan event aktif. Jika cocok, isi "event_id" dengan id event tersebut. Jika tidak, kosongkan.
 
 Contoh: "jeruk 15rb, apel 10rb, kaca spion motor 70rb"
 - group 1 (kategori buah/belanja dapur): jeruk 15000 + apel 10000 -> deskripsi "Jeruk, apel"
@@ -168,7 +183,8 @@ Output dalam format JSON:
       "deskripsi": "Nama item",
       "category_id": "uuid-kategori",
       "goal_id": "uuid-goal atau null",
-      "items": [{ "name": "item", "price": 15000 }]
+      "items": [{ "name": "item", "price": 15000 }],
+      "event_id": "uuid-event atau null"
     }
   ]
 }
@@ -211,6 +227,7 @@ Jika transkrip tidak menyebut pengeluaran, set groups=[].`;
         deskripsi?: string;
         category_id?: string;
         goal_id?: string;
+        event_id?: string;
         items?: { name?: string; price?: number }[];
       }[];
     };
@@ -219,6 +236,7 @@ Jika transkrip tidak menyebut pengeluaran, set groups=[].`;
       .map((g) => {
         const validCat = catList.find((c) => c.id === g.category_id);
         const validGoal = goalList.find((gl) => gl.id === g.goal_id);
+        const validEvent = eventsData?.find((e) => e.id === g.event_id) ?? null;
         const items = (g.items ?? [])
           .map((it) => ({
             name: (it.name ?? "").trim(),
@@ -233,6 +251,7 @@ Jika transkrip tidak menyebut pengeluaran, set groups=[].`;
           category_name: validCat?.name ?? null,
           goal_id: validGoal?.id ?? null,
           goal_name: validGoal?.name ?? null,
+          event_id: validEvent?.id ?? null,
           items,
         };
       })
