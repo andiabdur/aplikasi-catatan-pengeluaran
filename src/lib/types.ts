@@ -1,3 +1,15 @@
+export type EventStatus = "active" | "completed";
+
+export type Event = {
+  id: string;
+  household_id: string;
+  name: string;
+  start_date: string;
+  end_date: string | null;
+  status: EventStatus;
+  created_at: string;
+};
+
 export type Category = {
   id: string;
   household_id: string;
@@ -27,6 +39,7 @@ export type Expense = {
   id: string;
   household_id: string;
   category_id: string;
+  event_id: string | null;
   spent_at: string;
   description: string;
   amount: number;
