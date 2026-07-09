@@ -37,6 +37,7 @@ export function ExpenseForm({
   const [error, setError] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const descRef = useRef<HTMLInputElement>(null);
 
   // Hook 1: Text to Speech voice feedbacks

@@ -26,7 +26,7 @@ export default async function EventsPage() {
         <h1 className="text-xl font-bold">Daftar Event / Kegiatan</h1>
       </div>
 
-      <form action={createEvent} className="mb-6 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+      <form action={async (formData) => { "use server"; await createEvent(formData); }} className="mb-6 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
         <h2 className="font-semibold mb-3">Buat Event Baru</h2>
         <div className="space-y-3">
           <div>
