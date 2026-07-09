@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import { currentPeriodLabelWithCustom, labelMonthKey, periodTitle, getPeriodRange, periodRangeTextWithCustom } from "@/lib/period";
 import { PeriodSelector } from "@/components/period-selector";
 import type { Category, Budget, Income, CustomPeriod, MonthlySummaryRow } from "@/lib/types";
-import { Plus, Trash2, LogOut, Save, CalendarCog, Edit3, RotateCcw } from "lucide-react";
+import { Plus, Trash2, LogOut, Save, CalendarCog, Edit3, RotateCcw, Tent } from "lucide-react";
 
 const COLORS = [
   "#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4",

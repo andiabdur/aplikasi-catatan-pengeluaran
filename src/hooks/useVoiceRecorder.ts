@@ -171,6 +171,7 @@ export function useVoiceRecorder({
         category_name: string | null;
         goal_id: string | null;
         goal_name: string | null;
+        event_id: string | null;
         items: { name: string; price: number }[];
       };
       const groups: Group[] = Array.isArray(data.groups) ? data.groups : [];
