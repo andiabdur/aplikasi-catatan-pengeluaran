@@ -24,6 +24,7 @@ type FilterMode = "period" | "custom";
 type ChartMode = "pie" | "bar";
 
 export function HistoryList({
+  events = [],
   categories,
   householdId,
   payDay,
@@ -31,6 +32,7 @@ export function HistoryList({
   initialCatFilter = "",
   customPeriods: initialCustomPeriods,
 }: {
+  events?: { id: string, name: string }[];
   categories: Category[];
   householdId: string;
   payDay: number;
@@ -146,12 +148,14 @@ export function HistoryList({
   function EditExpenseRow({
     row,
     categories: cats,
+    activeEvents,
     onSave,
     onCancel,
   }: {
     row: Row;
     categories: Category[];
-    onSave: (patch: { description: string; category_id: string; amount: number; spent_at: string }) => void;
+    activeEvents: { id: string, name: string }[];
+    onSave: (patch: { description: string; category_id: string; amount: number; spent_at: string; event_id: string | null }) => void;
     onCancel: () => void;
   }) {
     const [desc, setDesc] = useState(row.description);
@@ -160,6 +164,7 @@ export function HistoryList({
     const [amtText, setAmtText] = useState(
       row.amount ? Number(row.amount).toLocaleString("id-ID") : "",
     );
+    const [evtId, setEvtId] = useState(row.event_id || "");
 
     return (
       <div className="p-3 space-y-2 bg-slate-50 dark:bg-slate-900/60">
@@ -209,7 +214,7 @@ export function HistoryList({
                 description: desc.trim(),
                 category_id: catId,
                 amount: parseIDRInput(amtText),
-                spent_at: spentAt,
+                spent_at: spentAt, event_id: evtId || null,
               })
             }
             className="btn-primary flex-1 text-sm py-2 flex items-center justify-center gap-1.5"
@@ -421,6 +426,7 @@ export function HistoryList({
                       key={r.id}
                       row={r}
                       categories={categories}
+                      activeEvents={events}
                       onSave={(patch) => handleSave(r.id, patch)}
                       onCancel={() => setEditingId(null)}
                     />

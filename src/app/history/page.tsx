@@ -16,7 +16,7 @@ export default async function HistoryPage({
   const householdId = await getCurrentHouseholdId();
   const params = await searchParams;
 
-  const [catRes, hhRes, cpRes] = await Promise.all([
+  const [catRes, hhRes, cpRes, evtRes] = await Promise.all([
     supabase
       .from("categories")
       .select("*")
@@ -32,6 +32,12 @@ export default async function HistoryPage({
       .from("custom_periods")
       .select("label_month, start_date, end_date")
       .eq("household_id", householdId ?? ""),
+    supabase
+      .from("events")
+      .select("id, name")
+      .eq("household_id", householdId ?? "")
+      .eq("status", "active")
+      .order("start_date", { ascending: false }),
   ]);
 
   const payDay = hhRes.data?.pay_day_of_month ?? 25;
@@ -42,6 +48,7 @@ export default async function HistoryPage({
   return (
     <PageShell title="Riwayat" subtitle="Filter, analisis, & cari">
       <HistoryList
+        events={evtRes.data ?? []}
         categories={(catRes.data ?? []) as Category[]}
         householdId={householdId ?? ""}
         payDay={payDay}
