@@ -53,6 +53,26 @@ export function HistoryList({
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
+  
+  // Selection mode states
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  
+  function toggleSelection(id: string) {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) {
+      newSet.delete(id);
+      if (newSet.size === 0) setIsSelectionMode(false);
+    } else {
+      newSet.add(id);
+    }
+    setSelectedIds(newSet);
+  }
+  
+  const selectedSum = useMemo(() => {
+    return rows.filter(r => selectedIds.has(r.id)).reduce((acc, r) => acc + Number(r.amount), 0);
+  }, [selectedIds, rows]);
+
 
   // Derive effective date range
   const range = useMemo(() => {
@@ -445,7 +465,35 @@ export function HistoryList({
                       onCancel={() => setEditingId(null)}
                     />
                   ) : (
-                    <div key={r.id} className="flex items-center justify-between p-3 group">
+                    <div 
+                      key={r.id} 
+                      className={`flex items-center justify-between p-3 group select-none transition-colors ${selectedIds.has(r.id) ? 'bg-indigo-50/70 dark:bg-indigo-900/40 relative before:absolute before:inset-0 before:border-2 before:border-indigo-400 before:pointer-events-none before:z-10' : ''}`}
+                      onTouchStart={() => {
+                        const t = setTimeout(() => {
+                          if (!isSelectionMode) setIsSelectionMode(true);
+                          toggleSelection(r.id);
+                        }, 500); // 500ms long press
+                        // Store timer ID on the element
+                        (r as any)._timer = t;
+                      }}
+                      onTouchEnd={() => clearTimeout((r as any)._timer)}
+                      onTouchMove={() => clearTimeout((r as any)._timer)}
+                      onMouseDown={() => {
+                        const t = setTimeout(() => {
+                          if (!isSelectionMode) setIsSelectionMode(true);
+                          toggleSelection(r.id);
+                        }, 500);
+                        (r as any)._timer = t;
+                      }}
+                      onMouseUp={() => clearTimeout((r as any)._timer)}
+                      onMouseLeave={() => clearTimeout((r as any)._timer)}
+                      onClick={(e) => {
+                        // If in selection mode, any click just toggles
+                        if (isSelectionMode) {
+                          toggleSelection(r.id);
+                        }
+                      }}
+                    >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span
@@ -480,6 +528,26 @@ export function HistoryList({
             </div>
           );
         })
+      )}
+
+      {isSelectionMode && selectedIds.size > 0 && (
+        <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
+          <div className="bg-slate-900 dark:bg-slate-50 text-white dark:text-slate-900 shadow-2xl rounded-2xl p-4 flex items-center justify-between border border-slate-700 dark:border-slate-300">
+            <div>
+              <p className="text-xs text-slate-300 dark:text-slate-600 font-medium">Terpilih {selectedIds.size} item</p>
+              <p className="font-bold text-lg">{formatIDR(selectedSum)}</p>
+            </div>
+            <button 
+              onClick={() => {
+                setSelectedIds(new Set());
+                setIsSelectionMode(false);
+              }}
+              className="px-4 py-2 bg-slate-800 dark:bg-slate-200 hover:bg-slate-700 dark:hover:bg-slate-300 rounded-xl text-sm font-medium transition-colors"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
