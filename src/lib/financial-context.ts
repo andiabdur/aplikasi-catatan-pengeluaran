@@ -18,6 +18,7 @@ export type FinancialContext = {
   digest: string;
   itemDigest: string;
   goalDigest: string;
+  eventDigest: string;
   catList: { id: string; name: string }[];
   periodsAnalyzed: string[];
   nextLabelMonth: string;
@@ -29,11 +30,12 @@ export async function buildFinancialContext(
   householdId: string,
   periodsToAnalyze = 3,
 ): Promise<FinancialContext | null> {
-  const [hhRes, cpRes, goalsRes, depositsRes] = await Promise.all([
+  const [hhRes, cpRes, goalsRes, depositsRes, eventsRes] = await Promise.all([
     supabase.from("households").select("pay_day_of_month").eq("id", householdId).maybeSingle(),
     supabase.from("custom_periods").select("label_month, start_date, end_date").eq("household_id", householdId),
     supabase.from("goals").select("id,name,target_amount,target_date,status").eq("household_id", householdId).eq("status", "active"),
     supabase.from("expenses").select("goal_id, amount").eq("household_id", householdId).not("goal_id", "is", null),
+    supabase.from("events").select("id,name,status,start_date,end_date").eq("household_id", householdId),
   ]);
 
   const payDay = hhRes.data?.pay_day_of_month ?? 25;
@@ -52,6 +54,10 @@ export async function buildFinancialContext(
     labels.push(shiftPeriod(currentLabel, -i));
   }
   const nextLabel = shiftPeriod(currentLabel, 1);
+  
+  const events = eventsRes.data ?? [];
+  const eventDigest = events.map(e => `- ${e.name}: mulai ${e.start_date}${e.end_date ? ' berrakhir ' + e.end_date : ' (sedang aktif)'} `).join("\n");
+  
 
   const perPeriod = await Promise.all(
     labels.map(async (lbl) => {
@@ -62,7 +68,7 @@ export async function buildFinancialContext(
         supabase.from("incomes").select("source, amount").eq("household_id", householdId).eq("month", key),
         supabase
           .from("expenses")
-          .select("spent_at, created_at, description, amount, category_id")
+          .select("spent_at, created_at, description, amount, category_id, event_id")
           .eq("household_id", householdId)
           .gte("spent_at", range.from)
           .lte("spent_at", range.to)
@@ -71,7 +77,7 @@ export async function buildFinancialContext(
       ]);
       const rows = (sumRes.data ?? []) as MonthlySummaryRow[];
       const income = (incRes.data ?? []).reduce((s, r) => s + Number(r.amount), 0);
-      const items = (expRes.data ?? []) as { spent_at: string; created_at: string; description: string; amount: number; category_id: string }[];
+      const items = (expRes.data ?? []) as { spent_at: string; created_at: string; description: string; amount: number; category_id: string; event_id: string | null }[];
       return { key, title: periodTitle(lbl), rows, income, items };
     }),
   );
@@ -116,6 +122,7 @@ export async function buildFinancialContext(
     .map((p) => {
       if (p.items.length === 0) return `${p.title}:\n   (tidak ada transaksi)`;
       const catNameMap = new Map(p.rows.map((r) => [r.category_id, r.category_name]));
+      const eventNameMap = new Map(events.map(e => [e.id, e.name]));
 
       // Group by spent_at date
       const byDate = new Map<string, string[]>();
@@ -151,6 +158,7 @@ export async function buildFinancialContext(
     digest,
     itemDigest,
     goalDigest,
+    eventDigest,
     catList,
     periodsAnalyzed: perPeriod.map((p) => p.title),
     nextLabelMonth: labelMonthKey(nextLabel),
