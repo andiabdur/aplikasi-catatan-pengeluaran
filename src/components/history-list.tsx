@@ -195,6 +195,20 @@ export function HistoryList({
             </option>
           ))}
         </select>
+        {activeEvents.length > 0 && (
+          <select
+            value={evtId}
+            onChange={(e) => setEvtId(e.target.value)}
+            className="input text-sm py-1.5"
+          >
+            <option value="">(Tanpa Event)</option>
+            {activeEvents.map((evt) => (
+              <option key={evt.id} value={evt.id}>
+                Event: {evt.name}
+              </option>
+            ))}
+          </select>
+        )}
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
             Rp
