@@ -17,6 +17,27 @@ export default async function EventsPage() {
     .eq("household_id", householdId)
     .order("start_date", { ascending: false });
 
+  const { data: expenses } = await supabase
+    .from("expenses")
+    .select("event_id, amount")
+    .eq("household_id", householdId)
+    .not("event_id", "is", null);
+    
+  const spentByEvent = new Map<string, number>();
+  if (expenses) {
+    for (const exp of expenses) {
+      if (exp.event_id) {
+        spentByEvent.set(exp.event_id, (spentByEvent.get(exp.event_id) || 0) + (exp.amount || 0));
+      }
+    }
+  }
+
+  // Extend events with totalSpent
+  const eventsWithTotal = (events || []).map(evt => ({
+    ...evt,
+    totalSpent: spentByEvent.get(evt.id) || 0
+  }));
+
   return (
     <div className="container max-w-lg mx-auto p-4 pb-32">
       <div className="flex items-center gap-3 mb-6">
@@ -41,7 +62,7 @@ export default async function EventsPage() {
         </div>
       </form>
 
-      <EventsList events={events || []} />
+      <EventsList events={eventsWithTotal} />
     </div>
   );
 }

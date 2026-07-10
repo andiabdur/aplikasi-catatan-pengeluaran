@@ -3,7 +3,11 @@
 import { deleteEvent, finishEvent } from "@/app/actions/events";
 import type { Event } from "@/lib/types";
 
-export function EventsList({ events }: { events: Event[] }) {
+import { formatIDR } from "@/lib/format";
+
+type EventWithTotal = Event & { totalSpent?: number };
+
+export function EventsList({ events }: { events: EventWithTotal[] }) {
   const handleFinish = async (id: string) => {
     if (!confirm("Selesaikan event ini?")) return;
     const endDate = new Date().toISOString().split("T")[0];
@@ -23,7 +27,8 @@ export function EventsList({ events }: { events: Event[] }) {
       {events.map(evt => (
         <div key={evt.id} className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div>
-            <h3 className="font-semibold">{evt.name}</h3>
+            <h3 className="font-semibold text-lg">{evt.name}</h3>
+            <p className="font-bold text-brand-600 dark:text-brand-400 mt-0.5 mb-1 text-base">{formatIDR(evt.totalSpent || 0)}</p>
             <p className="text-sm text-foreground/60">
               {new Date(evt.start_date).toLocaleDateString("id-ID")}
                {evt.end_date ? ` - ${new Date(evt.end_date).toLocaleDateString("id-ID")}` : " - Sekarang"}
