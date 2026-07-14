@@ -35,4 +35,71 @@
     @apply block text-sm font-medium text-slate-700 mb-1.5;
     @apply dark:text-slate-300;
   }
+  .skeleton {
+    @apply rounded-lg;
+    background: linear-gradient(
+      90deg,
+      theme(colors.slate.200) 0%,
+      theme(colors.slate.100) 50%,
+      theme(colors.slate.200) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+  .dark .skeleton {
+    background: linear-gradient(
+      90deg,
+      theme(colors.slate.700) 0%,
+      theme(colors.slate.600) 50%,
+      theme(colors.slate.700) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+  .animate-slide-up {
+    animation: slideUpFadeIn 300ms ease-out both;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes progressGrow {
+  0% {
+    width: 0%;
+  }
+  80% {
+    width: 80%;
+  }
+  100% {
+    width: 95%;
+  }
+}
+
+@keyframes progressFinish {
+  from {
+    width: 95%;
+    opacity: 1;
+  }
+  to {
+    width: 100%;
+    opacity: 0;
+  }
 }

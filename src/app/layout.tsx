@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import SWRegister from "@/components/sw-register";
+import { NavigationProgress } from "@/components/navigation-progress";
 import { ThemeScript } from "@/components/theme-script";
 
 export const metadata: Metadata = {
@@ -29,6 +31,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeScript />
       </head>
       <body>
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         <SWRegister />
         {children}
       </body>

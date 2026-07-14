@@ -32,7 +32,7 @@ export async function PageShell({
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-md px-4 py-4 space-y-4">{children}</main>
+      <main className="mx-auto max-w-md px-4 py-4 space-y-4 animate-slide-up">{children}</main>
       <BottomNav />
       {householdId && <FloatingChat householdId={householdId} />}
       <FloatingVoice />
