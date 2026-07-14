@@ -57,7 +57,7 @@
     animation: shimmer 1.5s ease-in-out infinite;
   }
   .animate-slide-up {
-    animation: slideUpFadeIn 300ms ease-out both;
+    animation: slideUpFadeIn 300ms ease-out;
   }
 }
 
