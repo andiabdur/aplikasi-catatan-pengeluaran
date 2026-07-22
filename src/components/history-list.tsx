@@ -381,7 +381,7 @@ export function HistoryList({
                 !evtFilter ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
               )}
             >
-              🗓 Semua Event
+              Semua Event
             </button>
             <button
               onClick={() => setEvtFilter("__none__")}
@@ -401,7 +401,7 @@ export function HistoryList({
                   evtFilter === evt.id ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
                 )}
               >
-                ✈️ {evt.name}
+                {evt.name}
                 {evt.status === "active" && (
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
                 )}
@@ -555,7 +555,7 @@ export function HistoryList({
                             const evt = events?.find(e => e.id === r.event_id);
                             return evt ? (
                               <span className="text-xs px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center gap-1">
-                                ✈️ {evt.name}
+                                {evt.name}
                               </span>
                             ) : null;
                           })()}
