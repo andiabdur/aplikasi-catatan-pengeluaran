@@ -32,7 +32,7 @@ export function HistoryList({
   initialCatFilter = "",
   customPeriods: initialCustomPeriods,
 }: {
-  events?: { id: string, name: string }[];
+  events?: { id: string, name: string, status: string }[];
   categories: Category[];
   householdId: string;
   payDay: number;
@@ -46,6 +46,7 @@ export function HistoryList({
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [catFilter, setCatFilter] = useState<string>(initialCatFilter);
+  const [evtFilter, setEvtFilter] = useState<string>("");
   const [search, setSearch] = useState("");
   const [chartMode, setChartMode] = useState<ChartMode>("pie");
   const [chartOpen, setChartOpen] = useState(true);
@@ -98,6 +99,8 @@ export function HistoryList({
       .order("created_at", { ascending: false })
       .limit(500);
     if (catFilter) q = q.eq("category_id", catFilter);
+    if (evtFilter === "__none__") q = q.is("event_id", null);
+    else if (evtFilter) q = q.eq("event_id", evtFilter);
     if (range.from) q = q.gte("spent_at", range.from);
     if (range.to) q = q.lte("spent_at", range.to);
     const { data } = await q;
@@ -108,7 +111,7 @@ export function HistoryList({
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [catFilter, range.from, range.to, householdId]);
+  }, [catFilter, evtFilter, range.from, range.to, householdId]);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return rows;
@@ -368,10 +371,50 @@ export function HistoryList({
           ))}
         </div>
 
-        {(catFilter || search) && (
+        {/* Event chips — hanya tampil kalau ada events */}
+        {events && events.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto -mx-1 px-1 pb-1">
+            <button
+              onClick={() => setEvtFilter("")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs whitespace-nowrap",
+                !evtFilter ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+              )}
+            >
+              Semua Event
+            </button>
+            <button
+              onClick={() => setEvtFilter("__none__")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs whitespace-nowrap",
+                evtFilter === "__none__" ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+              )}
+            >
+              Tanpa Event
+            </button>
+            {events.map((evt) => (
+              <button
+                key={evt.id}
+                onClick={() => setEvtFilter(evt.id)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex items-center gap-1.5",
+                  evtFilter === evt.id ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+                )}
+              >
+                {evt.name}
+                {evt.status === "active" && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {(catFilter || evtFilter || search) && (
           <button
             onClick={() => {
               setCatFilter("");
+              setEvtFilter("");
               setSearch("");
             }}
             className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1"
@@ -384,7 +427,11 @@ export function HistoryList({
       {/* Summary card */}
       <div className="card flex items-center justify-between bg-brand-50 dark:bg-brand-500/10 border-brand-200 dark:border-brand-500/30">
         <div>
-          <p className="text-xs text-slate-600 dark:text-slate-300">Total ({filtered.length} item)</p>
+          <p className="text-xs text-slate-600 dark:text-slate-300">
+            {evtFilter && evtFilter !== "__none__"
+              ? `${events?.find(e => e.id === evtFilter)?.name ?? "Event"} · ${filtered.length} item`
+              : `Total (${filtered.length} item)`}
+          </p>
           <p className="font-bold text-brand-700 dark:text-brand-400 text-lg">{formatIDR(total)}</p>
         </div>
         <button
@@ -502,7 +549,17 @@ export function HistoryList({
                           />
                           <p className="font-medium truncate">{r.description}</p>
                         </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 ml-4 mt-0.5">{r.categories?.name}</p>
+                        <div className="flex items-center gap-2 ml-4 mt-0.5 flex-wrap">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{r.categories?.name}</p>
+                          {r.event_id && (() => {
+                            const evt = events?.find(e => e.id === r.event_id);
+                            return evt ? (
+                              <span className="text-xs px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center gap-1">
+                                {evt.name}
+                              </span>
+                            ) : null;
+                          })()}
+                        </div>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
                         <p className="font-semibold text-sm mr-1">{formatIDR(r.amount)}</p>
