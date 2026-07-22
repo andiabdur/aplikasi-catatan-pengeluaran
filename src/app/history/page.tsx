@@ -34,9 +34,8 @@ export default async function HistoryPage({
       .eq("household_id", householdId ?? ""),
     supabase
       .from("events")
-      .select("id, name")
+      .select("id, name, status")
       .eq("household_id", householdId ?? "")
-      .eq("status", "active")
       .order("start_date", { ascending: false }),
   ]);
 
