@@ -135,7 +135,16 @@ Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
     }
 
     const data = await res.json();
-    const raw = (data.choices?.[0]?.message?.content ?? "").trim();
+    let raw = (data.choices?.[0]?.message?.content ?? "").trim();
+    if (raw.startsWith("```json")) {
+      raw = raw.slice(7);
+    } else if (raw.startsWith("```")) {
+      raw = raw.slice(3);
+    }
+    if (raw.endsWith("```")) {
+      raw = raw.slice(0, -3);
+    }
+    raw = raw.trim();
 
     let parsed: { reply?: string; message?: string; response?: string; text?: string; expenses?: { description?: string; amount?: number; category_id?: string }[] };
     try {

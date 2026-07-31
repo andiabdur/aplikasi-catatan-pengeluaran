@@ -234,7 +234,16 @@ Jika transkrip tidak menyebut pengeluaran, set groups=[].`;
     }
 
     const extractData = await extractRes.json();
-    const rawText = extractData.choices?.[0]?.message?.content ?? "{}";
+    let rawText = (extractData.choices?.[0]?.message?.content ?? "{}").trim();
+    if (rawText.startsWith("```json")) {
+      rawText = rawText.slice(7);
+    } else if (rawText.startsWith("```")) {
+      rawText = rawText.slice(3);
+    }
+    if (rawText.endsWith("```")) {
+      rawText = rawText.slice(0, -3);
+    }
+    rawText = rawText.trim();
     const parsed = JSON.parse(rawText) as {
       groups?: {
         deskripsi?: string;
