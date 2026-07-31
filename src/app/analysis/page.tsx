@@ -10,7 +10,7 @@ export default async function AnalysisPage() {
   const householdId = await getCurrentHouseholdId();
 
   return (
-    <PageShell title="Analisis Pengeluaran 📊" subtitle="Analisa pengeluaran temporal keluarga">
+    <PageShell title="Analisis Pengeluaran" subtitle="Analisa pengeluaran temporal keluarga">
       <AnalysisClient householdId={householdId ?? ""} />
     </PageShell>
   );

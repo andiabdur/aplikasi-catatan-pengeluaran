@@ -166,7 +166,7 @@ export function DashboardClient({
           <h2 className="font-semibold">Budget per Kategori</h2>
           <div className="flex items-center gap-3">
             <Link href="/analysis" className="text-xs text-indigo-600 dark:text-indigo-405 font-medium flex items-center gap-0.5">
-              Analisis Chart 📊
+              Analisis Chart
             </Link>
             <span className="text-slate-300 dark:text-slate-705 text-xs">|</span>
             <Link href="/settings" className="text-xs text-slate-500 dark:text-slate-400">
