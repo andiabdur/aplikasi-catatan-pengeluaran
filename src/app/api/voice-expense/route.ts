@@ -88,50 +88,60 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Audio kosong." }, { status: 400 });
   }
 
-  // STEP 2: Transcribe with Groq Whisper
+  // STEP 2: Transcribe with Multimodal Gemini Custom Audio API
   let transcript: string;
   try {
-    // Priming prompt: Whisper's `prompt` works best as a NATURAL example
-    // sentence in the expected speaking style (NOT a comma-separated word list,
-    // which makes it output fragmented garbage). A full-sentence example biases
-    // it toward Indonesian conversational expense phrasing + rupiah amounts.
-    const whisperPrompt =
-      "Ini catatan pengeluaran belanja keluarga dalam Bahasa Indonesia sehari-hari. " +
-      "Contoh: beli ayam goreng lima belas ribu, beli siomay sepuluh ribu, " +
-      "bayar parkir dua ribu, isi bensin lima puluh ribu, nabung buat umroh lima ratus ribu.";
-
-    const whisperForm = new FormData();
     const ext = mimeType.includes("mp4") ? "m4a" : mimeType.includes("ogg") ? "ogg" : "webm";
-    whisperForm.append("file", audioBlob, `audio.${ext}`);
-    whisperForm.append("model", GROQ_WHISPER_MODEL);
-    whisperForm.append("language", "id");
-    whisperForm.append("prompt", whisperPrompt);
-    whisperForm.append("temperature", "0");
-    whisperForm.append("response_format", "json");
+    const arrayBuffer = await audioBlob.arrayBuffer();
+    const base64Audio = Buffer.from(arrayBuffer).toString("base64");
 
-    const whisperUrl = process.env.GROQ_TRANSCRIPTION_API_URL || "https://api.groq.com/openai/v1/audio/transcriptions";
-    const whisperRes = await fetch(whisperUrl, {
+    const chatUrl = process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/chat/completions";
+    const chatRes = await fetch(chatUrl, {
       method: "POST",
-      headers: { Authorization: `Bearer ${groqKey}` },
-      body: whisperForm,
+      headers: {
+        Authorization: `Bearer ${deepseekKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: GROQ_WHISPER_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Transkripsikan rekaman suara catatan pengeluaran belanja keluarga ini ke teks bahasa Indonesia bersih. Jangan berikan komentar, penjelasan, atau preamble. Cukup kembalikan transkripsi teks aslinya secara verbatim."
+              },
+              {
+                type: "input_audio",
+                input_audio: {
+                  data: base64Audio,
+                  format: ext === "m4a" ? "m4a" : ext === "ogg" ? "ogg" : "webm"
+                }
+              }
+            ]
+          }
+        ],
+        stream: false
+      })
     });
 
-    if (!whisperRes.ok) {
-      const errBody = await whisperRes.text().catch(() => "");
+    if (!chatRes.ok) {
+      const errBody = await chatRes.text().catch(() => "");
       return NextResponse.json(
-        { error: `Gagal transkrip: ${whisperRes.status}${errBody ? " - " + errBody.slice(0, 200) : ""}` },
+        { error: `Gagal transkrip: ${chatRes.status}${errBody ? " - " + errBody.slice(0, 200) : ""}` },
         { status: 502 },
       );
     }
 
-    const whisperData = await whisperRes.json();
-    transcript = (whisperData.text ?? "").trim();
+    const chatData = await chatRes.json();
+    transcript = (chatData.choices?.[0]?.message?.content ?? "").trim();
 
     if (!transcript) {
       return NextResponse.json({ error: "Suara tidak terdengar jelas, coba ulangi." }, { status: 400 });
     }
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Gagal menghubungi Groq Whisper.";
+    const msg = err instanceof Error ? err.message : "Gagal memperoleh transkripsi.";
     return NextResponse.json({ error: msg }, { status: 502 });
   }
 
