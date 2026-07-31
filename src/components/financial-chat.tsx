@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Send, Loader2, Sparkles, Trash2, Check, X } from "lucide-react";
+import { Send, Loader2, Sparkles, Trash2, Check, X, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MarkdownLite } from "@/components/markdown-lite";
 import { createClient } from "@/lib/supabase/client";
@@ -35,6 +35,74 @@ export function FinancialChat({ householdId }: { householdId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [speakingIndex, setSpeakingIndex] = useState<number | null>(null);
+
+  // Stop audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
+  async function speak(text: string, index: number) {
+    if (playingIndex === index) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setPlayingIndex(null);
+      return;
+    }
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setPlayingIndex(null);
+    }
+
+    setSpeakingIndex(index);
+    try {
+      const plainText = text
+        .replace(/```[\s\S]*?```/g, "")
+        .replace(/`([^`]+)`/g, "$1")
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+        .replace(/\*\*([^*]+)\*\*/g, "$1")
+        .replace(/\*([^*]+)\*/g, "$1")
+        .replace(/[\n\r]+/g, " ")
+        .trim();
+
+      const res = await fetch("/api/text-to-speech", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: plainText }),
+      });
+
+      if (!res.ok) throw new Error("TTS failed");
+
+      const audioBlob = await res.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setPlayingIndex(null);
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      audio.onplay = () => {
+        setPlayingIndex(index);
+        setSpeakingIndex(null);
+      };
+
+      await audio.play();
+    } catch {
+      setSpeakingIndex(null);
+      setPlayingIndex(null);
+    }
+  }
 
   // Restore history (only role + content, not savedExpenses — those are ephemeral)
   useEffect(() => {
@@ -142,15 +210,33 @@ export function FinancialChat({ householdId }: { householdId: string }) {
 
         {messages.map((m, i) => (
           <div key={i} className={cn("flex flex-col", m.role === "user" ? "items-end" : "items-start")}>
-            <div
-              className={cn(
-                "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
-                m.role === "user"
-                  ? "bg-brand-600 text-white rounded-br-md whitespace-pre-wrap"
-                  : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-md",
+            <div className="flex items-end gap-1.5 w-full">
+              <div
+                className={cn(
+                  "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
+                  m.role === "user"
+                    ? "bg-brand-600 text-white rounded-br-md whitespace-pre-wrap"
+                    : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-md",
+                )}
+              >
+                {m.role === "user" ? m.content : <MarkdownLite text={m.content} />}
+              </div>
+              {m.role === "assistant" && (
+                <button
+                  type="button"
+                  onClick={() => speak(m.content, i)}
+                  className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0 self-end transition mb-0.5"
+                  title="Dengarkan suara"
+                >
+                  {speakingIndex === i ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
+                  ) : playingIndex === i ? (
+                    <VolumeX className="w-3.5 h-3.5 text-red-500" />
+                  ) : (
+                    <Volume2 className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300" />
+                  )}
+                </button>
               )}
-            >
-              {m.role === "user" ? m.content : <MarkdownLite text={m.content} />}
             </div>
 
             {/* Saved expenses card — shown below assistant message */}
