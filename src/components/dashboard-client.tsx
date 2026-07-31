@@ -102,61 +102,61 @@ export function DashboardClient({
 
 
       {/* Hero summary */}
-      <section className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-700 text-white p-5 shadow-lg shadow-brand-600/20">
-        <div className="flex items-center gap-2 text-sm text-brand-100">
-          <Wallet className="w-4 h-4" />
+      <div className="card bg-slate-950 text-slate-50 dark:bg-slate-900 dark:border-slate-800 border-none p-6 rounded-xl">
+        <div className="flex items-center gap-2 text-sm text-slate-400">
+          <Wallet className="w-4 h-4 text-brand-500" />
           Sisa uang periode ini
         </div>
-        <div className="text-3xl font-bold mt-1">{formatIDR(sisa)}</div>
-        <div className="grid grid-cols-2 gap-3 mt-4 text-sm">
-          <div className="bg-white/10 rounded-xl p-3">
-            <div className="flex items-center gap-1 text-brand-100">
+        <div className="text-3xl font-semibold tracking-tight mt-1.5">{formatIDR(sisa)}</div>
+        <div className="grid grid-cols-2 gap-3 mt-5 text-sm">
+          <div className="bg-slate-900 dark:bg-slate-950 border border-slate-800 dark:border-slate-800/80 rounded-lg p-3">
+            <div className="flex items-center gap-1.5 text-slate-400 text-xs">
               <TrendingUp className="w-3.5 h-3.5" />
               Income
             </div>
-            <div className="font-semibold mt-0.5">{formatIDR(totalIncome)}</div>
+            <div className="font-semibold mt-1 text-slate-50">{formatIDR(totalIncome)}</div>
           </div>
-          <div className="bg-white/10 rounded-xl p-3">
-            <div className="flex items-center gap-1 text-brand-100">
+          <div className="bg-slate-900 dark:bg-slate-950 border border-slate-800 dark:border-slate-800/85 rounded-lg p-3">
+            <div className="flex items-center gap-1.5 text-slate-400 text-xs">
               <TrendingDown className="w-3.5 h-3.5" />
               Terpakai
             </div>
-            <div className="font-semibold mt-0.5">{formatIDR(totalSpent)}</div>
+            <div className="font-semibold mt-1 text-slate-50">{formatIDR(totalSpent)}</div>
           </div>
         </div>
         {totalBudget > 0 && (
-          <div className="mt-4">
-            <div className="flex justify-between text-xs text-brand-100 mb-1">
+          <div className="mt-5">
+            <div className="flex justify-between text-xs text-slate-400 mb-1.5">
               <span>Pemakaian budget</span>
-              <span>
+              <span className="font-medium text-slate-300">
                 {((totalSpent / totalBudget) * 100).toFixed(1)}% dari {formatIDR(totalBudget)}
               </span>
             </div>
-            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+            <div className="h-2 bg-slate-800/50 rounded-full overflow-hidden">
               <div
-                className="h-full bg-white rounded-full"
+                className="h-full bg-brand-500 rounded-full"
                 style={{ width: `${Math.min(100, (totalSpent / totalBudget) * 100)}%` }}
               />
             </div>
           </div>
         )}
-      </section>
+      </div>
 
       {/* AI assistant entry */}
       <Link
         href="/asisten"
-        className="flex items-center gap-3 rounded-2xl border border-brand-200 dark:border-brand-500/30 bg-gradient-to-br from-brand-50 to-white dark:from-brand-500/10 dark:to-slate-800 p-4 shadow-sm active:scale-[0.99] transition"
+        className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-card hover:bg-slate-50 dark:hover:bg-slate-900/50 p-4 transition-all"
       >
-        <div className="w-11 h-11 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0">
-          <Sparkles className="w-5 h-5" />
+        <div className="w-10 h-10 rounded-lg bg-slate-900 text-white dark:bg-slate-950 dark:border dark:border-slate-800 flex items-center justify-center shrink-0">
+          <Sparkles className="w-4 h-4 text-brand-500" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Asisten Keuangan AI</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">
-            Minta analisa pola belanja & usulan budget bulan depan.
+            Belajar pola belanja & usulan budget bulan depan.
           </p>
         </div>
-        <ArrowUpRight className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" />
+        <ArrowUpRight className="w-4 h-4 text-slate-400 shrink-0" />
       </Link>
 
       {/* Categories */}
