@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+
 export function ThemeToggle() {
   const [dark, setDark] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -26,16 +28,18 @@ export function ThemeToggle() {
 
   // Avoid hydration mismatch — render placeholder until mounted
   if (!mounted) {
-    return <div className="w-9 h-9" />;
+    return <div className="w-10 h-10" />;
   }
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={toggle}
       aria-label={dark ? "Aktifkan light mode" : "Aktifkan dark mode"}
-      className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition"
+      className="rounded-xl text-slate-500 dark:text-slate-400 dark:hover:bg-slate-800"
     >
-      {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-    </button>
+      {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+    </Button>
   );
 }
