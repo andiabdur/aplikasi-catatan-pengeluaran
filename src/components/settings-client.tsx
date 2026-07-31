@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import { currentPeriodLabelWithCustom, labelMonthKey, periodTitle, getPeriodRange, periodRangeTextWithCustom } from "@/lib/period";
 import { PeriodSelector } from "@/components/period-selector";
+import { getCategoryIcon } from "@/components/category-icon";
 import type { Category, Budget, Income, CustomPeriod, MonthlySummaryRow } from "@/lib/types";
 import { Plus, Trash2, LogOut, Save, CalendarCog, Edit3, RotateCcw, Tent } from "lucide-react";
 
@@ -527,11 +528,12 @@ function CategoryRow({
       setText(budget ? Number(budget).toLocaleString("id-ID") : "");
     }
   }, [budget]);
+  const Icon = getCategoryIcon(category.name);
   return (
     <div className="flex items-center gap-2 p-3">
-      <span
-        className="w-2.5 h-2.5 rounded-full shrink-0"
-        style={{ background: category.color ?? "#94a3b8" }}
+      <Icon
+        className="w-4 h-4 shrink-0"
+        style={{ color: category.color ?? "#94a3b8" }}
       />
       <span className="text-sm font-medium flex-1 truncate">{category.name}</span>
       <div className="relative w-36">
