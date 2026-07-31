@@ -12,6 +12,7 @@ import {
 } from "@/lib/period";
 import { PeriodSelector } from "@/components/period-selector";
 import { CategoryPieChart, CategoryBarChart } from "@/components/expense-charts";
+import { getCategoryIcon } from "@/components/category-icon";
 import { Search, Trash2, X, PieChart as PieIcon, BarChart3, ChevronDown, ChevronUp, Pencil, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Category, Expense } from "@/lib/types";
@@ -356,19 +357,25 @@ export function HistoryList({
           >
             Semua
           </button>
-          {categories.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setCatFilter(c.id)}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex items-center gap-1.5",
-                catFilter === c.id ? "bg-brand-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
-              )}
-            >
-              <span className="w-2 h-2 rounded-full" style={{ background: c.color ?? "#94a3b8" }} />
-              {c.name}
-            </button>
-          ))}
+          {categories.map((c) => {
+            const Icon = getCategoryIcon(c.name);
+            return (
+              <button
+                key={c.id}
+                onClick={() => setCatFilter(c.id)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex items-center gap-1.5",
+                  catFilter === c.id ? "bg-brand-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+                )}
+              >
+                <Icon
+                  className="w-3.5 h-3.5 shrink-0"
+                  style={{ color: c.color ?? "#94a3b8" }}
+                />
+                {c.name}
+              </button>
+            );
+          })}
         </div>
 
         {/* Event chips — hanya tampil kalau ada events */}
@@ -543,10 +550,15 @@ export function HistoryList({
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span
-                            className="w-2 h-2 rounded-full shrink-0"
-                            style={{ background: r.categories?.color ?? "#94a3b8" }}
-                          />
+                          {(() => {
+                            const Icon = getCategoryIcon(r.categories?.name ?? "");
+                            return (
+                              <Icon
+                                className="w-4 h-4 shrink-0"
+                                style={{ color: r.categories?.color ?? "#94a3b8" }}
+                              />
+                            );
+                          })()}
                           <p className="font-medium truncate">{r.description}</p>
                         </div>
                         <div className="flex items-center gap-2 ml-4 mt-0.5 flex-wrap">

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { useVoiceFeedback } from "@/hooks/useVoiceFeedback";
 import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
 import { Calculator } from "@/components/calculator";
+import { getCategoryIcon } from "@/components/category-icon";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -453,6 +454,7 @@ function CategoryChip({
   onSelect: () => void;
   full?: boolean;
 }) {
+  const Icon = getCategoryIcon(category.name);
   return (
     <button
       type="button"
@@ -465,9 +467,9 @@ function CategoryChip({
           : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600",
       )}
     >
-      <span
-        className="w-2.5 h-2.5 rounded-full shrink-0"
-        style={{ background: category.color ?? "#94a3b8" }}
+      <Icon
+        className="w-4 h-4 shrink-0"
+        style={{ color: category.color ?? "#94a3b8" }}
       />
       <span className="truncate">{category.name}</span>
     </button>

@@ -12,6 +12,7 @@ import {
   getPeriodRange,
   periodRangeTextWithCustom,
 } from "@/lib/period";
+import { getCategoryIcon } from "@/components/category-icon";
 import { PeriodSelector } from "@/components/period-selector";
 import { cn } from "@/lib/utils";
 import type { MonthlySummaryRow, Income, Expense } from "@/lib/types";
@@ -187,10 +188,15 @@ export function DashboardClient({
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{ background: row.color ?? "#94a3b8" }}
-                    />
+                    {(() => {
+                      const Icon = getCategoryIcon(row.category_name);
+                      return (
+                        <Icon
+                          className="w-4 h-4 shrink-0"
+                          style={{ color: row.color ?? "#94a3b8" }}
+                        />
+                      );
+                    })()}
                     <span className="font-medium text-sm">{row.category_name}</span>
                   </div>
                   <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -242,10 +248,15 @@ export function DashboardClient({
             <div key={e.id} className="flex items-center justify-between p-4">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ background: e.categories?.color ?? "#94a3b8" }}
-                  />
+                  {(() => {
+                    const Icon = getCategoryIcon(e.categories?.name ?? "");
+                    return (
+                      <Icon
+                        className="w-4 h-4 shrink-0"
+                        style={{ color: e.categories?.color ?? "#94a3b8" }}
+                      />
+                    );
+                  })()}
                   <p className="font-medium truncate">{e.description}</p>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 ml-4 mt-0.5">
