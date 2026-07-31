@@ -164,9 +164,15 @@ export function DashboardClient({
       <section className="space-y-2">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold">Budget per Kategori</h2>
-          <Link href="/settings" className="text-xs text-brand-600 dark:text-brand-400">
-            Atur
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/analysis" className="text-xs text-indigo-600 dark:text-indigo-405 font-medium flex items-center gap-0.5">
+              Analisis Chart 📊
+            </Link>
+            <span className="text-slate-300 dark:text-slate-705 text-xs">|</span>
+            <Link href="/settings" className="text-xs text-slate-500 dark:text-slate-400">
+              Atur
+            </Link>
+          </div>
         </div>
         <div className="card divide-y divide-slate-100 dark:divide-slate-700 p-0">
           {loading && (
