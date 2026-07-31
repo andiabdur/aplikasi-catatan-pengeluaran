@@ -9,7 +9,7 @@ import { getCurrentHouseholdId } from "@/lib/supabase/household";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const GROQ_WHISPER_MODEL = "whisper-large-v3";
+const GROQ_WHISPER_MODEL = process.env.GROQ_WHISPER_MODEL || "nvidia/openai/whisper-large-v3";
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
 
 export async function POST(req: Request) {
@@ -211,6 +211,7 @@ Jika transkrip tidak menyebut pengeluaran, set groups=[].`;
           { role: "user", content: extractPrompt },
         ],
         response_format: { type: "json_object" },
+        stream: false,
       }),
     });
 

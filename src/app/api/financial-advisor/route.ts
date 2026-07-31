@@ -87,6 +87,7 @@ Output JSON dengan field: summary, health, insights (array), action_now (array o
           { role: "user", content: prompt },
         ],
         response_format: { type: "json_object" },
+        stream: false,
       }),
     });
 

@@ -122,6 +122,7 @@ Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
         model: MODEL,
         messages: deepseekMessages,
         response_format: { type: "json_object" },
+        stream: false,
       }),
     });
 
