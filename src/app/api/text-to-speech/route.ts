@@ -4,10 +4,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const deepseekKey = process.env.DEEPSEEK_API_KEY;
+  const deepseekKey = process.env.OPENAI_API_KEY || process.env.DEEPSEEK_API_KEY;
   if (!deepseekKey) {
     return NextResponse.json(
-      { error: "DEEPSEEK_API_KEY belum di-set di environment." },
+      { error: "Key API belum di-set di environment." },
       { status: 500 },
     );
   }
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Teks kosong." }, { status: 400 });
     }
 
-    const ttsUrl = "http://localhost:20128/v1/audio/speech";
+    const ttsUrl = (process.env.OPENAI_BASE_URL ? `${process.env.OPENAI_BASE_URL}/audio/speech` : null) || "http://localhost:20128/v1/audio/speech";
     const res = await fetch(ttsUrl, {
       method: "POST",
       headers: {
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "nvidia/fastpitch",
+        model: process.env.OPENAI_TTS_MODEL || "tts-1",
         input: text.trim(),
         voice: "alloy",
       }),
