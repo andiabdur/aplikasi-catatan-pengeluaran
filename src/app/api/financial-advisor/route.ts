@@ -69,7 +69,8 @@ PENTING: JANGAN PAKAI TABEL MARKDOWN dalam jawaban. Chat ini tampil di HP, pakai
 Output JSON dengan field: summary, health, insights (array), action_now (array of string), suggested_budgets (array), goal_advice (array).`;
 
   try {
-    const res = await fetch("https://api.deepseek.com/chat/completions", {
+    const apiUrl = process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/chat/completions";
+    const res = await fetch(apiUrl, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,

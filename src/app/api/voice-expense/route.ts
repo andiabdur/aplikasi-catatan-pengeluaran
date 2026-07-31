@@ -109,7 +109,8 @@ export async function POST(req: Request) {
     whisperForm.append("temperature", "0");
     whisperForm.append("response_format", "json");
 
-    const whisperRes = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+    const whisperUrl = process.env.GROQ_TRANSCRIPTION_API_URL || "https://api.groq.com/openai/v1/audio/transcriptions";
+    const whisperRes = await fetch(whisperUrl, {
       method: "POST",
       headers: { Authorization: `Bearer ${groqKey}` },
       body: whisperForm,
@@ -192,7 +193,8 @@ Output dalam format JSON:
 Jika transkrip tidak menyebut pengeluaran, set groups=[].`;
 
   try {
-    const extractRes = await fetch("https://api.deepseek.com/chat/completions", {
+    const deepseekUrl = process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/chat/completions";
+    const extractRes = await fetch(deepseekUrl, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${deepseekKey}`,

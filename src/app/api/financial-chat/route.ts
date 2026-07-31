@@ -111,7 +111,8 @@ Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
       })),
     ];
 
-    const res = await fetch("https://api.deepseek.com/chat/completions", {
+    const apiUrl = process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/chat/completions";
+    const res = await fetch(apiUrl, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
