@@ -310,7 +310,7 @@ export function SettingsClient({
                 const v = Number(e.target.value);
                 if (v !== payDay) savePayDay(v);
               }}
-              className="w-16 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-center text-sm font-semibold"
+              className="w-16 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground rounded-lg px-2 py-1.5 text-center text-sm font-semibold"
             />
             {savingKey === "pd" && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
           </div>
@@ -496,7 +496,7 @@ function IncomeRow({
             isFocused.current = false;
             onChange(parseIDRInput(text));
           }}
-          className="w-full border border-slate-200 dark:border-slate-700 rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
+          className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
           placeholder="0"
         />
       </div>
@@ -550,7 +550,7 @@ function CategoryRow({
             isFocused.current = false;
             onBudgetChange(parseIDRInput(text));
           }}
-          className="w-full border border-slate-200 dark:border-slate-700 rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
+          className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
           placeholder="0"
         />
       </div>
@@ -631,7 +631,7 @@ function CustomPeriodEditor({
             type="date"
             value={start}
             onChange={(e) => setStart(e.target.value)}
-            className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
+            className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
           />
         </div>
         <div>
@@ -640,7 +640,7 @@ function CustomPeriodEditor({
             type="date"
             value={end}
             onChange={(e) => setEnd(e.target.value)}
-            className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
+            className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
           />
         </div>
       </div>

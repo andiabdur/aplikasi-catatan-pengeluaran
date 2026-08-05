@@ -49,9 +49,14 @@ export function FinancialChat({ householdId }: { householdId: string }) {
   }, []);
 
   async function speak(text: string, index: number) {
+    const isBrowserTTSAvailable = typeof window !== "undefined" && !!window.speechSynthesis;
+
     if (playingIndex === index) {
       if (audioRef.current) {
         audioRef.current.pause();
+      }
+      if (isBrowserTTSAvailable) {
+        window.speechSynthesis.cancel();
       }
       setPlayingIndex(null);
       return;
@@ -59,27 +64,60 @@ export function FinancialChat({ householdId }: { householdId: string }) {
 
     if (audioRef.current) {
       audioRef.current.pause();
-      setPlayingIndex(null);
     }
-
+    if (isBrowserTTSAvailable) {
+      window.speechSynthesis.cancel();
+    }
+    setPlayingIndex(null);
     setSpeakingIndex(index);
-    try {
-      const plainText = text
-        .replace(/```[\s\S]*?```/g, "")
-        .replace(/`([^`]+)`/g, "$1")
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-        .replace(/\*\*([^*]+)\*\*/g, "$1")
-        .replace(/\*([^*]+)\*/g, "$1")
-        .replace(/[\n\r]+/g, " ")
-        .trim();
 
+    const plainText = text
+      .replace(/```[\s\S]*?```/g, "")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/\*([^*]+)\*/g, "$1")
+      .replace(/[\n\r]+/g, " ")
+      .trim();
+
+    const triggerBrowserFallback = () => {
+      if (!isBrowserTTSAvailable) {
+        setSpeakingIndex(null);
+        setPlayingIndex(null);
+        return;
+      }
+      try {
+        const utterance = new SpeechSynthesisUtterance(plainText);
+        utterance.lang = "id-ID";
+        utterance.onstart = () => {
+          setPlayingIndex(index);
+          setSpeakingIndex(null);
+        };
+        utterance.onend = () => {
+          setPlayingIndex(null);
+        };
+        utterance.onerror = () => {
+          setPlayingIndex(null);
+          setSpeakingIndex(null);
+        };
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        setSpeakingIndex(null);
+        setPlayingIndex(null);
+      }
+    };
+
+    try {
       const res = await fetch("/api/text-to-speech", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: plainText }),
       });
 
-      if (!res.ok) throw new Error("TTS failed");
+      if (!res.ok) {
+        triggerBrowserFallback();
+        return;
+      }
 
       const audioBlob = await res.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
@@ -99,8 +137,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
 
       await audio.play();
     } catch {
-      setSpeakingIndex(null);
-      setPlayingIndex(null);
+      triggerBrowserFallback();
     }
   }
 
