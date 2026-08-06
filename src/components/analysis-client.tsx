@@ -138,9 +138,20 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
     const start = new Date(minTime);
     const end = new Date(maxTime);
 
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const dateString = d.toISOString().split("T")[0];
+    const startYear = start.getFullYear();
+    const startMonth = start.getMonth();
+    const startDay = start.getDate();
+
+    let curr = new Date(startYear, startMonth, startDay);
+    const endMidnight = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+    while (curr <= endMidnight) {
+      const yyyy = curr.getFullYear();
+      const mm = String(curr.getMonth() + 1).padStart(2, "0");
+      const dd = String(curr.getDate()).padStart(2, "0");
+      const dateString = `${yyyy}-${mm}-${dd}`;
       dailyData[dateString] = {};
+      curr.setDate(curr.getDate() + 1);
     }
 
     expenses.forEach((e) => {
@@ -156,27 +167,24 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
     });
 
     // 2. Format object values to matching Recharts timeseries rows
-    return Object.entries(dailyData).map(([date, categoriesAmount]) => {
-      const row: Record<string, any> = { date };
+    return Object.entries(dailyData)
+      .map(([date, categoriesAmount]) => {
+        const row: Record<string, any> = { date };
 
-      // Clean dates for presentation on axis
-      const parsedDate = new Date(date);
-      row.formattedDate = parsedDate.toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "short",
-      });
+        // Clean dates for presentation on axis
+        const parsedDate = new Date(date);
+        row.formattedDate = parsedDate.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "short",
+        });
 
-      categoryStats.forEach((cat) => {
-        // Only supply cost values if category is turned ON in toggle visibility filters
-        if (visibleCategories[cat.name] !== false) {
+        categoryStats.forEach((cat) => {
           row[cat.name] = categoriesAmount[cat.name] ?? 0;
-        } else {
-          row[cat.name] = 0;
-        }
-      });
-      return row;
-    });
-  }, [expenses, categoryStats, visibleCategories]);
+        });
+        return row;
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }, [expenses, categoryStats]);
 
   const handleLegendClick = (payload: any) => {
     const { value } = payload;
@@ -333,7 +341,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--background))",
-                      border: "1px solid rgb(var(--border) / 0.1)",
+                      border: "1px solid var(--border)",
                       borderRadius: "0.5rem",
                       fontSize: "12px",
                       color: "hsl(var(--foreground))",
@@ -372,6 +380,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                       strokeWidth={1.5}
                       fillOpacity={1}
                       fill={`url(#gradient-${idx})`}
+                      hide={visibleCategories[cat.name] === false}
                     />
                   ))}
                 </AreaChart>
