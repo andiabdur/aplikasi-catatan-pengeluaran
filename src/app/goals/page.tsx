@@ -40,7 +40,7 @@ export default async function GoalsPage() {
   }));
 
   return (
-    <PageShell title="Goals Keluarga 🎯" subtitle="Target keuangan yang lagi dikejar">
+    <PageShell title="Goals Keluarga" subtitle="Target keuangan yang lagi dikejar">
       <GoalsClient
         householdId={householdId ?? ""}
         initialGoals={goalsWithProgress}

@@ -7,10 +7,47 @@ import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import type { GoalWithProgress, GoalStatus } from "@/lib/types";
 import {
   Plus, Target, Check, Trash2, Pencil, Loader2, X, Trophy, Archive,
+  Plane, Home, Car, GraduationCap, Heart, Smartphone, PalmTree, Coins, Gift, Compass, Stethoscope, HelpCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const EMOJI_CHOICES = ["🎯", "🕋", "✈️", "🏠", "🚗", "🎓", "💍", "📱", "🏖️", "💰", "🎁", "🩺"];
+const ICON_MAP = {
+  target: Target,
+  plane: Plane,
+  home: Home,
+  car: Car,
+  "graduation-cap": GraduationCap,
+  heart: Heart,
+  smartphone: Smartphone,
+  "palm-tree": PalmTree,
+  coins: Coins,
+  gift: Gift,
+  compass: Compass,
+  stethoscope: Stethoscope,
+};
+
+const EMOJI_TO_ICON: Record<string, string> = {
+  "🎯": "target",
+  "🕋": "compass",
+  "✈️": "plane",
+  "🏠": "home",
+  "🚗": "car",
+  "🎓": "graduation-cap",
+  "💍": "heart",
+  "📱": "smartphone",
+  "🏖️": "palm-tree",
+  "💰": "coins",
+  "🎁": "gift",
+  "🩺": "stethoscope"
+};
+
+const ICON_CHOICES = ["target", "compass", "plane", "home", "car", "graduation-cap", "heart", "smartphone", "palm-tree", "coins", "gift", "stethoscope"];
+
+function GoalIcon({ iconNameOrEmoji, className = "w-5 h-5", style }: { iconNameOrEmoji: string; className?: string; style?: React.CSSProperties }) {
+  const name = EMOJI_TO_ICON[iconNameOrEmoji] || iconNameOrEmoji || "target";
+  const IconComponent = ICON_MAP[name as keyof typeof ICON_MAP] || HelpCircle;
+  return <IconComponent className={className} style={style} />;
+}
 
 type EditState =
   | { mode: "closed" }
@@ -145,10 +182,10 @@ function GoalCard({
     <div className={cn("card space-y-3", !isActive && "opacity-75")}>
       <div className="flex items-start gap-3">
         <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0"
+          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
           style={{ background: `${goal.color}20` }}
         >
-          {goal.emoji}
+          <GoalIcon iconNameOrEmoji={goal.emoji} style={{ color: goal.color }} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
@@ -188,7 +225,7 @@ function GoalCard({
       <div className="flex items-center justify-between">
         <p className="text-xs text-slate-500 dark:text-slate-400">
           {reached ? (
-            <span className="text-green-600 dark:text-green-400 font-medium">Target tercapai! 🎉</span>
+            <span className="text-green-600 dark:text-green-400 font-medium">Target tercapai!</span>
           ) : (
             <>Kurang <span className="font-medium text-slate-700 dark:text-slate-200">{formatIDR(remaining)}</span></>
           )}
@@ -265,7 +302,7 @@ function GoalEditor({
     goal ? formatIDRInput(String(goal.target_amount)) : "",
   );
   const [targetDate, setTargetDate] = useState(goal?.target_date ?? "");
-  const [emoji, setEmoji] = useState(goal?.emoji ?? "🎯");
+  const [emoji, setEmoji] = useState(goal?.emoji ?? "target");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -312,19 +349,19 @@ function GoalEditor({
         <div>
           <label className="label">Pilih ikon</label>
           <div className="flex flex-wrap gap-1.5">
-            {EMOJI_CHOICES.map((e) => (
+            {ICON_CHOICES.map((ic) => (
               <button
-                key={e}
+                key={ic}
                 type="button"
-                onClick={() => setEmoji(e)}
+                onClick={() => setEmoji(ic)}
                 className={cn(
-                  "w-9 h-9 rounded-lg text-lg flex items-center justify-center border transition",
-                  emoji === e
+                  "w-9 h-9 rounded-lg flex items-center justify-center border transition",
+                  emoji === ic
                     ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10"
                     : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600",
                 )}
               >
-                {e}
+                <GoalIcon iconNameOrEmoji={ic} className="w-5 h-5" />
               </button>
             ))}
           </div>
