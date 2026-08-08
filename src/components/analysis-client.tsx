@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { ArrowLeft, BarChart3, Calendar, Filter, Sparkles, TrendingDown } from "lucide-react";
+import { ArrowLeft, BarChart3, Calendar, Filter, Sparkles, TrendingDown, Wallet, CalendarDays, Hash } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR } from "@/lib/format";
@@ -31,16 +31,35 @@ type ExpenseWithCategory = {
   } | null;
 };
 
-type RangeOption = "7d" | "30d" | "3m" | "6m";
+type RangeOption = "7d" | "30d" | "3m" | "6m" | "custom";
 
 export function AnalysisClient({ householdId }: { householdId: string }) {
   const [range, setRange] = useState<RangeOption>("30d");
+  const [startDate, setStartDate] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().slice(0, 10);
+  });
+  const [endDate, setEndDate] = useState<string>(() => {
+    return new Date().toISOString().slice(0, 10);
+  });
+
   const [expenses, setExpenses] = useState<ExpenseWithCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-
-  // State to toggle specific category visibility in Area chart
   const [visibleCategories, setVisibleCategories] = useState<Record<string, boolean>>({});
+
+  function selectPresetRange(opt: "7d" | "30d" | "3m" | "6m") {
+    setRange(opt);
+    const now = new Date();
+    const endStr = now.toISOString().slice(0, 10);
+    let d = new Date();
+    if (opt === "7d") d.setDate(now.getDate() - 7);
+    else if (opt === "30d") d.setDate(now.getDate() - 30);
+    else if (opt === "3m") d.setMonth(now.getMonth() - 3);
+    else if (opt === "6m") d.setMonth(now.getMonth() - 6);
+    setStartDate(d.toISOString().slice(0, 10));
+    setEndDate(endStr);
+  }
 
   useEffect(() => {
     async function loadData() {
@@ -48,33 +67,17 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
       setLoading(true);
       const supabase = createClient();
 
-      // Calculate start date based on range selection
-      const now = new Date();
-      let startDateStr = "";
-      if (range === "7d") {
-        const d = new Date();
-        d.setDate(now.getDate() - 7);
-        startDateStr = d.toISOString().split("T")[0];
-      } else if (range === "30d") {
-        const d = new Date();
-        d.setDate(now.getDate() - 30);
-        startDateStr = d.toISOString().split("T")[0];
-      } else if (range === "3m") {
-        const d = new Date();
-        d.setMonth(now.getMonth() - 3);
-        startDateStr = d.toISOString().split("T")[0];
-      } else if (range === "6m") {
-        const d = new Date();
-        d.setMonth(now.getMonth() - 6);
-        startDateStr = d.toISOString().split("T")[0];
-      }
-
-      const { data, error } = await supabase
+      let q = supabase
         .from("expenses")
         .select("id, spent_at, amount, description, categories(name, color)")
-        .eq("household_id", householdId)
-        .gte("spent_at", startDateStr)
-        .order("spent_at", { ascending: true });
+        .eq("household_id", householdId);
+
+      if (startDate) q = q.gte("spent_at", startDate);
+      if (endDate) q = q.lte("spent_at", endDate);
+
+      q = q.order("spent_at", { ascending: true });
+
+      const { data, error } = await q;
 
       if (!error && data) {
         setExpenses(data as unknown as ExpenseWithCategory[]);
@@ -96,9 +99,9 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
     }
 
     loadData();
-  }, [householdId, range]);
+  }, [householdId, startDate, endDate]);
 
-  // Extract all categories, their clean mapped color, and total spent for the breakdown
+  // Extract category stats
   const categoryStats = useMemo(() => {
     const stats: Record<string, { amount: number; color: string }> = {};
     expenses.forEach((e) => {
@@ -123,26 +126,35 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
     return categoryStats.reduce((sum, item) => sum + item.amount, 0);
   }, [categoryStats]);
 
-  // Transform raw Supabase rows into a daily timeseries array for Recharts
+  const daysDiff = useMemo(() => {
+    if (!startDate || !endDate) return 1;
+    const start = new Date(startDate).getTime();
+    const end = new Date(endDate).getTime();
+    const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    return Math.max(1, diff + 1);
+  }, [startDate, endDate]);
+
+  const dailyAverage = useMemo(() => {
+    return totalSpent / daysDiff;
+  }, [totalSpent, daysDiff]);
+
+  const topCategory = useMemo(() => {
+    return categoryStats.length > 0 ? categoryStats[0] : null;
+  }, [categoryStats]);
+
+  // Transform raw rows into daily timeseries
   const chartData = useMemo(() => {
     if (expenses.length === 0) return [];
 
-    // 1. Group transaction amount by date and category
     const dailyData: Record<string, Record<string, number>> = {};
-
-    // We want to fill missing days for smooth visual area line
-    const timestamps = expenses.map(e => new Date(e.spent_at).getTime());
+    const timestamps = expenses.map((e) => new Date(e.spent_at).getTime());
     const minTime = Math.min(...timestamps);
     const maxTime = Math.max(...timestamps);
 
     const start = new Date(minTime);
     const end = new Date(maxTime);
 
-    const startYear = start.getFullYear();
-    const startMonth = start.getMonth();
-    const startDay = start.getDate();
-
-    let curr = new Date(startYear, startMonth, startDay);
+    let curr = new Date(start.getFullYear(), start.getMonth(), start.getDate());
     const endMidnight = new Date(end.getFullYear(), end.getMonth(), end.getDate());
 
     while (curr <= endMidnight) {
@@ -157,21 +169,14 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
     expenses.forEach((e) => {
       const dateStr = e.spent_at;
       const catName = e.categories?.name ?? "Lainnya";
-      if (!dailyData[dateStr]) {
-        dailyData[dateStr] = {};
-      }
-      if (!dailyData[dateStr][catName]) {
-        dailyData[dateStr][catName] = 0;
-      }
+      if (!dailyData[dateStr]) dailyData[dateStr] = {};
+      if (!dailyData[dateStr][catName]) dailyData[dateStr][catName] = 0;
       dailyData[dateStr][catName] += Number(e.amount);
     });
 
-    // 2. Format object values to matching Recharts timeseries rows
     return Object.entries(dailyData)
       .map(([date, categoriesAmount]) => {
         const row: Record<string, any> = { date };
-
-        // Clean dates for presentation on axis
         const parsedDate = new Date(date);
         row.formattedDate = parsedDate.toLocaleDateString("id-ID", {
           day: "numeric",
@@ -226,36 +231,116 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
         </div>
       </div>
 
-      {/* Date Range Selector */}
+      {/* Date Range Selector Card */}
       <Card className="shadow-none">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-3">
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5" /> Rentang Analisis
+              <Calendar className="w-3.5 h-3.5" /> Rentang Analisis Tanggal
             </span>
           </div>
-          <div className="grid grid-cols-4 gap-1.5">
-            {(
-              [
-                { label: "7 Hari", value: "7d" },
-                { label: "30 Hari", value: "30d" },
-                { label: "3 Bulan", value: "3m" },
-                { label: "6 Bulan", value: "6m" },
-              ] as const
-            ).map((opt) => (
+
+          {/* Preset Buttons */}
+          <div className="grid grid-cols-5 gap-1.5">
+            {[
+              { label: "7 Hari", value: "7d" },
+              { label: "30 Hari", value: "30d" },
+              { label: "3 Bulan", value: "3m" },
+              { label: "6 Bulan", value: "6m" },
+              { label: "Custom", value: "custom" },
+            ].map((opt) => (
               <Button
                 key={opt.value}
                 size="sm"
                 variant={range === opt.value ? "default" : "outline"}
-                className="w-full text-xs font-medium rounded-lg"
-                onClick={() => setRange(opt.value)}
+                className="w-full text-xs font-medium rounded-lg px-1 py-1"
+                onClick={() => {
+                  if (opt.value === "custom") {
+                    setRange("custom");
+                  } else {
+                    selectPresetRange(opt.value as any);
+                  }
+                }}
               >
                 {opt.label}
               </Button>
             ))}
           </div>
+
+          {/* Custom Date Pickers */}
+          {range === "custom" && (
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                  Dari Tanggal
+                </label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="input text-xs py-1.5"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                  Sampai Tanggal
+                </label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="input text-xs py-1.5"
+                />
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Financial Summary Information Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div className="bg-slate-900 dark:bg-slate-950 text-white rounded-xl p-3 shadow-sm border border-slate-800">
+          <div className="flex items-center gap-1 text-[11px] text-slate-400">
+            <Wallet className="w-3.5 h-3.5 text-brand-400" /> Total Pengeluaran
+          </div>
+          <p className="text-base font-bold tracking-tight mt-1 text-brand-400">
+            {formatIDR(totalSpent)}
+          </p>
+          <p className="text-[10px] text-slate-400 mt-0.5">{daysDiff} hari rentang</p>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-sm">
+          <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+            <CalendarDays className="w-3.5 h-3.5 text-indigo-500" /> Rata-Rata / Hari
+          </div>
+          <p className="text-base font-bold tracking-tight mt-1 text-slate-800 dark:text-slate-200">
+            {formatIDR(Math.round(dailyAverage))}
+          </p>
+          <p className="text-[10px] text-slate-400 mt-0.5">Estimasi harian</p>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-sm">
+          <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Kategori Terbesar
+          </div>
+          <p className="text-sm font-bold tracking-tight mt-1 text-slate-800 dark:text-slate-200 truncate">
+            {topCategory ? topCategory.name : "-"}
+          </p>
+          <p className="text-[10px] text-slate-400 mt-0.5">
+            {topCategory ? formatIDR(topCategory.amount) : "0"}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-sm">
+          <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+            <Hash className="w-3.5 h-3.5 text-emerald-500" /> Total Transaksi
+          </div>
+          <p className="text-base font-bold tracking-tight mt-1 text-slate-800 dark:text-slate-200">
+            {expenses.length} <span className="text-xs font-normal text-slate-500">item</span>
+          </p>
+          <p className="text-[10px] text-slate-400 mt-0.5">Dalam rentang ini</p>
+        </div>
+      </div>
 
       {/* Interactive Chart Section */}
       <Card className="shadow-none overflow-hidden">
@@ -284,7 +369,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
           ) : chartData.length === 0 ? (
             <div className="text-center py-20 text-slate-500 text-sm">
               <TrendingDown className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-              Tidak ada data pengeluaran ditemukan dalam rentang ini.
+              Tidak ada data pengeluaran ditemukan dalam rentang tanggal ini.
             </div>
           ) : (
             <div className="h-64 sm:h-72 w-full mt-2 select-none">
@@ -349,7 +434,6 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                     }}
                     labelFormatter={(label, items) => {
                       if (items && items[0]) {
-                        // Date formatted
                         return new Date(items[0].payload.date).toLocaleDateString("id-ID", {
                           day: "numeric",
                           month: "long",
