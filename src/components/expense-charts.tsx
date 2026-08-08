@@ -13,6 +13,29 @@ type ChartRow = {
   color: string;
 };
 
+function CustomChartTooltip({ active, payload, total }: any) {
+  if (!active || !payload || payload.length === 0) return null;
+  const item = payload[0];
+  const val = Number(item.value) || 0;
+  const pct = total > 0 ? ((val / total) * 100).toFixed(1) : "0";
+
+  return (
+    <div className="bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-700/80 dark:border-slate-800 text-slate-100 p-2.5 rounded-xl shadow-2xl z-50 text-xs min-w-[140px] space-y-1 pointer-events-none">
+      <div className="flex items-center gap-1.5 font-medium text-slate-300">
+        <span
+          className="w-2.5 h-2.5 rounded-full shrink-0"
+          style={{ backgroundColor: item.payload?.color || item.color || item.fill }}
+        />
+        <span className="truncate">{item.name || item.payload?.name}</span>
+      </div>
+      <div className="flex items-center justify-between gap-2 font-bold">
+        <span className="text-brand-400">{formatIDR(val)}</span>
+        <span className="text-[10px] text-slate-400 font-normal">({pct}%)</span>
+      </div>
+    </div>
+  );
+}
+
 export function CategoryPieChart({ data, total }: { data: ChartRow[]; total: number }) {
   const cleaned = useMemo(() => data.filter((d) => d.value > 0), [data]);
 
@@ -45,18 +68,7 @@ export function CategoryPieChart({ data, total }: { data: ChartRow[]; total: num
                 <Cell key={i} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip
-              formatter={(v: number, name: string) => [
-                `${formatIDR(v)} (${((v / total) * 100).toFixed(1)}%)`,
-                name,
-              ]}
-              contentStyle={{
-                background: "white",
-                border: "1px solid #e2e8f0",
-                borderRadius: 8,
-                fontSize: 12,
-              }}
-            />
+            <Tooltip content={<CustomChartTooltip total={total} />} />
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
@@ -111,19 +123,7 @@ export function CategoryBarChart({ data, total }: { data: ChartRow[]; total: num
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip
-            formatter={(v: number) => [
-              `${formatIDR(v)} (${((v / total) * 100).toFixed(1)}%)`,
-              "Pengeluaran",
-            ]}
-            cursor={{ fill: "rgba(0,0,0,0.04)" }}
-            contentStyle={{
-              background: "white",
-              border: "1px solid #e2e8f0",
-              borderRadius: 8,
-              fontSize: 12,
-            }}
-          />
+          <Tooltip content={<CustomChartTooltip total={total} />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
           <Bar dataKey="value" radius={[0, 8, 8, 0]}>
             {cleaned.map((entry, i) => (
               <Cell key={i} fill={entry.color} />

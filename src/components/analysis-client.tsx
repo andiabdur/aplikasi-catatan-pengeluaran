@@ -33,6 +33,53 @@ type ExpenseWithCategory = {
 
 type RangeOption = "7d" | "30d" | "3m" | "6m" | "custom";
 
+function CustomAnalysisTooltip({ active, payload, label }: any) {
+  if (!active || !payload || payload.length === 0) return null;
+
+  const rawDate = payload[0]?.payload?.date;
+  const formattedDate = rawDate
+    ? new Date(rawDate).toLocaleDateString("id-ID", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : label;
+
+  const activeItems = payload
+    .filter((item: any) => Number(item.value) > 0)
+    .sort((a: any, b: any) => Number(b.value) - Number(a.value));
+
+  const dailyTotal = activeItems.reduce((acc: number, item: any) => acc + Number(item.value), 0);
+
+  return (
+    <div className="bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-700/80 dark:border-slate-800 text-slate-100 p-3 rounded-xl shadow-2xl z-50 text-xs min-w-[210px] space-y-2 pointer-events-none">
+      <div className="border-b border-slate-700/60 pb-1.5 flex items-center justify-between gap-3">
+        <span className="font-semibold text-slate-200">{formattedDate}</span>
+        <span className="font-bold text-brand-400">{formatIDR(dailyTotal)}</span>
+      </div>
+      {activeItems.length === 0 ? (
+        <p className="text-[11px] text-slate-400">Tidak ada pengeluaran</p>
+      ) : (
+        <div className="space-y-1.5 max-h-48 overflow-y-auto pr-0.5">
+          {activeItems.map((item: any) => (
+            <div key={item.name} className="flex items-center justify-between gap-3 text-[11px]">
+              <div className="flex items-center gap-1.5 truncate">
+                <span
+                  className="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm"
+                  style={{ backgroundColor: item.color || item.fill }}
+                />
+                <span className="text-slate-300 truncate font-medium">{item.name}</span>
+              </div>
+              <span className="font-bold text-slate-100 shrink-0">{formatIDR(Number(item.value))}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AnalysisClient({ householdId }: { householdId: string }) {
   const [range, setRange] = useState<RangeOption>("30d");
   const [startDate, setStartDate] = useState<string>(() => {
@@ -423,30 +470,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                         : val
                     }
                   />
-                  <Tooltip
-                    contentStyle={{
-                      background: "hsl(var(--background))",
-                      border: "1px solid var(--border)",
-                      borderRadius: "0.5rem",
-                      fontSize: "12px",
-                      color: "hsl(var(--foreground))",
-                      boxShadow: "none"
-                    }}
-                    labelFormatter={(label, items) => {
-                      if (items && items[0]) {
-                        return new Date(items[0].payload.date).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric"
-                        });
-                      }
-                      return label;
-                    }}
-                    formatter={(value: any, name: any) => [
-                      formatIDR(Number(value)),
-                      name,
-                    ]}
-                  />
+                  <Tooltip content={<CustomAnalysisTooltip />} />
                   <Legend
                     onClick={handleLegendClick}
                     cursor="pointer"
