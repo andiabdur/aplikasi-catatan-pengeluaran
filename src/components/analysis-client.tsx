@@ -344,67 +344,64 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
         </CardContent>
       </Card>
 
-      {/* Financial Summary Information Cards - Responsive Layout */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+      {/* Financial Summary Information Cards - Mobile-First Responsive Layout */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         {/* Card 1: Total Pengeluaran */}
-        <div className="bg-gradient-to-br from-slate-900 to-slate-950 dark:from-slate-900 dark:to-slate-950 text-white rounded-xl p-3 sm:p-3.5 shadow-sm border border-slate-800 flex flex-col justify-between min-w-0">
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-400 min-w-0 truncate">
-            <Wallet className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+        <div className="bg-gradient-to-br from-slate-900 to-slate-950 dark:from-slate-900 dark:to-slate-950 text-white rounded-xl p-2.5 sm:p-3.5 shadow-sm border border-slate-800 flex flex-col justify-between min-w-0">
+          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-400 min-w-0">
+            <Wallet className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-400 shrink-0" />
             <span className="truncate">Total Pengeluaran</span>
           </div>
-          <p
-            className="text-xs sm:text-sm md:text-base font-extrabold tracking-tight mt-1.5 text-brand-400 truncate"
-            title={formatIDR(totalSpent)}
-          >
-            {formatIDR(totalSpent)}
-          </p>
-          <p className="text-[10px] text-slate-400 mt-1 truncate">{daysDiff} hari rentang</p>
+          <div className="my-1">
+            <p className="text-[11px] xs:text-xs sm:text-sm md:text-base font-extrabold tracking-tight text-brand-400 leading-tight break-words">
+              {formatIDR(totalSpent)}
+            </p>
+          </div>
+          <p className="text-[9px] sm:text-[10px] text-slate-400">{daysDiff} hari rentang</p>
         </div>
 
         {/* Card 2: Rata-Rata / Hari */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 sm:p-3.5 shadow-sm flex flex-col justify-between min-w-0">
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 min-w-0 truncate">
-            <CalendarDays className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 sm:p-3.5 shadow-sm flex flex-col justify-between min-w-0">
+          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 min-w-0">
+            <CalendarDays className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-500 shrink-0" />
             <span className="truncate">Rata-Rata / Hari</span>
           </div>
-          <p
-            className="text-xs sm:text-sm md:text-base font-extrabold tracking-tight mt-1.5 text-slate-900 dark:text-slate-100 truncate"
-            title={formatIDR(Math.round(dailyAverage))}
-          >
-            {formatIDR(Math.round(dailyAverage))}
-          </p>
-          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 truncate">Estimasi harian</p>
+          <div className="my-1">
+            <p className="text-[11px] xs:text-xs sm:text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-slate-100 leading-tight break-words">
+              {formatIDR(Math.round(dailyAverage))}
+            </p>
+          </div>
+          <p className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500">Estimasi harian</p>
         </div>
 
         {/* Card 3: Kategori Terbesar */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 sm:p-3.5 shadow-sm flex flex-col justify-between min-w-0">
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 min-w-0 truncate">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 sm:p-3.5 shadow-sm flex flex-col justify-between min-w-0">
+          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 min-w-0">
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 shrink-0" />
             <span className="truncate">Kategori Terbesar</span>
           </div>
-          <div className="mt-1.5 min-w-0">
-            <p
-              className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-slate-100 truncate"
-              title={topCategory ? topCategory.name : "-"}
-            >
+          <div className="my-1 min-w-0">
+            <p className="text-[11px] xs:text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-slate-100 leading-tight line-clamp-1">
               {topCategory ? topCategory.name : "-"}
             </p>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold truncate mt-0.5">
+            <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-semibold leading-tight mt-0.5 break-words">
               {topCategory ? formatIDR(topCategory.amount) : "0"}
             </p>
           </div>
         </div>
 
         {/* Card 4: Total Transaksi */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 sm:p-3.5 shadow-sm flex flex-col justify-between min-w-0">
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 min-w-0 truncate">
-            <Hash className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 sm:p-3.5 shadow-sm flex flex-col justify-between min-w-0">
+          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 min-w-0">
+            <Hash className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-500 shrink-0" />
             <span className="truncate">Total Transaksi</span>
           </div>
-          <p className="text-xs sm:text-sm md:text-base font-extrabold tracking-tight mt-1.5 text-slate-900 dark:text-slate-100 truncate">
-            {expenses.length} <span className="text-[11px] font-normal text-slate-500">item</span>
-          </p>
-          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 truncate">Dalam rentang ini</p>
+          <div className="my-1">
+            <p className="text-[11px] xs:text-xs sm:text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
+              {expenses.length} <span className="text-[10px] sm:text-xs font-normal text-slate-500">item</span>
+            </p>
+          </div>
+          <p className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500">Dalam rentang ini</p>
         </div>
       </div>
 
