@@ -14,7 +14,7 @@ import Link from "next/link";
 import { PeriodSelector } from "@/components/period-selector";
 import { CategoryPieChart, CategoryBarChart } from "@/components/expense-charts";
 import { getCategoryIcon } from "@/components/category-icon";
-import { Search, Trash2, X, PieChart as PieIcon, BarChart3, ChevronDown, ChevronUp, Pencil, Check, ArrowUpRight } from "lucide-react";
+import { Search, Trash2, X, PieChart as PieIcon, BarChart3, ChevronDown, ChevronUp, Pencil, Check, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Category, Expense } from "@/lib/types";
 
@@ -160,15 +160,35 @@ export function HistoryList({
     setRows((rs) => rs.filter((r) => r.id !== id));
   }
 
-  // Group by date
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [catFilter, evtFilter, range.from, range.to, search]);
+
+  const totalCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const startIndex = (safePage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalCount);
+
+  const paginatedItems = useMemo(() => {
+    return filtered.slice(startIndex, endIndex);
+  }, [filtered, startIndex, endIndex]);
+
+  // Group by date for current page
   const grouped = useMemo(() => {
     const map = new Map<string, Row[]>();
-    filtered.forEach((r) => {
+    paginatedItems.forEach((r) => {
       if (!map.has(r.spent_at)) map.set(r.spent_at, []);
       map.get(r.spent_at)!.push(r);
     });
     return [...map.entries()];
-  }, [filtered]);
+  }, [paginatedItems]);
 
   function EditExpenseRow({
     row,
@@ -433,7 +453,7 @@ export function HistoryList({
       </div>
 
       {/* Summary card */}
-      <div className="card flex items-center justify-between bg-brand-50 dark:bg-brand-500/10 border-brand-200 dark:border-brand-500/30">
+      <div id="history-list-top" className="card flex items-center justify-between bg-brand-50 dark:bg-brand-500/10 border-brand-200 dark:border-brand-500/30">
         <div>
           <p className="text-xs text-slate-600 dark:text-slate-300">
             {evtFilter && evtFilter !== "__none__"
@@ -569,6 +589,70 @@ export function HistoryList({
             </div>
           );
         })
+      )}
+
+      {/* Dynamic Pagination Bar */}
+      {filtered.length > 0 && (
+        <div className="card flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 py-3">
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+            <span>Menampilkan <strong>{totalCount > 0 ? startIndex + 1 : 0}–{endIndex}</strong> dari <strong>{totalCount}</strong> item</span>
+            <span className="text-slate-300 dark:text-slate-700">|</span>
+            <div className="flex items-center gap-1">
+              <span>Per halaman:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-800 dark:text-slate-200 font-semibold focus:outline-none"
+              >
+                <option value={15}>15</option>
+                <option value={30}>30</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                if (safePage > 1) {
+                  setCurrentPage(safePage - 1);
+                  const listElem = document.getElementById("history-list-top");
+                  if (listElem) listElem.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              disabled={safePage <= 1}
+              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              title="Halaman Sebelumnya"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center gap-1 px-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <span>Halaman {safePage} dari {totalPages}</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (safePage < totalPages) {
+                  setCurrentPage(safePage + 1);
+                  const listElem = document.getElementById("history-list-top");
+                  if (listElem) listElem.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              disabled={safePage >= totalPages}
+              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              title="Halaman Selanjutnya"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Chart Section — Positioned BELOW the transaction list */}
