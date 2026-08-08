@@ -35,12 +35,12 @@ export async function POST(req: Request) {
   const catList = categories ?? [];
   if (catList.length === 0) return NextResponse.json({ error: "Belum ada kategori." }, { status: 400 });
 
-  const { data: goalsData } = await supabase
-    .from("goals")
-    .select("id,name")
-    .eq("household_id", householdId)
-    .eq("status", "active");
-  const goalList = goalsData ?? [];
+  const [goalsRes, eventsRes] = await Promise.all([
+    supabase.from("goals").select("id,name").eq("household_id", householdId).eq("status", "active"),
+    supabase.from("events").select("id,name").eq("household_id", householdId).eq("status", "active"),
+  ]);
+  const goalList = goalsRes.data ?? [];
+  const eventList = eventsRes.data ?? [];
 
   // Read uploaded image
   let imageBuffer: Buffer;
@@ -61,6 +61,9 @@ export async function POST(req: Request) {
   const goalLines = goalList.length
     ? goalList.map((g) => `- ${g.name} (id: ${g.id})`).join("\n")
     : "(belum ada goal)";
+  const eventLines = eventList.length
+    ? eventList.map((e) => `- ${e.name} (id: ${e.id})`).join("\n")
+    : "(belum ada event)";
 
   const prompt = `Kamu asisten pencatat keuangan keluarga Indonesia. Lihat foto struk/nota/bon/kwitansi ini dan ekstrak semua pengeluaran.
 
@@ -70,6 +73,9 @@ ${catLines}
 Goal/target tabungan (untuk setoran nabung):
 ${goalLines}
 
+Daftar EVENT/kegiatan aktif (liburan, dinas, acara, dll):
+${eventLines}
+
 INSTRUKSI:
 - Baca semua item di struk beserta harganya
 - Kelompokkan item berdasarkan kategori yang paling cocok
@@ -77,11 +83,14 @@ INSTRUKSI:
 - Kalau semua item satu kategori, cukup 1 group
 - Untuk total/subtotal/pajak: masukkan ke grup yang relevan atau buat grup sendiri
 - Kalau ada item nabung/tabungan dan ada goal yang cocok, isi goal_id
+- Jika struk terkait dengan kegiatan/event aktif (misal nota hotel/restoran saat liburan), isi event_id
 
 Format tiap group:
 - "items": [{name, price}] — price dalam RUPIAH (integer)
 - "deskripsi": nama ringkas group, dipisah koma kalau banyak item
 - "category_id": id dari daftar di atas
+- "goal_id": uuid-goal atau null
+- "event_id": uuid-event atau null
 
 Output:
 - "groups": array group-group di atas
@@ -127,6 +136,7 @@ Kalau gambar bukan struk atau tidak terbaca, set groups=[].`;
         deskripsi?: string;
         category_id?: string;
         goal_id?: string;
+        event_id?: string;
         items?: { name?: string; price?: number }[];
       }[];
     };
@@ -135,6 +145,7 @@ Kalau gambar bukan struk atau tidak terbaca, set groups=[].`;
       .map((g) => {
         const validCat = catList.find((c) => c.id === g.category_id);
         const validGoal = goalList.find((gl) => gl.id === g.goal_id);
+        const validEvent = eventList.find((ev) => ev.id === g.event_id);
         const items = (g.items ?? [])
           .map((it) => ({
             name: (it.name ?? "").trim(),
@@ -149,6 +160,8 @@ Kalau gambar bukan struk atau tidak terbaca, set groups=[].`;
           category_name: validCat?.name ?? null,
           goal_id: validGoal?.id ?? null,
           goal_name: validGoal?.name ?? null,
+          event_id: validEvent?.id ?? null,
+          event_name: validEvent?.name ?? null,
           items,
         };
       })

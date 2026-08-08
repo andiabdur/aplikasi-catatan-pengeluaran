@@ -274,6 +274,7 @@ Jika transkrip tidak menyebut pengeluaran, set groups=[].`;
           goal_id: validGoal?.id ?? null,
           goal_name: validGoal?.name ?? null,
           event_id: validEvent?.id ?? null,
+          event_name: validEvent?.name ?? null,
           items,
         };
       })

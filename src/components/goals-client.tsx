@@ -7,7 +7,7 @@ import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import type { GoalWithProgress, GoalStatus } from "@/lib/types";
 import {
   Plus, Target, Check, Trash2, Pencil, Loader2, X, Trophy, Archive,
-  Plane, Home, Car, GraduationCap, Heart, Smartphone, PalmTree, Coins, Gift, Compass, Stethoscope, HelpCircle
+  Plane, Home, Car, GraduationCap, Heart, Smartphone, Palmtree, Coins, Gift, Compass, Stethoscope, HelpCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +19,7 @@ const ICON_MAP = {
   "graduation-cap": GraduationCap,
   heart: Heart,
   smartphone: Smartphone,
-  "palm-tree": PalmTree,
+  "palm-tree": Palmtree,
   coins: Coins,
   gift: Gift,
   compass: Compass,

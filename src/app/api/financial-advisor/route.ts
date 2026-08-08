@@ -37,7 +37,7 @@ export async function POST() {
   if (!ctx) {
     return NextResponse.json({ error: "Belum ada data kategori untuk dianalisa." }, { status: 400 });
   }
-  const { digest, itemDigest, goalDigest, catList } = ctx;
+  const { digest, itemDigest, goalDigest, eventDigest, catList } = ctx;
   const catLines = catList.map((c) => `- ${c.name} (id: ${c.id})`).join("\n");
 
   const prompt = `Kamu penasihat keuangan keluarga Indonesia yang membumi, jujur, dan praktis. Analisa data ${PERIODS_TO_ANALYZE} periode gajian terakhir keluarga ini, lalu beri diagnosa + rencana.
@@ -45,19 +45,22 @@ export async function POST() {
 DATA PER PERIODE (budget vs realisasi per kategori):
 ${digest}
 
-DETAIL TRANSAKSI PER PERIODE (item, tanggal, nominal):
+DETAIL TRANSAKSI PER PERIODE (item, tanggal, nominal, event):
 ${itemDigest}
 
 GOAL/TARGET TABUNGAN:
 ${goalDigest}
 
+EVENT/KEGIATAN KELUARGA (Liburan, Dinas, Acara, dll):
+${eventDigest}
+
 KATEGORI yang tersedia untuk usulan budget (pakai id ini):
 ${catLines}
 
 Tugasmu (semua dalam Bahasa Indonesia yang santai tapi sopan, panggil mereka "kamu sekeluarga"):
-1. "summary": 2-3 kalimat ringkasan kondisi keuangan keluarga + tingkat kesehatannya.
+1. "summary": 2-3 kalimat ringkasan kondisi keuangan keluarga + tingkat kesehatannya (pertimbangkan beban pengeluaran event/kegiatan jika ada).
 2. "health": satu kata: "sehat", "waspada", atau "boncos".
-3. "insights": daftar 3-5 temuan penting (kategori yang sering jebol, pola boros, hal positif). Tiap item {title, detail, severity: "good"|"warning"|"danger"}.
+3. "insights": daftar 3-5 temuan penting (kategori yang sering jebol, pengeluaran event besar, pola boros, hal positif). Tiap item {title, detail, severity: "good"|"warning"|"danger"}.
 4. "action_now": 2-4 hal konkret yang harus ditekan/diperbaiki BULAN INI (array string).
 5. "suggested_budgets": usulan budget untuk periode DEPAN per kategori. Tiap item {category_id (harus dari daftar id di atas), category_name, amount (integer rupiah), reason (alasan singkat)}. Realistis: berbasis rata-rata realisasi + buffer, dorong alokasi Nabung kalau memungkinkan.
 6. "goal_advice": saran per goal apakah laju nabung cukup buat capai target tepat waktu. Tiap item {goal_name, advice}. Kalau belum ada goal, kosongkan array.

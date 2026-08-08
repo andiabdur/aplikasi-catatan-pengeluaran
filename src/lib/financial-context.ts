@@ -30,12 +30,13 @@ export async function buildFinancialContext(
   householdId: string,
   periodsToAnalyze = 3,
 ): Promise<FinancialContext | null> {
-  const [hhRes, cpRes, goalsRes, depositsRes, eventsRes] = await Promise.all([
+  const [hhRes, cpRes, goalsRes, depositsRes, eventsRes, eventExpensesRes] = await Promise.all([
     supabase.from("households").select("pay_day_of_month").eq("id", householdId).maybeSingle(),
     supabase.from("custom_periods").select("label_month, start_date, end_date").eq("household_id", householdId),
     supabase.from("goals").select("id,name,target_amount,target_date,status").eq("household_id", householdId).eq("status", "active"),
     supabase.from("expenses").select("goal_id, amount").eq("household_id", householdId).not("goal_id", "is", null),
     supabase.from("events").select("id,name,status,start_date,end_date").eq("household_id", householdId),
+    supabase.from("expenses").select("event_id, amount, description, spent_at").eq("household_id", householdId).not("event_id", "is", null),
   ]);
 
   const payDay = hhRes.data?.pay_day_of_month ?? 25;
@@ -48,6 +49,18 @@ export async function buildFinancialContext(
     savedByGoal.set(d.goal_id, (savedByGoal.get(d.goal_id) ?? 0) + Number(d.amount));
   });
 
+  const eventExpenseMap = new Map<string, { totalSpent: number; count: number; items: string[] }>();
+  (eventExpensesRes.data ?? []).forEach((exp) => {
+    if (!exp.event_id) return;
+    const cur = eventExpenseMap.get(exp.event_id) ?? { totalSpent: 0, count: 0, items: [] };
+    cur.totalSpent += Number(exp.amount || 0);
+    cur.count += 1;
+    if (cur.items.length < 5) {
+      cur.items.push(`${exp.spent_at}: ${exp.description || "Pengeluaran"} (Rp ${Math.round(Number(exp.amount)).toLocaleString("id-ID")})`);
+    }
+    eventExpenseMap.set(exp.event_id, cur);
+  });
+
   const currentLabel = currentPeriodLabelWithCustom(payDay, customPeriods);
   const labels: Date[] = [];
   for (let i = periodsToAnalyze - 1; i >= 0; i--) {
@@ -56,7 +69,16 @@ export async function buildFinancialContext(
   const nextLabel = shiftPeriod(currentLabel, 1);
   
   const events = eventsRes.data ?? [];
-  const eventDigest = events.map(e => `- ${e.name}: mulai ${e.start_date}${e.end_date ? ' berrakhir ' + e.end_date : ' (sedang aktif)'} `).join("\n");
+  const eventDigest = events.length
+    ? events
+        .map((e) => {
+          const expData = eventExpenseMap.get(e.id) ?? { totalSpent: 0, count: 0, items: [] };
+          const statusText = e.status === "completed" ? `selesai (berakhir ${e.end_date || e.start_date})` : "sedang aktif";
+          const itemLines = expData.items.length > 0 ? `\n    Detail transaksi:\n    ` + expData.items.join("\n    ") : "";
+          return `- Event "${e.name}": status ${statusText}, mulai ${e.start_date}, total pengeluaran Rp ${Math.round(expData.totalSpent).toLocaleString("id-ID")} (${expData.count} transaksi)${itemLines}`;
+        })
+        .join("\n")
+    : "(belum ada event/kegiatan)";
   
 
   const perPeriod = await Promise.all(
@@ -128,8 +150,10 @@ export async function buildFinancialContext(
       const byDate = new Map<string, string[]>();
       p.items.forEach((item) => {
         const catName = catNameMap.get(item.category_id) ?? "Lainnya";
+        const eventName = item.event_id ? eventNameMap.get(item.event_id) : null;
+        const eventTag = eventName ? ` [Event: ${eventName}]` : "";
         const time = fmtTime(item.created_at);
-        const line = `     ${time} — ${item.description || "(no desc)"} [${catName}]: ${Math.round(Number(item.amount)).toLocaleString("id-ID")}`;
+        const line = `     ${time} — ${item.description || "(no desc)"} [${catName}]${eventTag}: ${Math.round(Number(item.amount)).toLocaleString("id-ID")}`;
         if (!byDate.has(item.spent_at)) byDate.set(item.spent_at, []);
         byDate.get(item.spent_at)!.push(line);
       });

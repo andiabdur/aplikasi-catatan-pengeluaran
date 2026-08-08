@@ -60,9 +60,23 @@ export async function POST(req: Request) {
     );
   }
 
-  const catLines = ctx.catList.map((c) => `- ${c.name} (id: ${c.id})`).join("\n");
+  const [eventsRes, goalsRes] = await Promise.all([
+    supabase.from("events").select("id, name").eq("household_id", householdId).eq("status", "active"),
+    supabase.from("goals").select("id, name").eq("household_id", householdId).eq("status", "active"),
+  ]);
 
-  const systemInstruction = `Kamu "Penasihat Keuangan Keluarga" — asisten AI yang santai, membumi, jujur, dan suportif untuk sebuah keluarga Indonesia. Kamu HANYA membahas hal seputar keuangan keluarga ini (budgeting, penghematan, tabungan, goal/target, perencanaan finansial). Kalau ditanya hal di luar keuangan, arahkan balik dengan halus ke topik keuangan.
+  const activeEvents = eventsRes.data ?? [];
+  const activeGoals = goalsRes.data ?? [];
+
+  const catLines = ctx.catList.map((c) => `- ${c.name} (id: ${c.id})`).join("\n");
+  const eventLines = activeEvents.length
+    ? activeEvents.map((e) => `- ${e.name} (id: ${e.id})`).join("\n")
+    : "(belum ada event aktif)";
+  const goalLines = activeGoals.length
+    ? activeGoals.map((g) => `- ${g.name} (id: ${g.id})`).join("\n")
+    : "(belum ada goal aktif)";
+
+  const systemInstruction = `Kamu "Penasihat Keuangan Keluarga" — asisten AI yang santai, membumi, jujur, dan suportif untuk sebuah keluarga Indonesia. Kamu HANYA membahas hal seputar keuangan keluarga ini (budgeting, penghematan, tabungan, goal/target, event/kegiatan, perencanaan finansial). Kalau ditanya hal di luar keuangan, arahkan balik dengan halus ke topik keuangan.
 
 Selalu pakai DATA KEUANGAN nyata keluarga di bawah ini sebagai konteks. Sebut angka konkret kalau relevan. Jangan mengarang data yang tidak ada.
 
@@ -77,15 +91,26 @@ ${ctx.itemDigest}
 === GOAL/TARGET TABUNGAN ===
 ${ctx.goalDigest}
 
+=== DAFTAR EVENT / KEGIATAN KELUARGA ===
+${ctx.eventDigest}
+
 Periode berikutnya: ${ctx.nextPeriodTitle}.
 
 === KEMAMPUAN MENCATAT PENGELUARAN ===
-Kalau user menyebut pengeluaran konkret dengan nominal yang jelas dalam pesannya (contoh: "jajan gorengan 5rb", "beli bensin 50ribu", "bayar listrik 150000", "makan siang 25rb"), ekstrak dan catat sebagai expense. Pilih category_id dari daftar berikut:
+Kalau user menyebut pengeluaran konkret dengan nominal yang jelas dalam pesannya (contoh: "jajan gorengan 5rb", "beli bensin 50ribu", "bayar hotel 750rb pas Liburan Bali", "nabung 200rb buat umroh"), ekstrak dan catat sebagai expense. 
+
+Pilih category_id dari daftar berikut:
 ${catLines}
+
+Daftar EVENT AKTIF (isi event_id jika pengeluaran terkait event):
+${eventLines}
+
+Daftar GOAL AKTIF (isi goal_id jika pengeluaran berupa setoran tabungan goal):
+${goalLines}
 
 Pahami slang uang Indonesia: rb/ribu=1000, jt/juta=1000000, goceng=5000, ceban=10000, goban=50000, cepek=100000. Satu pesan bisa menghasilkan beberapa expense kalau ada beberapa item.
 
-Dalam "reply", konfirmasi singkat apa yang berhasil dicatat (nama + nominal + kategori), lalu lanjut membantu.
+Dalam "reply", konfirmasi singkat apa yang berhasil dicatat (nama + nominal + kategori + event/goal jika ada), lalu lanjut membantu.
 PENTING: Hanya isi "expenses" kalau user BENAR-BENAR menyebut pengeluaran konkret. Pertanyaan, hipotesis, atau contoh TIDAK dicatat.
 
 === FORMAT OUTPUT (JSON WAJIB) ===
@@ -93,7 +118,13 @@ Selalu balas dalam format JSON berikut:
 {
   "reply": "balasan chat kamu dalam Bahasa Indonesia",
   "expenses": [
-    { "description": "nama pengeluaran", "amount": 5000, "category_id": "uuid-dari-daftar-di-atas" }
+    {
+      "description": "nama pengeluaran",
+      "amount": 5000,
+      "category_id": "uuid-kategori",
+      "event_id": "uuid-event atau null",
+      "goal_id": "uuid-goal atau null"
+    }
   ]
 }
 Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
@@ -146,7 +177,13 @@ Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
     }
     raw = raw.trim();
 
-    let parsed: { reply?: string; message?: string; response?: string; text?: string; expenses?: { description?: string; amount?: number; category_id?: string }[] };
+    let parsed: {
+      reply?: string;
+      message?: string;
+      response?: string;
+      text?: string;
+      expenses?: { description?: string; amount?: number; category_id?: string; event_id?: string; goal_id?: string }[];
+    };
     try {
       parsed = JSON.parse(raw);
     } catch {
@@ -165,6 +202,8 @@ Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
 
     for (const exp of rawExpenses) {
       const validCat = ctx.catList.find((c) => c.id === exp.category_id);
+      const validEvent = activeEvents.find((e) => e.id === exp.event_id);
+      const validGoal = activeGoals.find((g) => g.id === exp.goal_id);
       const amount = Math.round(Number(exp.amount) || 0);
       const description = (exp.description ?? "").trim();
       if (!validCat || amount <= 0 || !description) continue;
@@ -177,6 +216,8 @@ Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
           spent_at: today,
           description,
           amount,
+          event_id: validEvent?.id ?? null,
+          goal_id: validGoal?.id ?? null,
           created_by: user.id,
         })
         .select("id")

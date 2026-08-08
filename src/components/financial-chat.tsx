@@ -15,9 +15,9 @@ type ChatMessage = {
 };
 
 const SUGGESTIONS = [
-  "Gimana cara nabung lebih cepat buat goal aku?",
+  "Berapa total pengeluaran untuk event & liburan keluarga?",
   "Kategori mana yang paling boros bulan ini?",
-  "Realistis gak target aku kekejar tahun ini?",
+  "Gimana cara nabung lebih cepat buat goal aku?",
   "Kasih tips hemat buat keluarga aku.",
 ];
 

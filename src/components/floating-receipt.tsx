@@ -72,6 +72,9 @@ export function FloatingReceipt() {
         category_id: string | null;
         category_name: string | null;
         goal_id: string | null;
+        goal_name: string | null;
+        event_id: string | null;
+        event_name: string | null;
         items: { name: string; price: number }[];
         date?: string;
       };
@@ -111,6 +114,7 @@ export function FloatingReceipt() {
             description: g.description,
             amount: g.amount,
             goal_id: g.goal_id || null,
+            event_id: g.event_id || null,
             created_by: user.id,
           })
           .select("id")
@@ -120,7 +124,7 @@ export function FloatingReceipt() {
           id: inserted?.id,
           description: g.description,
           amount: g.amount,
-          categoryName: g.category_name ?? "",
+          categoryName: (g.category_name ?? "") + (g.event_name ? ` · Event: ${g.event_name}` : ""),
           items: g.items ?? [],
         });
       }
