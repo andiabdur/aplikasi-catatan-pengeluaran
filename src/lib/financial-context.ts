@@ -19,6 +19,7 @@ export type FinancialContext = {
   itemDigest: string;
   goalDigest: string;
   eventDigest: string;
+  memoryDigest: string;
   catList: { id: string; name: string }[];
   periodsAnalyzed: string[];
   nextLabelMonth: string;
@@ -30,18 +31,24 @@ export async function buildFinancialContext(
   householdId: string,
   periodsToAnalyze = 3,
 ): Promise<FinancialContext | null> {
-  const [hhRes, cpRes, goalsRes, depositsRes, eventsRes, eventExpensesRes] = await Promise.all([
+  const [hhRes, cpRes, goalsRes, depositsRes, eventsRes, eventExpensesRes, memoriesRes] = await Promise.all([
     supabase.from("households").select("pay_day_of_month").eq("id", householdId).maybeSingle(),
     supabase.from("custom_periods").select("label_month, start_date, end_date").eq("household_id", householdId),
     supabase.from("goals").select("id,name,target_amount,target_date,status").eq("household_id", householdId).eq("status", "active"),
     supabase.from("expenses").select("goal_id, amount").eq("household_id", householdId).not("goal_id", "is", null),
     supabase.from("events").select("id,name,status,start_date,end_date").eq("household_id", householdId),
     supabase.from("expenses").select("event_id, amount, description, spent_at").eq("household_id", householdId).not("event_id", "is", null),
+    supabase.from("ai_memories").select("id, content, created_at").eq("household_id", householdId).order("created_at", { ascending: false }).limit(25),
   ]);
 
   const payDay = hhRes.data?.pay_day_of_month ?? 25;
   const customPeriods = cpRes.data ?? [];
   const goals = goalsRes.data ?? [];
+  const memories = memoriesRes.data ?? [];
+
+  const memoryDigest = memories.length
+    ? memories.map((m) => `- ${m.content}`).join("\n")
+    : "(belum ada catatan memori tersimpan)";
 
   const savedByGoal = new Map<string, number>();
   (depositsRes.data ?? []).forEach((d) => {
@@ -183,6 +190,7 @@ export async function buildFinancialContext(
     itemDigest,
     goalDigest,
     eventDigest,
+    memoryDigest,
     catList,
     periodsAnalyzed: perPeriod.map((p) => p.title),
     nextLabelMonth: labelMonthKey(nextLabel),

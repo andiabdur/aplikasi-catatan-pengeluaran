@@ -2,16 +2,33 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Send, Loader2, Sparkles, Trash2, Check, X, Volume2, VolumeX } from "lucide-react";
+import {
+  Send, Loader2, Sparkles, Trash2, Check, X, Volume2, VolumeX,
+  Plus, Brain, ChevronDown, MessageSquare, Clock
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MarkdownLite } from "@/components/markdown-lite";
 import { createClient } from "@/lib/supabase/client";
 
 type SavedExpense = { id?: string; description: string; amount: number; categoryName: string };
 type ChatMessage = {
+  id?: string;
   role: "user" | "assistant";
   content: string;
   savedExpenses?: SavedExpense[];
+};
+
+type ChatSession = {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type AIMemory = {
+  id: string;
+  content: string;
+  created_at: string;
 };
 
 const SUGGESTIONS = [
@@ -26,14 +43,24 @@ function formatIDR(n: number) {
 }
 
 export function FinancialChat({ householdId }: { householdId: string }) {
-  const storageKey = `fin_chat_${householdId}`;
+  const lastSessionKey = `active_chat_session_${householdId}`;
   const router = useRouter();
   const [, startTransition] = useTransition();
+
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [activeTitle, setActiveTitle] = useState<string>("Percakapan Baru");
+
+  const [memories, setMemories] = useState<AIMemory[]>([]);
+  const [showMemoryModal, setShowMemoryModal] = useState(false);
+  const [showSessionDropdown, setShowSessionDropdown] = useState(false);
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
@@ -48,26 +75,144 @@ export function FinancialChat({ householdId }: { householdId: string }) {
     };
   }, []);
 
+  // Fetch initial session list and memories
+  useEffect(() => {
+    async function loadSessionsAndMemories() {
+      try {
+        const res = await fetch("/api/chat-sessions");
+        if (res.ok) {
+          const data = await res.json();
+          const sList: ChatSession[] = data.sessions || [];
+          const mList: AIMemory[] = data.memories || [];
+          setSessions(sList);
+          setMemories(mList);
+
+          // Restore last active session from localStorage if valid, or select top session
+          let savedId: string | null = null;
+          try {
+            savedId = localStorage.getItem(lastSessionKey);
+          } catch { /* ignore */ }
+
+          const matched = sList.find((s) => s.id === savedId);
+          if (matched) {
+            setActiveSessionId(matched.id);
+            setActiveTitle(matched.title);
+          } else if (sList.length > 0) {
+            setActiveSessionId(sList[0].id);
+            setActiveTitle(sList[0].title);
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    loadSessionsAndMemories();
+  }, [householdId, lastSessionKey]);
+
+  // Load message history when activeSessionId changes
+  useEffect(() => {
+    if (!activeSessionId) {
+      setMessages([]);
+      return;
+    }
+
+    try {
+      localStorage.setItem(lastSessionKey, activeSessionId);
+    } catch { /* ignore */ }
+
+    async function loadSessionMessages() {
+      setLoadingHistory(true);
+      try {
+        const res = await fetch(`/api/chat-sessions/${activeSessionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMessages(data.messages || []);
+          if (data.session?.title) {
+            setActiveTitle(data.session.title);
+          }
+        }
+      } catch {
+        setError("Gagal memuat riwayat percakapan.");
+      }
+      setLoadingHistory(false);
+    }
+
+    loadSessionMessages();
+  }, [activeSessionId, lastSessionKey]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, loading]);
+
+  // Create a brand new session
+  async function createNewSession() {
+    setError(null);
+    setMessages([]);
+    setActiveSessionId(null);
+    setActiveTitle("Percakapan Baru");
+    setShowSessionDropdown(false);
+  }
+
+  // Switch session
+  function selectSession(session: ChatSession) {
+    setActiveSessionId(session.id);
+    setActiveTitle(session.title);
+    setShowSessionDropdown(false);
+    setError(null);
+  }
+
+  // Delete current session
+  async function deleteCurrentSession() {
+    if (!activeSessionId) {
+      setMessages([]);
+      return;
+    }
+
+    if (!confirm(`Hapus sesi "${activeTitle}"? Seluruh riwayat di sesi ini akan dihapus.`)) return;
+
+    try {
+      const res = await fetch(`/api/chat-sessions/${activeSessionId}`, { method: "DELETE" });
+      if (res.ok) {
+        const remaining = sessions.filter((s) => s.id !== activeSessionId);
+        setSessions(remaining);
+        if (remaining.length > 0) {
+          setActiveSessionId(remaining[0].id);
+          setActiveTitle(remaining[0].title);
+        } else {
+          setActiveSessionId(null);
+          setActiveTitle("Percakapan Baru");
+          setMessages([]);
+        }
+      }
+    } catch {
+      setError("Gagal menghapus sesi.");
+    }
+  }
+
+  // Delete specific AI memory
+  async function deleteMemory(memoryId: string) {
+    try {
+      const res = await fetch(`/api/ai-memories?id=${memoryId}`, { method: "DELETE" });
+      if (res.ok) {
+        setMemories((prev) => prev.filter((m) => m.id !== memoryId));
+      }
+    } catch {
+      setError("Gagal menghapus memori.");
+    }
+  }
+
   async function speak(text: string, index: number) {
     const isBrowserTTSAvailable = typeof window !== "undefined" && !!window.speechSynthesis;
 
     if (playingIndex === index) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      if (isBrowserTTSAvailable) {
-        window.speechSynthesis.cancel();
-      }
+      if (audioRef.current) audioRef.current.pause();
+      if (isBrowserTTSAvailable) window.speechSynthesis.cancel();
       setPlayingIndex(null);
       return;
     }
 
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    if (isBrowserTTSAvailable) {
-      window.speechSynthesis.cancel();
-    }
+    if (audioRef.current) audioRef.current.pause();
+    if (isBrowserTTSAvailable) window.speechSynthesis.cancel();
     setPlayingIndex(null);
     setSpeakingIndex(index);
 
@@ -141,49 +286,45 @@ export function FinancialChat({ householdId }: { householdId: string }) {
     }
   }
 
-  // Restore history (only role + content, not savedExpenses — those are ephemeral)
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (raw) setMessages(JSON.parse(raw));
-    } catch { /* ignore */ }
-    setHydrated(true);
-  }, [storageKey]);
-
-  // Persist history (strip savedExpenses to keep storage clean)
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      const toStore = messages.map(({ role, content }) => ({ role, content }));
-      localStorage.setItem(storageKey, JSON.stringify(toStore));
-    } catch { /* ignore */ }
-  }, [messages, hydrated, storageKey]);
-
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, loading]);
-
   async function send(text: string) {
     const q = text.trim();
     if (!q || loading) return;
     setError(null);
+
     const next: ChatMessage[] = [...messages, { role: "user", content: q }];
     setMessages(next);
     setInput("");
     setLoading(true);
+
     try {
       const res = await fetch("/api/financial-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Send only role+content to keep payload small
-        body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({
+          messages: next.map(({ role, content }) => ({ role, content })),
+          sessionId: activeSessionId || "new",
+        }),
       });
+
       const json = await res.json();
+
       if (!res.ok) {
         setError(json.error || "Gagal menjawab.");
       } else {
         const reply = (json.reply || "").trim();
         const saved: SavedExpense[] = Array.isArray(json.saved_expenses) ? json.saved_expenses : [];
+
+        if (json.session_id && json.session_id !== activeSessionId) {
+          setActiveSessionId(json.session_id);
+          try {
+            localStorage.setItem(lastSessionKey, json.session_id);
+          } catch { /* ignore */ }
+        }
+
+        if (json.title) {
+          setActiveTitle(json.title);
+        }
+
         if (reply) {
           setMessages((prev) => [
             ...prev,
@@ -193,10 +334,20 @@ export function FinancialChat({ householdId }: { householdId: string }) {
         } else {
           setError("Respons kosong dari AI. Coba tanya ulang.");
         }
+
+        // Refresh sessions list & memories silently
+        fetch("/api/chat-sessions")
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.sessions) setSessions(d.sessions);
+            if (d.memories) setMemories(d.memories);
+          })
+          .catch(() => {});
       }
     } catch {
       setError("Gagal terhubung. Cek koneksi.");
     }
+
     setLoading(false);
   }
 
@@ -214,15 +365,170 @@ export function FinancialChat({ householdId }: { householdId: string }) {
     startTransition(() => router.refresh());
   }
 
-  function clearChat() {
-    setMessages([]);
-    setError(null);
-  }
-
   return (
     <div className="space-y-3">
+      {/* Session Navigation Bar */}
+      <div className="card p-2 flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700">
+        <div className="relative flex-1 min-w-0">
+          <button
+            type="button"
+            onClick={() => setShowSessionDropdown((v) => !v)}
+            className="w-full flex items-center justify-between gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-left text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+          >
+            <span className="flex items-center gap-1.5 truncate">
+              <MessageSquare className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400 shrink-0" />
+              <span className="truncate">{activeTitle}</span>
+            </span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          </button>
+
+          {/* Sessions Dropdown Menu */}
+          {showSessionDropdown && (
+            <div className="absolute top-full left-0 mt-1 w-full max-h-60 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 p-1.5 space-y-1">
+              <button
+                type="button"
+                onClick={createNewSession}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-brand-700 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30 hover:bg-brand-100 dark:hover:bg-brand-900/50 transition"
+              >
+                <Plus className="w-4 h-4" /> Sesi Percakapan Baru
+              </button>
+
+              {sessions.length > 0 && (
+                <div className="pt-1 border-t border-slate-100 dark:border-slate-800 space-y-0.5">
+                  <p className="px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Histori Percakapan
+                  </p>
+                  {sessions.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => selectSession(s)}
+                      className={cn(
+                        "w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-left transition",
+                        s.id === activeSessionId
+                          ? "bg-slate-100 dark:bg-slate-800 text-brand-700 dark:text-brand-300 font-semibold"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50",
+                      )}
+                    >
+                      <span className="truncate">{s.title}</span>
+                      <span className="text-[10px] text-slate-400 shrink-0 flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {new Date(s.updated_at).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            type="button"
+            onClick={createNewSession}
+            title="Sesi Baru"
+            className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-xl bg-brand-600 text-white hover:bg-brand-700 transition"
+          >
+            <Plus className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Sesi Baru</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowMemoryModal(true)}
+            title="Memori AI"
+            className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+          >
+            <Brain className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+            <span>Memori ({memories.length})</span>
+          </button>
+
+          {activeSessionId && (
+            <button
+              type="button"
+              onClick={deleteCurrentSession}
+              title="Hapus Sesi"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* AI Memory Management Modal */}
+      {showMemoryModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-4 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                  <Brain className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Memori Permanen AI</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Catatan &amp; fakta penting keluarga Anda</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowMemoryModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl">
+              Fakta ini secara otomatis diekstrak oleh AI dari obrolan Anda dan disimpan secara permanen. AI akan selalu mengingat fakta ini di semua sesi chat &amp; saran keuangan.
+            </p>
+
+            <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
+              {memories.length === 0 ? (
+                <div className="text-center py-6 text-xs text-slate-400">
+                  Belum ada fakta/catatan memori tersimpan. Ceritakan rencana atau kesepakatan keluarga Anda di chat!
+                </div>
+              ) : (
+                memories.map((m) => (
+                  <div
+                    key={m.id}
+                    className="flex items-start justify-between gap-2 p-2.5 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-xl"
+                  >
+                    <p className="text-xs text-slate-700 dark:text-slate-300 flex-1 leading-snug">
+                      • {m.content}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => deleteMemory(m.id)}
+                      className="text-slate-400 hover:text-red-500 p-1 transition shrink-0"
+                      title="Hapus memori"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={() => setShowMemoryModal(false)}
+                className="btn-primary w-full py-2 text-xs"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Messages Scroll View */}
       <div ref={scrollRef} className="space-y-3 max-h-[55dvh] overflow-y-auto pr-0.5">
-        {messages.length === 0 && (
+        {loadingHistory ? (
+          <div className="flex items-center justify-center py-10 gap-2 text-xs text-slate-400">
+            <Loader2 className="w-4 h-4 animate-spin text-brand-600" /> Memuat percakapan...
+          </div>
+        ) : messages.length === 0 ? (
           <div className="card text-center py-6 space-y-3">
             <div className="w-12 h-12 rounded-2xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center mx-auto">
               <Sparkles className="w-6 h-6" />
@@ -243,10 +549,10 @@ export function FinancialChat({ householdId }: { householdId: string }) {
               ))}
             </div>
           </div>
-        )}
+        ) : null}
 
         {messages.map((m, i) => (
-          <div key={i} className={cn("flex flex-col", m.role === "user" ? "items-end" : "items-start")}>
+          <div key={m.id ?? i} className={cn("flex flex-col", m.role === "user" ? "items-end" : "items-start")}>
             <div className="flex items-end gap-1.5 w-full">
               <div
                 className={cn(
@@ -318,6 +624,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
 
       {error && <p className="text-xs text-red-600 dark:text-red-400 px-1">{error}</p>}
 
+      {/* Message Input Form */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -325,16 +632,6 @@ export function FinancialChat({ householdId }: { householdId: string }) {
         }}
         className="flex items-center gap-2"
       >
-        {messages.length > 0 && (
-          <button
-            type="button"
-            onClick={clearChat}
-            title="Hapus chat"
-            className="p-2.5 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        )}
         <input
           type="text"
           value={input}

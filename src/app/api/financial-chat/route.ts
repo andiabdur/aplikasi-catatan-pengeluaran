@@ -32,9 +32,11 @@ export async function POST(req: Request) {
   }
 
   let messages: ChatMessage[];
+  let reqSessionId: string | undefined;
   try {
     const body = await req.json();
     messages = Array.isArray(body.messages) ? body.messages : [];
+    reqSessionId = typeof body.sessionId === "string" ? body.sessionId : undefined;
   } catch {
     return NextResponse.json({ error: "Body tidak valid." }, { status: 400 });
   }
@@ -50,6 +52,45 @@ export async function POST(req: Request) {
 
   if (cleaned.length === 0 || cleaned[cleaned.length - 1].role !== "user") {
     return NextResponse.json({ error: "Tidak ada pertanyaan." }, { status: 400 });
+  }
+
+  const lastUserMessage = cleaned[cleaned.length - 1].content;
+
+  // Resolve or create session
+  let activeSessionId = reqSessionId;
+  let sessionTitle = "Percakapan Baru";
+
+  if (activeSessionId && activeSessionId !== "new") {
+    const { data: sData } = await supabase
+      .from("chat_sessions")
+      .select("id, title")
+      .eq("id", activeSessionId)
+      .eq("household_id", householdId)
+      .single();
+    if (sData) {
+      activeSessionId = sData.id;
+      sessionTitle = sData.title;
+    } else {
+      activeSessionId = undefined;
+    }
+  }
+
+  if (!activeSessionId || activeSessionId === "new") {
+    const { data: newSession } = await supabase
+      .from("chat_sessions")
+      .insert({
+        household_id: householdId,
+        title: "Percakapan Baru",
+        created_by: user.id,
+      })
+      .select("id, title")
+      .single();
+
+    if (!newSession) {
+      return NextResponse.json({ error: "Gagal membuat sesi percakapan." }, { status: 500 });
+    }
+    activeSessionId = newSession.id;
+    sessionTitle = newSession.title;
   }
 
   const ctx = await buildFinancialContext(supabase, householdId);
@@ -94,6 +135,9 @@ ${ctx.goalDigest}
 === DAFTAR EVENT / KEGIATAN KELUARGA ===
 ${ctx.eventDigest}
 
+=== MEMORI & CATATAN PENTING KELUARGA (DIINGAT OLEH AI) ===
+${ctx.memoryDigest}
+
 Periode berikutnya: ${ctx.nextPeriodTitle}.
 
 === KEMAMPUAN MENCATAT PENGELUARAN ===
@@ -110,6 +154,12 @@ ${goalLines}
 
 Pahami slang uang Indonesia: rb/ribu=1000, jt/juta=1000000, goceng=5000, ceban=10000, goban=50000, cepek=100000. Satu pesan bisa menghasilkan beberapa expense kalau ada beberapa item.
 
+=== KEMAMPUAN MENGINGAT FAKTA/CATATAN PENTING (AI MEMORY) ===
+Jika pengguna menyampaikan fakta penting baru, preferensi, rencana keuangan baru, atau kesepakatan penting keluarga (misal: "kita rencana mau liburan ke Bali bulan Oktober budget 10jt", "gaji Abbi naik jadi 15jt mulai bulan depan", "keluarga sepakat kurangi jajan luar"), ekstrak ringkas sebagai kalimat fakta dan masukkan ke array "new_memories".
+
+=== USULAN JUDUL SESI CHAT ===
+Jika judul sesi masih "Percakapan Baru" atau topik berubah, usulkan nama judul sesi ringkas (maksimal 4 kata) pada "title_suggestion".
+
 Dalam "reply", konfirmasi singkat apa yang berhasil dicatat (nama + nominal + kategori + event/goal jika ada), lalu lanjut membantu.
 PENTING: Hanya isi "expenses" kalau user BENAR-BENAR menyebut pengeluaran konkret. Pertanyaan, hipotesis, atau contoh TIDAK dicatat.
 
@@ -125,16 +175,19 @@ Selalu balas dalam format JSON berikut:
       "event_id": "uuid-event atau null",
       "goal_id": "uuid-goal atau null"
     }
-  ]
+  ],
+  "new_memories": [
+    "fakta penting 1 yang perlu diingat AI permanen"
+  ],
+  "title_suggestion": "Judul Percakapan Ringkas"
 }
-Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
+Kalau tidak ada pengeluaran, "expenses" = []. Kalau tidak ada fakta memori baru, "new_memories" = [].`;
 
   try {
     const deepseekMessages = [
       { role: "system" as const, content: systemInstruction },
       ...cleaned.map((m) => ({
         role: m.role === "assistant" ? ("assistant" as const) : ("user" as const),
-        // Wrap assistant history in JSON so the model stays consistent with the format it's asked to produce
         content:
           m.role === "assistant"
             ? JSON.stringify({ reply: m.content, expenses: [] })
@@ -183,15 +236,15 @@ Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
       response?: string;
       text?: string;
       expenses?: { description?: string; amount?: number; category_id?: string; event_id?: string; goal_id?: string }[];
+      new_memories?: string[];
+      title_suggestion?: string;
     };
     try {
       parsed = JSON.parse(raw);
     } catch {
-      // JSON parse failed — use raw text as reply
       return NextResponse.json({ reply: raw || "Maaf, ada gangguan. Coba lagi.", saved_expenses: [] });
     }
 
-    // Try multiple common field names the model might use
     const reply = (parsed.reply ?? parsed.message ?? parsed.response ?? parsed.text ?? "").trim()
       || "Maaf, responnya kosong. Coba tanya ulang.";
 
@@ -226,7 +279,57 @@ Kalau tidak ada pengeluaran yang dicatat, "expenses" = [].`;
       saved.push({ id: inserted?.id, description, amount, categoryName: validCat.name });
     }
 
-    return NextResponse.json({ reply, saved_expenses: saved });
+    // Process new memories
+    const newMemories = Array.isArray(parsed.new_memories) ? parsed.new_memories : [];
+    for (const memContent of newMemories) {
+      const trimmed = String(memContent).trim();
+      if (trimmed.length > 5) {
+        await supabase.from("ai_memories").insert({
+          household_id: householdId,
+          content: trimmed,
+          created_by: user.id,
+        });
+      }
+    }
+
+    // Save user message and assistant reply to chat_messages database table
+    await supabase.from("chat_messages").insert([
+      {
+        session_id: activeSessionId,
+        role: "user",
+        content: lastUserMessage,
+      },
+      {
+        session_id: activeSessionId,
+        role: "assistant",
+        content: reply,
+        saved_expenses: saved.length > 0 ? (saved as any) : null,
+      },
+    ]);
+
+    // Update session title and updated_at
+    const titleSuggestion = (parsed.title_suggestion ?? "").trim();
+    let finalTitle = sessionTitle;
+    const shouldUpdateTitle = (sessionTitle === "Percakapan Baru" || !sessionTitle) && titleSuggestion;
+    if (shouldUpdateTitle) {
+      finalTitle = titleSuggestion;
+      await supabase
+        .from("chat_sessions")
+        .update({ title: titleSuggestion, updated_at: new Date().toISOString() })
+        .eq("id", activeSessionId);
+    } else {
+      await supabase
+        .from("chat_sessions")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("id", activeSessionId);
+    }
+
+    return NextResponse.json({
+      reply,
+      saved_expenses: saved,
+      session_id: activeSessionId,
+      title: finalTitle,
+    });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Gagal menjawab.";
     return NextResponse.json({ error: msg }, { status: 502 });
