@@ -10,10 +10,11 @@ import {
   getPeriodRange,
   periodRangeTextWithCustom,
 } from "@/lib/period";
+import Link from "next/link";
 import { PeriodSelector } from "@/components/period-selector";
 import { CategoryPieChart, CategoryBarChart } from "@/components/expense-charts";
 import { getCategoryIcon } from "@/components/category-icon";
-import { Search, Trash2, X, PieChart as PieIcon, BarChart3, ChevronDown, ChevronUp, Pencil, Check } from "lucide-react";
+import { Search, Trash2, X, PieChart as PieIcon, BarChart3, ChevronDown, ChevronUp, Pencil, Check, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Category, Expense } from "@/lib/types";
 
@@ -442,49 +443,20 @@ export function HistoryList({
           <p className="font-bold text-brand-700 dark:text-brand-400 text-lg">{formatIDR(total)}</p>
         </div>
         <button
-          onClick={() => setChartOpen(!chartOpen)}
-          className="text-xs text-brand-700 dark:text-brand-400 flex items-center gap-1"
+          onClick={() => {
+            const chartElem = document.getElementById("category-analysis-chart");
+            if (chartElem) {
+              chartElem.scrollIntoView({ behavior: "smooth" });
+            } else {
+              setChartOpen((v) => !v);
+            }
+          }}
+          className="text-xs font-medium text-brand-700 dark:text-brand-300 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-brand-200 dark:border-brand-500/30 shadow-sm flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition"
         >
-          {chartOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          Chart
+          <PieIcon className="w-3.5 h-3.5" />
+          <span>Lihat Chart</span>
         </button>
       </div>
-
-      {/* Chart */}
-      {chartOpen && filtered.length > 0 && (
-        <div className="card space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Analisis Kategori</h3>
-            <div className="flex bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5">
-              <button
-                onClick={() => setChartMode("pie")}
-                className={cn(
-                  "p-1.5 rounded text-slate-500 dark:text-slate-400",
-                  chartMode === "pie" && "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100",
-                )}
-                aria-label="Pie chart"
-              >
-                <PieIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setChartMode("bar")}
-                className={cn(
-                  "p-1.5 rounded text-slate-500 dark:text-slate-400",
-                  chartMode === "bar" && "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100",
-                )}
-                aria-label="Bar chart"
-              >
-                <BarChart3 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-          {chartMode === "pie" ? (
-            <CategoryPieChart data={chartData} total={total} />
-          ) : (
-            <CategoryBarChart data={chartData} total={total} />
-          )}
-        </div>
-      )}
 
       {/* List */}
       {loading ? (
@@ -597,6 +569,59 @@ export function HistoryList({
             </div>
           );
         })
+      )}
+
+      {/* Chart Section — Positioned BELOW the transaction list */}
+      {chartOpen && filtered.length > 0 && (
+        <div id="category-analysis-chart" className="card space-y-3 mt-6 border-slate-200 dark:border-slate-800">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                <PieIcon className="w-4 h-4 text-brand-600 dark:text-brand-400" /> Analisis Visual Kategori
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Proporsi pengeluaran per kategori di periode ini</p>
+            </div>
+            <div className="flex bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5">
+              <button
+                onClick={() => setChartMode("pie")}
+                className={cn(
+                  "p-1.5 rounded text-slate-500 dark:text-slate-400 transition",
+                  chartMode === "pie" && "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100 font-semibold",
+                )}
+                aria-label="Pie chart"
+                title="Diagram Lingkaran"
+              >
+                <PieIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setChartMode("bar")}
+                className={cn(
+                  "p-1.5 rounded text-slate-500 dark:text-slate-400 transition",
+                  chartMode === "bar" && "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100 font-semibold",
+                )}
+                aria-label="Bar chart"
+                title="Grafik Batang"
+              >
+                <BarChart3 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {chartMode === "pie" ? (
+            <CategoryPieChart data={chartData} total={total} />
+          ) : (
+            <CategoryBarChart data={chartData} total={total} />
+          )}
+
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+            <Link
+              href="/analysis"
+              className="text-xs text-brand-600 dark:text-brand-400 font-medium hover:underline flex items-center gap-1"
+            >
+              Lihat Tren Temporal Berkala <ArrowUpRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
       )}
 
       {isSelectionMode && selectedIds.size > 0 && (
