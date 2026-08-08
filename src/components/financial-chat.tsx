@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Send, Loader2, Sparkles, Trash2, Check, X, Volume2, VolumeX,
-  Plus, Brain, ChevronDown, MessageSquare, Clock
+  Plus, Brain, ChevronDown, MessageSquare, Clock, Pencil
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MarkdownLite } from "@/components/markdown-lite";
@@ -54,6 +54,12 @@ export function FinancialChat({ householdId }: { householdId: string }) {
   const [memories, setMemories] = useState<AIMemory[]>([]);
   const [showMemoryModal, setShowMemoryModal] = useState(false);
   const [showSessionDropdown, setShowSessionDropdown] = useState(false);
+
+  // Manual memory edit / add states
+  const [editingMemoryId, setEditingMemoryId] = useState<string | null>(null);
+  const [editingContent, setEditingContent] = useState("");
+  const [showAddMemoryForm, setShowAddMemoryForm] = useState(false);
+  const [newMemoryContent, setNewMemoryContent] = useState("");
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -198,6 +204,48 @@ export function FinancialChat({ householdId }: { householdId: string }) {
       }
     } catch {
       setError("Gagal menghapus memori.");
+    }
+  }
+
+  // Save manual edit of a memory item
+  async function saveEditedMemory(memoryId: string) {
+    if (!editingContent.trim()) return;
+    try {
+      const res = await fetch("/api/ai-memories", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: memoryId, content: editingContent.trim() }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMemories((prev) =>
+          prev.map((m) => (m.id === memoryId ? { ...m, content: data.memory.content } : m)),
+        );
+        setEditingMemoryId(null);
+        setEditingContent("");
+      }
+    } catch {
+      setError("Gagal mengedit memori.");
+    }
+  }
+
+  // Manually add a new memory item
+  async function addManualMemory() {
+    if (!newMemoryContent.trim()) return;
+    try {
+      const res = await fetch("/api/ai-memories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: newMemoryContent.trim() }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMemories((prev) => [data.memory, ...prev]);
+        setNewMemoryContent("");
+        setShowAddMemoryForm(false);
+      }
+    } catch {
+      setError("Gagal menambah memori.");
     }
   }
 
@@ -457,7 +505,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
         </div>
       </div>
 
-      {/* AI Memory Management Modal */}
+      {/* AI Memory Management Modal with Add & Edit */}
       {showMemoryModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-4 shadow-2xl space-y-3">
@@ -480,8 +528,50 @@ export function FinancialChat({ householdId }: { householdId: string }) {
             </div>
 
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl">
-              Fakta ini secara otomatis diekstrak oleh AI dari obrolan Anda dan disimpan secara permanen. AI akan selalu mengingat fakta ini di semua sesi chat &amp; saran keuangan.
+              Fakta ini dikelola otomatis oleh AI (tambah/edit/hapus) dari chat Anda atau dapat Anda edit/tambah secara manual. AI akan selalu mengacu pada memori ini.
             </p>
+
+            {/* Manual add memory form */}
+            {showAddMemoryForm ? (
+              <div className="p-2.5 bg-purple-50/70 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl space-y-2">
+                <p className="text-xs font-semibold text-purple-900 dark:text-purple-300">Tambah Catatan Memori Manual</p>
+                <textarea
+                  value={newMemoryContent}
+                  onChange={(e) => setNewMemoryContent(e.target.value)}
+                  placeholder="Contoh: Rencana liburan ke Jogja budget 7 juta"
+                  className="w-full text-xs p-2 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200"
+                  rows={2}
+                />
+                <div className="flex justify-end gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddMemoryForm(false);
+                      setNewMemoryContent("");
+                    }}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addManualMemory}
+                    disabled={!newMemoryContent.trim()}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-purple-600 text-white font-medium disabled:opacity-50"
+                  >
+                    Simpan
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowAddMemoryForm(true)}
+                className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-xl border border-dashed border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-400 text-xs font-medium hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition"
+              >
+                <Plus className="w-3.5 h-3.5" /> Tambah Catatan Manual
+              </button>
+            )}
 
             <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
               {memories.length === 0 ? (
@@ -492,19 +582,65 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                 memories.map((m) => (
                   <div
                     key={m.id}
-                    className="flex items-start justify-between gap-2 p-2.5 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-xl"
+                    className="p-2.5 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-xl space-y-2"
                   >
-                    <p className="text-xs text-slate-700 dark:text-slate-300 flex-1 leading-snug">
-                      • {m.content}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => deleteMemory(m.id)}
-                      className="text-slate-400 hover:text-red-500 p-1 transition shrink-0"
-                      title="Hapus memori"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {editingMemoryId === m.id ? (
+                      <div className="space-y-2">
+                        <textarea
+                          value={editingContent}
+                          onChange={(e) => setEditingContent(e.target.value)}
+                          className="w-full text-xs p-2 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200"
+                          rows={2}
+                        />
+                        <div className="flex justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingMemoryId(null);
+                              setEditingContent("");
+                            }}
+                            className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                          >
+                            Batal
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => saveEditedMemory(m.id)}
+                            disabled={!editingContent.trim()}
+                            className="text-[11px] px-2.5 py-1 rounded-lg bg-purple-600 text-white font-medium disabled:opacity-50"
+                          >
+                            Simpan
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs text-slate-700 dark:text-slate-300 flex-1 leading-snug">
+                          • {m.content}
+                        </p>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingMemoryId(m.id);
+                              setEditingContent(m.content);
+                            }}
+                            className="text-slate-400 hover:text-purple-600 p-1 transition"
+                            title="Edit memori"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteMemory(m.id)}
+                            className="text-slate-400 hover:text-red-500 p-1 transition"
+                            title="Hapus memori"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))
               )}

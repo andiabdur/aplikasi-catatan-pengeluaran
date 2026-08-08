@@ -154,13 +154,19 @@ ${goalLines}
 
 Pahami slang uang Indonesia: rb/ribu=1000, jt/juta=1000000, goceng=5000, ceban=10000, goban=50000, cepek=100000. Satu pesan bisa menghasilkan beberapa expense kalau ada beberapa item.
 
-=== KEMAMPUAN MENGINGAT FAKTA/CATATAN PENTING (AI MEMORY) ===
-Jika pengguna menyampaikan fakta penting baru, preferensi, rencana keuangan baru, atau kesepakatan penting keluarga (misal: "kita rencana mau liburan ke Bali bulan Oktober budget 10jt", "gaji Abbi naik jadi 15jt mulai bulan depan", "keluarga sepakat kurangi jajan luar"), ekstrak ringkas sebagai kalimat fakta dan masukkan ke array "new_memories".
+=== KEMAMPUAN MENGELOLA MEMORI & CATATAN PENTING (AI MEMORY) ===
+Kamu dapat mengelola memori keluarga (tambah, edit/update, atau hapus) jika ada fakta baru, revisi/koreksi, atau pembatalan dari pengguna.
+Setiap memori di daftar di atas memiliki ID dalam kurung (id: uuid).
+
+Aturan "memory_operations":
+1. {"action": "add", "content": "fakta/rencana baru"} -> Tambah memori baru.
+2. {"action": "update", "id": "uuid-memori", "content": "revisi kalimat fakta baru"} -> EDIT/PERBARUI memori terdahulu jika pengguna merevisi/mengoreksi data.
+3. {"action": "delete", "id": "uuid-memori"} -> HAPUS memori terdahulu jika rencana/fakta tersebut dibatalkan atau tidak berlaku lagi.
 
 === USULAN JUDUL SESI CHAT ===
 Jika judul sesi masih "Percakapan Baru" atau topik berubah, usulkan nama judul sesi ringkas (maksimal 4 kata) pada "title_suggestion".
 
-Dalam "reply", konfirmasi singkat apa yang berhasil dicatat (nama + nominal + kategori + event/goal jika ada), lalu lanjut membantu.
+Dalam "reply", konfirmasi singkat apa yang berhasil dicatat/diperbarui/dihapus (termasuk expense atau memori jika ada), lalu lanjut membantu.
 PENTING: Hanya isi "expenses" kalau user BENAR-BENAR menyebut pengeluaran konkret. Pertanyaan, hipotesis, atau contoh TIDAK dicatat.
 
 === FORMAT OUTPUT (JSON WAJIB) ===
@@ -176,12 +182,14 @@ Selalu balas dalam format JSON berikut:
       "goal_id": "uuid-goal atau null"
     }
   ],
-  "new_memories": [
-    "fakta penting 1 yang perlu diingat AI permanen"
+  "memory_operations": [
+    { "action": "add", "content": "fakta baru" },
+    { "action": "update", "id": "uuid-123", "content": "fakta revisi" },
+    { "action": "delete", "id": "uuid-456" }
   ],
   "title_suggestion": "Judul Percakapan Ringkas"
 }
-Kalau tidak ada pengeluaran, "expenses" = []. Kalau tidak ada fakta memori baru, "new_memories" = [].`;
+Kalau tidak ada pengeluaran, "expenses" = []. Kalau tidak ada perubahan memori, "memory_operations" = [].`;
 
   try {
     const deepseekMessages = [
@@ -236,6 +244,7 @@ Kalau tidak ada pengeluaran, "expenses" = []. Kalau tidak ada fakta memori baru,
       response?: string;
       text?: string;
       expenses?: { description?: string; amount?: number; category_id?: string; event_id?: string; goal_id?: string }[];
+      memory_operations?: { action?: "add" | "update" | "delete"; id?: string; content?: string }[];
       new_memories?: string[];
       title_suggestion?: string;
     };
@@ -279,16 +288,43 @@ Kalau tidak ada pengeluaran, "expenses" = []. Kalau tidak ada fakta memori baru,
       saved.push({ id: inserted?.id, description, amount, categoryName: validCat.name });
     }
 
-    // Process new memories
-    const newMemories = Array.isArray(parsed.new_memories) ? parsed.new_memories : [];
-    for (const memContent of newMemories) {
+    // Process memory operations (add, update, delete)
+    type MemoryOp = { action: "add" | "update" | "delete"; id?: string; content?: string };
+    const rawOps: MemoryOp[] = Array.isArray(parsed.memory_operations)
+      ? (parsed.memory_operations as MemoryOp[])
+      : [];
+
+    // Fallback: support legacy new_memories array if model returned it
+    const legacyMemories = Array.isArray(parsed.new_memories) ? parsed.new_memories : [];
+    legacyMemories.forEach((memContent) => {
       const trimmed = String(memContent).trim();
-      if (trimmed.length > 5) {
+      if (trimmed.length > 5 && !rawOps.some((op) => op.content === trimmed)) {
+        rawOps.push({ action: "add", content: trimmed });
+      }
+    });
+
+    for (const op of rawOps) {
+      if (op.action === "add" && op.content && op.content.trim().length > 5) {
         await supabase.from("ai_memories").insert({
           household_id: householdId,
-          content: trimmed,
+          content: op.content.trim(),
           created_by: user.id,
         });
+      } else if (op.action === "update" && op.id && op.content && op.content.trim().length > 5) {
+        await supabase
+          .from("ai_memories")
+          .update({
+            content: op.content.trim(),
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", op.id)
+          .eq("household_id", householdId);
+      } else if (op.action === "delete" && op.id) {
+        await supabase
+          .from("ai_memories")
+          .delete()
+          .eq("id", op.id)
+          .eq("household_id", householdId);
       }
     }
 

@@ -47,7 +47,7 @@ export async function buildFinancialContext(
   const memories = memoriesRes.data ?? [];
 
   const memoryDigest = memories.length
-    ? memories.map((m) => `- ${m.content}`).join("\n")
+    ? memories.map((m) => `- (id: ${m.id}) ${m.content}`).join("\n")
     : "(belum ada catatan memori tersimpan)";
 
   const savedByGoal = new Map<string, number>();
