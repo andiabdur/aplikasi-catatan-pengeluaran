@@ -121,7 +121,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
     return (
       <div className="space-y-4">
         {tabBar}
-        <FinancialChat householdId={householdId} />
+        <FinancialChat householdId={householdId} fullPage />
       </div>
     );
   }
