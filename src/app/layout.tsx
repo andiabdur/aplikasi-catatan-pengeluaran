@@ -4,6 +4,7 @@ import "./globals.css";
 import SWRegister from "@/components/sw-register";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { ThemeScript } from "@/components/theme-script";
+import { ChatProvider } from "@/contexts/chat-context";
 
 export const metadata: Metadata = {
   title: "Catatan Pengeluaran Keluarga",
@@ -35,7 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <NavigationProgress />
         </Suspense>
         <SWRegister />
-        {children}
+        <ChatProvider>
+          {children}
+        </ChatProvider>
       </body>
     </html>
   );

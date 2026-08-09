@@ -1,36 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import {
   Send, Loader2, Sparkles, Trash2, Check, X, Volume2, VolumeX,
-  Plus, Brain, MessageSquare, Clock, Pencil, Menu, ArrowUp,
+  Plus, Brain, Clock, Pencil, Menu, ArrowUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MarkdownLite } from "@/components/markdown-lite";
-import { createClient } from "@/lib/supabase/client";
-
-type SavedExpense = { id?: string; description: string; amount: number; categoryName: string };
-type ChatMessage = {
-  id?: string;
-  role: "user" | "assistant";
-  content: string;
-  savedExpenses?: SavedExpense[];
-  createdAt?: string;
-};
-
-type ChatSession = {
-  id: string;
-  title: string;
-  created_at: string;
-  updated_at: string;
-};
-
-type AIMemory = {
-  id: string;
-  content: string;
-  created_at: string;
-};
+import { useChatContext } from "@/contexts/chat-context";
 
 const SUGGESTIONS = [
   "Berapa total pengeluaran bulan ini?",
@@ -50,34 +27,44 @@ export function FinancialChat({
   householdId: string;
   fullPage?: boolean;
 }) {
-  const lastSessionKey = `active_chat_session_${householdId}`;
-  const router = useRouter();
-  const [, startTransition] = useTransition();
+  const {
+    sessions,
+    activeSessionId,
+    activeTitle,
+    messages,
+    loading,
+    loadingHistory,
+    hasMoreHistory,
+    loadingMoreHistory,
+    memories,
+    error,
+    setHouseholdId,
+    send,
+    createNewSession,
+    selectSession,
+    deleteCurrentSession,
+    loadOlderMessages,
+    deleteMemory,
+    saveEditedMemory,
+    addManualMemory,
+    undoExpense,
+  } = useChatContext();
 
-  // ── Panel state ──────────────────────────────────────────────────────────
+  // Sync householdId into context on render/mount
+  useEffect(() => {
+    if (householdId) {
+      setHouseholdId(householdId);
+    }
+  }, [householdId, setHouseholdId]);
+
+  // ── Local UI state ───────────────────────────────────────────────────────
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // ── Session state ────────────────────────────────────────────────────────
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
-  const [activeTitle, setActiveTitle] = useState<string>("Percakapan Baru");
-
-  // ── Memory state ─────────────────────────────────────────────────────────
-  const [memories, setMemories] = useState<AIMemory[]>([]);
   const [showMemoryModal, setShowMemoryModal] = useState(false);
   const [editingMemoryId, setEditingMemoryId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState("");
   const [showAddMemoryForm, setShowAddMemoryForm] = useState(false);
   const [newMemoryContent, setNewMemoryContent] = useState("");
-
-  // ── Chat state ───────────────────────────────────────────────────────────
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const [hasMoreHistory, setHasMoreHistory] = useState(false);
-  const [loadingMoreHistory, setLoadingMoreHistory] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -87,54 +74,10 @@ export function FinancialChat({
 
   // ── Audio cleanup ────────────────────────────────────────────────────────
   useEffect(() => {
-    return () => { if (audioRef.current) audioRef.current.pause(); };
+    return () => {
+      if (audioRef.current) audioRef.current.pause();
+    };
   }, []);
-
-  // ── Load sessions & memories ─────────────────────────────────────────────
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/chat-sessions");
-        if (res.ok) {
-          const data = await res.json();
-          const sList: ChatSession[] = data.sessions || [];
-          const mList: AIMemory[] = data.memories || [];
-          setSessions(sList);
-          setMemories(mList);
-
-          let savedId: string | null = null;
-          try { savedId = localStorage.getItem(lastSessionKey); } catch { /* */ }
-
-          const matched = sList.find((s) => s.id === savedId);
-          if (matched) { setActiveSessionId(matched.id); setActiveTitle(matched.title); }
-          else if (sList.length > 0) { setActiveSessionId(sList[0].id); setActiveTitle(sList[0].title); }
-        }
-      } catch { /* */ }
-    }
-    load();
-  }, [householdId, lastSessionKey]);
-
-  // ── Load messages when session changes ───────────────────────────────────
-  useEffect(() => {
-    if (!activeSessionId) { setMessages([]); setHasMoreHistory(false); return; }
-    try { localStorage.setItem(lastSessionKey, activeSessionId); } catch { /* */ }
-
-    async function loadSessionMessages() {
-      setLoadingHistory(true);
-      setHasMoreHistory(false);
-      try {
-        const res = await fetch(`/api/chat-sessions/${activeSessionId}?limit=2`);
-        if (res.ok) {
-          const data = await res.json();
-          setMessages(data.messages || []);
-          setHasMoreHistory(!!data.hasMore);
-          if (data.session?.title) setActiveTitle(data.session.title);
-        }
-      } catch { setError("Gagal memuat riwayat percakapan."); }
-      setLoadingHistory(false);
-    }
-    loadSessionMessages();
-  }, [activeSessionId, lastSessionKey]);
 
   // ── Auto-scroll to bottom ───────────────────────────────────────────────
   useEffect(() => {
@@ -142,119 +85,19 @@ export function FinancialChat({
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages.length, loading, loadingHistory, loadingMoreHistory]);
 
-  // ── Load older messages ─────────────────────────────────────────────────
-  async function loadOlderMessages() {
-    if (!activeSessionId || !hasMoreHistory || loadingMoreHistory || loadingHistory || messages.length === 0) return;
-    const oldestMsg = messages[0];
-    if (!oldestMsg?.createdAt) return;
-
-    setLoadingMoreHistory(true);
-    const container = scrollRef.current;
-    const prevScrollHeight = container ? container.scrollHeight : 0;
-    const prevScrollTop = container ? container.scrollTop : 0;
-
-    try {
-      const res = await fetch(`/api/chat-sessions/${activeSessionId}?limit=3&before=${encodeURIComponent(oldestMsg.createdAt)}`);
-      if (res.ok) {
-        const data = await res.json();
-        const older: ChatMessage[] = data.messages || [];
-        if (older.length > 0) setMessages((prev) => [...older, ...prev]);
-        setHasMoreHistory(!!data.hasMore);
-        requestAnimationFrame(() => {
-          if (container) {
-            const newScrollHeight = container.scrollHeight;
-            container.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
-          }
-        });
-      }
-    } catch { /* */ }
-    setLoadingMoreHistory(false);
-  }
-
   // ── Scroll listener for lazy load ───────────────────────────────────────
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     function handleScroll() {
       if (!el) return;
-      if (el.scrollTop <= 20 && hasMoreHistory && !loadingMoreHistory && !loadingHistory) loadOlderMessages();
+      if (el.scrollTop <= 20 && hasMoreHistory && !loadingMoreHistory && !loadingHistory) {
+        loadOlderMessages();
+      }
     }
     el.addEventListener("scroll", handleScroll, { passive: true });
     return () => el.removeEventListener("scroll", handleScroll);
-  }, [hasMoreHistory, loadingMoreHistory, loadingHistory, activeSessionId, messages]);
-
-  // ── Session CRUD ────────────────────────────────────────────────────────
-  function createNewSession() {
-    setError(null);
-    setMessages([]);
-    setHasMoreHistory(false);
-    setActiveSessionId(null);
-    setActiveTitle("Percakapan Baru");
-    setSidebarOpen(false);
-  }
-
-  function selectSession(session: ChatSession) {
-    setActiveSessionId(session.id);
-    setActiveTitle(session.title);
-    setSidebarOpen(false);
-    setError(null);
-  }
-
-  async function deleteCurrentSession() {
-    if (!activeSessionId) { setMessages([]); return; }
-    if (!confirm(`Hapus sesi "${activeTitle}"?`)) return;
-    try {
-      const res = await fetch(`/api/chat-sessions/${activeSessionId}`, { method: "DELETE" });
-      if (res.ok) {
-        const remaining = sessions.filter((s) => s.id !== activeSessionId);
-        setSessions(remaining);
-        if (remaining.length > 0) { setActiveSessionId(remaining[0].id); setActiveTitle(remaining[0].title); }
-        else { setActiveSessionId(null); setActiveTitle("Percakapan Baru"); setMessages([]); }
-      }
-    } catch { setError("Gagal menghapus sesi."); }
-  }
-
-  // ── Memory CRUD ─────────────────────────────────────────────────────────
-  async function deleteMemory(memoryId: string) {
-    try {
-      const res = await fetch(`/api/ai-memories?id=${memoryId}`, { method: "DELETE" });
-      if (res.ok) setMemories((prev) => prev.filter((m) => m.id !== memoryId));
-    } catch { setError("Gagal menghapus memori."); }
-  }
-
-  async function saveEditedMemory(memoryId: string) {
-    if (!editingContent.trim()) return;
-    try {
-      const res = await fetch("/api/ai-memories", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: memoryId, content: editingContent.trim() }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setMemories((prev) => prev.map((m) => (m.id === memoryId ? { ...m, content: data.memory.content } : m)));
-        setEditingMemoryId(null);
-        setEditingContent("");
-      }
-    } catch { setError("Gagal mengedit memori."); }
-  }
-
-  async function addManualMemory() {
-    if (!newMemoryContent.trim()) return;
-    try {
-      const res = await fetch("/api/ai-memories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: newMemoryContent.trim() }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setMemories((prev) => [data.memory, ...prev]);
-        setNewMemoryContent("");
-        setShowAddMemoryForm(false);
-      }
-    } catch { setError("Gagal menambah memori."); }
-  }
+  }, [hasMoreHistory, loadingMoreHistory, loadingHistory, loadOlderMessages]);
 
   // ── TTS ─────────────────────────────────────────────────────────────────
   async function speak(text: string, index: number) {
@@ -270,18 +113,38 @@ export function FinancialChat({
     setPlayingIndex(null);
     setSpeakingIndex(index);
 
-    const plainText = text.replace(/```[\s\S]*?```/g, "").replace(/`([^`]+)`/g, "$1").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/\*\*([^*]+)\*\*/g, "$1").replace(/\*([^*]+)\*/g, "$1").replace(/[\n\r]+/g, " ").trim();
+    const plainText = text
+      .replace(/```[\s\S]*?```/g, "")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/\*([^*]+)\*/g, "$1")
+      .replace(/[\n\r]+/g, " ")
+      .trim();
 
     const triggerBrowserFallback = () => {
-      if (!isBrowserTTSAvailable) { setSpeakingIndex(null); setPlayingIndex(null); return; }
+      if (!isBrowserTTSAvailable) {
+        setSpeakingIndex(null);
+        setPlayingIndex(null);
+        return;
+      }
       try {
         const utterance = new SpeechSynthesisUtterance(plainText);
         utterance.lang = "id-ID";
-        utterance.onstart = () => { setPlayingIndex(index); setSpeakingIndex(null); };
+        utterance.onstart = () => {
+          setPlayingIndex(index);
+          setSpeakingIndex(null);
+        };
         utterance.onend = () => setPlayingIndex(null);
-        utterance.onerror = () => { setPlayingIndex(null); setSpeakingIndex(null); };
+        utterance.onerror = () => {
+          setPlayingIndex(null);
+          setSpeakingIndex(null);
+        };
         window.speechSynthesis.speak(utterance);
-      } catch { setSpeakingIndex(null); setPlayingIndex(null); }
+      } catch {
+        setSpeakingIndex(null);
+        setPlayingIndex(null);
+      }
     };
 
     try {
@@ -290,73 +153,37 @@ export function FinancialChat({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: plainText }),
       });
-      if (!res.ok) { triggerBrowserFallback(); return; }
+      if (!res.ok) {
+        triggerBrowserFallback();
+        return;
+      }
       const audioBlob = await res.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
-      audio.onended = () => { setPlayingIndex(null); URL.revokeObjectURL(audioUrl); };
-      audio.onplay = () => { setPlayingIndex(index); setSpeakingIndex(null); };
+      audio.onended = () => {
+        setPlayingIndex(null);
+        URL.revokeObjectURL(audioUrl);
+      };
+      audio.onplay = () => {
+        setPlayingIndex(index);
+        setSpeakingIndex(null);
+      };
       await audio.play();
-    } catch { triggerBrowserFallback(); }
+    } catch {
+      triggerBrowserFallback();
+    }
   }
 
-  // ── Send message ────────────────────────────────────────────────────────
-  async function send(text: string) {
+  // ── Submit handler ───────────────────────────────────────────────────────
+  async function handleSend(text: string) {
     const q = text.trim();
     if (!q || loading) return;
-    setError(null);
-
-    const next: ChatMessage[] = [...messages, { role: "user", content: q }];
-    setMessages(next);
     setInput("");
-    setLoading(true);
-
-    // Auto-resize textarea back
-    if (textareaRef.current) { textareaRef.current.style.height = "auto"; }
-
-    try {
-      const res = await fetch("/api/financial-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: next.map(({ role, content }) => ({ role, content })),
-          sessionId: activeSessionId || "new",
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setError(json.error || "Gagal menjawab.");
-      } else {
-        const reply = (json.reply || "").trim();
-        const saved: SavedExpense[] = Array.isArray(json.saved_expenses) ? json.saved_expenses : [];
-        if (json.session_id && json.session_id !== activeSessionId) {
-          setActiveSessionId(json.session_id);
-          try { localStorage.setItem(lastSessionKey, json.session_id); } catch { /* */ }
-        }
-        if (json.title) setActiveTitle(json.title);
-        if (reply) {
-          setMessages((prev) => [...prev, { role: "assistant", content: reply, savedExpenses: saved.length > 0 ? saved : undefined }]);
-          if (saved.length > 0) startTransition(() => router.refresh());
-        } else {
-          setError("Respons kosong dari AI. Coba tanya ulang.");
-        }
-        // Refresh sessions list & memories
-        fetch("/api/chat-sessions").then((r) => r.json()).then((d) => {
-          if (d.sessions) setSessions(d.sessions);
-          if (d.memories) setMemories(d.memories);
-        }).catch(() => {});
-      }
-    } catch { setError("Gagal terhubung. Cek koneksi."); }
-    setLoading(false);
-  }
-
-  async function undoExpense(msgIdx: number, expenseId?: string) {
-    if (!expenseId) return;
-    const supabase = createClient();
-    await supabase.from("expenses").delete().eq("id", expenseId);
-    setMessages((prev) => prev.map((m, i) => i === msgIdx ? { ...m, savedExpenses: m.savedExpenses?.filter((e) => e.id !== expenseId) } : m));
-    startTransition(() => router.refresh());
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
+    await send(q);
   }
 
   // ── Auto-resize textarea ────────────────────────────────────────────────
@@ -386,13 +213,20 @@ export function FinancialChat({
   const containerHeight = fullPage ? "h-[calc(100dvh-11rem)]" : "h-[65dvh]";
 
   return (
-    <div className={cn("relative flex flex-col rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900", containerHeight)}>
-
+    <div
+      className={cn(
+        "relative flex flex-col rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900",
+        containerHeight
+      )}
+    >
       {/* ═══════════════════════════════════════════════════════════════════
           SIDEBAR — Session List (slide from left)
          ═══════════════════════════════════════════════════════════════════ */}
       {sidebarOpen && (
-        <div className="absolute inset-0 z-30 bg-black/30 backdrop-blur-[2px]" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="absolute inset-0 z-30 bg-black/30 backdrop-blur-[2px]"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
       <div
         className={cn(
@@ -403,7 +237,10 @@ export function FinancialChat({
         {/* Sidebar header */}
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100 dark:border-slate-700">
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Riwayat Chat</h3>
-          <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -412,7 +249,10 @@ export function FinancialChat({
         <div className="px-3 py-2.5">
           <button
             type="button"
-            onClick={createNewSession}
+            onClick={() => {
+              createNewSession();
+              setSidebarOpen(false);
+            }}
             className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 active:scale-[0.98] transition shadow-sm"
           >
             <Plus className="w-4 h-4" /> Percakapan Baru
@@ -428,7 +268,10 @@ export function FinancialChat({
               <button
                 key={s.id}
                 type="button"
-                onClick={() => selectSession(s)}
+                onClick={() => {
+                  selectSession(s);
+                  setSidebarOpen(false);
+                }}
                 className={cn(
                   "w-full text-left px-3 py-2.5 rounded-xl transition group",
                   s.id === activeSessionId
@@ -436,12 +279,14 @@ export function FinancialChat({
                     : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
                 )}
               >
-                <p className={cn(
-                  "text-sm truncate leading-snug",
-                  s.id === activeSessionId
-                    ? "font-semibold text-brand-700 dark:text-brand-300"
-                    : "text-slate-700 dark:text-slate-300"
-                )}>
+                <p
+                  className={cn(
+                    "text-sm truncate leading-snug",
+                    s.id === activeSessionId
+                      ? "font-semibold text-brand-700 dark:text-brand-300"
+                      : "text-slate-700 dark:text-slate-300"
+                  )}
+                >
                   {s.title}
                 </p>
                 <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 flex items-center gap-1">
@@ -469,7 +314,9 @@ export function FinancialChat({
 
         {/* Title */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{activeTitle}</p>
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
+            {activeTitle}
+          </p>
           <p className="text-[11px] text-slate-400 dark:text-slate-500">AI Financial Advisor</p>
         </div>
 
@@ -514,11 +361,18 @@ export function FinancialChat({
                   <Brain className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Memori AI</h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Fakta penting keluarga Anda</p>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                    Memori AI
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Fakta penting keluarga Anda
+                  </p>
                 </div>
               </div>
-              <button onClick={() => setShowMemoryModal(false)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button
+                onClick={() => setShowMemoryModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -530,14 +384,44 @@ export function FinancialChat({
             {/* Add memory form */}
             {showAddMemoryForm ? (
               <div className="p-2.5 bg-purple-50/70 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl space-y-2 shrink-0">
-                <textarea value={newMemoryContent} onChange={(e) => setNewMemoryContent(e.target.value)} placeholder="Contoh: Budget liburan keluarga 7 juta" className="w-full text-xs p-2 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 resize-none" rows={2} />
+                <textarea
+                  value={newMemoryContent}
+                  onChange={(e) => setNewMemoryContent(e.target.value)}
+                  placeholder="Contoh: Budget liburan keluarga 7 juta"
+                  className="w-full text-xs p-2 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 resize-none"
+                  rows={2}
+                />
                 <div className="flex justify-end gap-1.5">
-                  <button type="button" onClick={() => { setShowAddMemoryForm(false); setNewMemoryContent(""); }} className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Batal</button>
-                  <button type="button" onClick={addManualMemory} disabled={!newMemoryContent.trim()} className="text-[11px] px-2.5 py-1 rounded-lg bg-purple-600 text-white font-medium disabled:opacity-50">Simpan</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddMemoryForm(false);
+                      setNewMemoryContent("");
+                    }}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await addManualMemory(newMemoryContent);
+                      setNewMemoryContent("");
+                      setShowAddMemoryForm(false);
+                    }}
+                    disabled={!newMemoryContent.trim()}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-purple-600 text-white font-medium disabled:opacity-50"
+                  >
+                    Simpan
+                  </button>
                 </div>
               </div>
             ) : (
-              <button type="button" onClick={() => setShowAddMemoryForm(true)} className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-400 text-xs font-medium hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowAddMemoryForm(true)}
+                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-400 text-xs font-medium hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition shrink-0"
+              >
                 <Plus className="w-3.5 h-3.5" /> Tambah Catatan Manual
               </button>
             )}
@@ -545,24 +429,73 @@ export function FinancialChat({
             {/* Memory list */}
             <div className="flex-1 overflow-y-auto space-y-2 pr-1">
               {memories.length === 0 ? (
-                <div className="text-center py-6 text-xs text-slate-400">Belum ada memori tersimpan.</div>
+                <div className="text-center py-6 text-xs text-slate-400">
+                  Belum ada memori tersimpan.
+                </div>
               ) : (
                 memories.map((m) => (
-                  <div key={m.id} className="p-2.5 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-xl">
+                  <div
+                    key={m.id}
+                    className="p-2.5 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-xl"
+                  >
                     {editingMemoryId === m.id ? (
                       <div className="space-y-2">
-                        <textarea value={editingContent} onChange={(e) => setEditingContent(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 resize-none" rows={2} />
+                        <textarea
+                          value={editingContent}
+                          onChange={(e) => setEditingContent(e.target.value)}
+                          className="w-full text-xs p-2 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 resize-none"
+                          rows={2}
+                        />
                         <div className="flex justify-end gap-1.5">
-                          <button type="button" onClick={() => { setEditingMemoryId(null); setEditingContent(""); }} className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Batal</button>
-                          <button type="button" onClick={() => saveEditedMemory(m.id)} disabled={!editingContent.trim()} className="text-[11px] px-2.5 py-1 rounded-lg bg-purple-600 text-white font-medium disabled:opacity-50">Simpan</button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingMemoryId(null);
+                              setEditingContent("");
+                            }}
+                            className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                          >
+                            Batal
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await saveEditedMemory(m.id, editingContent);
+                              setEditingMemoryId(null);
+                              setEditingContent("");
+                            }}
+                            disabled={!editingContent.trim()}
+                            className="text-[11px] px-2.5 py-1 rounded-lg bg-purple-600 text-white font-medium disabled:opacity-50"
+                          >
+                            Simpan
+                          </button>
                         </div>
                       </div>
                     ) : (
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs text-slate-700 dark:text-slate-300 flex-1 leading-snug">• {m.content}</p>
+                        <p className="text-xs text-slate-700 dark:text-slate-300 flex-1 leading-snug">
+                          • {m.content}
+                        </p>
                         <div className="flex items-center gap-0.5 shrink-0">
-                          <button type="button" onClick={() => { setEditingMemoryId(m.id); setEditingContent(m.content); }} className="text-slate-400 hover:text-purple-600 p-1 transition" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
-                          <button type="button" onClick={() => deleteMemory(m.id)} className="text-slate-400 hover:text-red-500 p-1 transition" title="Hapus"><Trash2 className="w-3.5 h-3.5" /></button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingMemoryId(m.id);
+                              setEditingContent(m.content);
+                            }}
+                            className="text-slate-400 hover:text-purple-600 p-1 transition"
+                            title="Edit"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteMemory(m.id)}
+                            className="text-slate-400 hover:text-red-500 p-1 transition"
+                            title="Hapus"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
                     )}
@@ -571,7 +504,12 @@ export function FinancialChat({
               )}
             </div>
 
-            <button onClick={() => setShowMemoryModal(false)} className="btn-primary w-full py-2 text-xs shrink-0">Tutup</button>
+            <button
+              onClick={() => setShowMemoryModal(false)}
+              className="btn-primary w-full py-2 text-xs shrink-0"
+            >
+              Tutup
+            </button>
           </div>
         </div>
       )}
@@ -580,29 +518,32 @@ export function FinancialChat({
           MESSAGES AREA
          ═══════════════════════════════════════════════════════════════════ */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
-
         {/* Loading skeleton */}
         {loadingHistory ? (
           <div className="flex items-center justify-center py-10 gap-2 text-xs text-slate-400">
             <Loader2 className="w-4 h-4 animate-spin text-brand-600" /> Memuat percakapan...
           </div>
-
-        /* Empty state */
         ) : messages.length === 0 ? (
+          /* Empty state */
           <div className="flex flex-col items-center justify-center h-full text-center px-2 py-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 dark:from-brand-900/40 dark:to-brand-800/30 text-brand-600 dark:text-brand-400 flex items-center justify-center mb-3 shadow-sm">
               <Sparkles className="w-7 h-7" />
             </div>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Halo! Ada yang bisa dibantu?</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">
+              Halo! Ada yang bisa dibantu?
+            </p>
             <p className="text-xs text-slate-400 dark:text-slate-500 mb-4 max-w-[280px]">
-              Tanya soal keuangan, atau langsung catat pengeluaran: <span className="font-medium text-slate-600 dark:text-slate-300">&quot;jajan gorengan 5rb&quot;</span>
+              Tanya soal keuangan, atau langsung catat pengeluaran:{" "}
+              <span className="font-medium text-slate-600 dark:text-slate-300">
+                &quot;jajan gorengan 5rb&quot;
+              </span>
             </p>
             <div className="w-full space-y-2 max-w-[300px]">
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s}
                   type="button"
-                  onClick={() => send(s)}
+                  onClick={() => handleSend(s)}
                   className="w-full text-left text-xs text-brand-700 dark:text-brand-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-700 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl px-3.5 py-2.5 transition shadow-sm"
                 >
                   {s}
@@ -610,7 +551,6 @@ export function FinancialChat({
               ))}
             </div>
           </div>
-
         ) : null}
 
         {/* Load older indicator */}
@@ -623,9 +563,13 @@ export function FinancialChat({
               className="text-[11px] font-medium text-slate-500 hover:text-brand-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-brand-300 px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 shadow-sm"
             >
               {loadingMoreHistory ? (
-                <><Loader2 className="w-3 h-3 animate-spin text-brand-600" /> Memuat...</>
+                <>
+                  <Loader2 className="w-3 h-3 animate-spin text-brand-600" /> Memuat...
+                </>
               ) : (
-                <><ArrowUp className="w-3 h-3" /> Muat pesan terdahulu</>
+                <>
+                  <ArrowUp className="w-3 h-3" /> Muat pesan terdahulu
+                </>
               )}
             </button>
           </div>
@@ -633,9 +577,16 @@ export function FinancialChat({
 
         {/* Chat bubbles */}
         {messages.map((m, i) => (
-          <div key={m.id ?? i} className={cn("flex flex-col", m.role === "user" ? "items-end" : "items-start")}>
-            <div className={cn("flex items-end gap-1.5", m.role === "user" ? "flex-row-reverse" : "flex-row")}>
-
+          <div
+            key={m.id ?? i}
+            className={cn("flex flex-col", m.role === "user" ? "items-end" : "items-start")}
+          >
+            <div
+              className={cn(
+                "flex items-end gap-1.5",
+                m.role === "user" ? "flex-row-reverse" : "flex-row"
+              )}
+            >
               {/* Avatar */}
               {m.role === "assistant" && (
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center shrink-0 shadow-sm mb-0.5">
@@ -649,7 +600,7 @@ export function FinancialChat({
                   "max-w-[82%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm",
                   m.role === "user"
                     ? "bg-brand-600 text-white rounded-br-md whitespace-pre-wrap"
-                    : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-md",
+                    : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-md"
                 )}
               >
                 {m.role === "user" ? m.content : <MarkdownLite text={m.content} />}
@@ -678,13 +629,24 @@ export function FinancialChat({
             {m.role === "assistant" && m.savedExpenses && m.savedExpenses.length > 0 && (
               <div className="mt-1.5 ml-8 max-w-[82%] w-full space-y-1">
                 {m.savedExpenses.map((exp) => (
-                  <div key={exp.id} className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl px-3 py-2">
+                  <div
+                    key={exp.id}
+                    className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl px-3 py-2"
+                  >
                     <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">{exp.description}</p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">{formatIDR(exp.amount)} · {exp.categoryName}</p>
+                      <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                        {exp.description}
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        {formatIDR(exp.amount)} · {exp.categoryName}
+                      </p>
                     </div>
-                    <button onClick={() => undoExpense(i, exp.id)} className="p-1 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition shrink-0" title="Batalkan">
+                    <button
+                      onClick={() => undoExpense(i, exp.id)}
+                      className="p-1 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition shrink-0"
+                      title="Batalkan"
+                    >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -702,9 +664,18 @@ export function FinancialChat({
             </div>
             <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
               <div className="flex gap-1">
-                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                <span
+                  className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <span
+                  className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <span
+                  className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                />
               </div>
             </div>
           </div>
@@ -725,7 +696,10 @@ export function FinancialChat({
          ═══════════════════════════════════════════════════════════════════ */}
       <div className="px-3 py-2.5 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shrink-0">
         <form
-          onSubmit={(e) => { e.preventDefault(); send(input); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSend(input);
+          }}
           className="flex items-end gap-2"
         >
           <div className="flex-1 min-w-0 relative">
@@ -735,7 +709,10 @@ export function FinancialChat({
               value={input}
               onChange={handleTextareaChange}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); send(input); }
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                  e.preventDefault();
+                  handleSend(input);
+                }
               }}
               placeholder="Tanya atau catat pengeluaran..."
               className="w-full resize-none py-2.5 px-3.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-400 dark:focus:border-brand-500 focus:ring-1 focus:ring-brand-400/30 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition min-h-[42px] max-h-[120px] leading-relaxed"
@@ -751,7 +728,9 @@ export function FinancialChat({
             <Send className="w-4.5 h-4.5" />
           </button>
         </form>
-        <p className="text-[10px] text-slate-400 text-center mt-1.5">Enter = baris baru · ⌘/Ctrl+Enter = kirim</p>
+        <p className="text-[10px] text-slate-400 text-center mt-1.5">
+          Enter = baris baru · ⌘/Ctrl+Enter = kirim
+        </p>
       </div>
     </div>
   );
