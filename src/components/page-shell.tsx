@@ -1,7 +1,5 @@
 import { BottomNav } from "./bottom-nav";
-import { FloatingChat } from "./floating-chat";
-import { FloatingVoice } from "./floating-voice";
-import { FloatingReceipt } from "./floating-receipt";
+import { FloatingActions } from "./floating-actions";
 import { ThemeToggle } from "./theme-toggle";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
 
@@ -34,9 +32,7 @@ export async function PageShell({
       </header>
       <main className="mx-auto max-w-md px-4 py-4 space-y-4 animate-slide-up">{children}</main>
       <BottomNav />
-      {householdId && <FloatingChat householdId={householdId} />}
-      <FloatingVoice />
-      <FloatingReceipt />
+      <FloatingActions householdId={householdId ?? undefined} />
     </div>
   );
 }

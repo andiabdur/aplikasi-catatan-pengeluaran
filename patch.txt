@@ -1,0 +1,54 @@
+--- src/app/api/voice-expense/route.ts
++++ src/app/api/voice-expense/route.ts
+@@ -107,6 +107,11 @@
+     .eq("status", "active")
+     .order("sort_order");
+ 
++  const { data: eventsData } = await supabase
++    .from("events")
++    .select("id,name")
++    .eq("household_id", householdId)
++    .eq("status", "active");
++
+   const catListText = catList.map((c) => `- "${c.name}" (ID: ${c.id})`).join("\n");
+   const savingsList =
+     goalsData && goalsData.length > 0
+       ? goalsData.map((g) => `- "${g.name}" (ID: ${g.id})`).join("\n")
+       : "Tidak ada target tabungan aktif.";
++  const eventList =
++    eventsData && eventsData.length > 0
++      ? eventsData.map((e) => `- "${e.name}" (ID: ${e.id})`).join("\n")
++      : "Tidak ada event aktif.";
+ 
+   let deepseekPayload: any = null;
+   try {
+     const promptStr = `Anda adalah asisten pencatatan keuangan canggih.
+ Transkripsi audio: "${text}"
+ 
+ Tugas: Ekstrak pengeluaran menjadi JSON array. Bisa satu atau banyak pengeluaran sekaligus jika user menyebutkan beberapa.
+ 
+ Kategori yang tersedia:
+ ${catListText}
+ 
+ Target tabungan (goals) yang tersedia:
+ ${savingsList}
+ 
++Event aktif (seperti liburan, dinas) yang tersedia:
++${eventList}
++
+ Aturan:
+ 1. 'amount' WAJIB angka murni tanpa titik/koma (misal 50000). Jika tidak disebutkan eksplisit tapi bisa ditebak (misal "dua puluh ribu"), konversi ke 20000.
+ 2. 'description' deskripsi singkat barang/jasa.
+ 3. 'category_id' WAJIB ID dari kategori yang paling cocok di atas.
+ 4. Jika 'category_id' merujuk kategori tabungan/saving (nama mengandung tabung/nabung), dan deskripsi menyebutkan nama target tabungan, isi 'goal_id'. Jika tidak yakin, isi 'goal_id' null.
++5. Jika user menyebutkan kegiatan/acara (liburan, dinas, dll), periksa apakah cocok dengan event aktif. Jika ya, isi 'event_id'. Jika tidak, isi null.
+ 
+ Output WAJIB format JSON murni berupa Array of Objects, TANPA markdown tags \`\`\`json.
+-Kolom: {"amount": number, "description": string, "category_id": string, "goal_id": string | null}
++Kolom: {"amount": number, "description": string, "category_id": string, "goal_id": string | null, "event_id": string | null}
+ Contoh Ouput (2 item):
+-[{"amount":50000,"description":"Nasi Goreng","category_id":"id-kategori-makanan","goal_id":null}, {"amount":100000,"description":"Nabung beli motor","category_id":"id-kategori-nabung","goal_id":"id-goal-motor"}]`;
++[{"amount":50000,"description":"Nasi Goreng","category_id":"id-kategori-makanan","goal_id":null,"event_id":"id-event-liburan"}, {"amount":100000,"description":"Nabung beli motor","category_id":"id-kategori-nabung","goal_id":"id-goal-motor","event_id":null}]`;
+ 
+     deepseekPayload = {
+       model: DEEPSEEK_MODEL,

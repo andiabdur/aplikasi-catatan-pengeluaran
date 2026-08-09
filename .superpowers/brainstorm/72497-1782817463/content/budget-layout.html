@@ -1,0 +1,140 @@
+<h2>Budget Section — 3 Pilihan Layout</h2>
+<p class="subtitle">Semua opsi menampilkan total spent vs. total budget di bagian atas list kategori. Pilih yang paling cocok.</p>
+
+<div class="cards">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc; padding:16px; font-family:system-ui,sans-serif;">
+      <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Kategori &amp; Budget</div>
+
+      <!-- Summary bar -->
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <span style="font-size:12px;color:#64748b;">Total terpakai bulan ini</span>
+          <span style="font-size:13px;font-weight:700;color:#ef4444;">Rp 2.400.000</span>
+        </div>
+        <div style="background:#f1f5f9;border-radius:999px;height:6px;overflow:hidden;">
+          <div style="background:#ef4444;width:60%;height:100%;border-radius:999px;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="font-size:10px;color:#94a3b8;">60% dari budget</span>
+          <span style="font-size:10px;color:#94a3b8;">Budget: Rp 4.000.000</span>
+        </div>
+      </div>
+
+      <!-- Category rows -->
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #f1f5f9;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;"></div>
+          <span style="font-size:12px;flex:1;">Makanan</span>
+          <input style="width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;" value="1.500.000" readonly />
+          <div style="width:16px;height:16px;color:#cbd5e1;">🗑</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #f1f5f9;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>
+          <span style="font-size:12px;flex:1;">Transport</span>
+          <input style="width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;" value="500.000" readonly />
+          <div style="width:16px;height:16px;color:#cbd5e1;">🗑</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div>
+          <span style="font-size:12px;flex:1;">Belanja</span>
+          <input style="width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;" value="2.000.000" readonly />
+          <div style="width:16px;height:16px;color:#cbd5e1;">🗑</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Summary Bar di Atas</h3>
+      <p>Progress bar dengan total spent + budget, lalu list kategori di bawahnya. Paling informatif — langsung keliatan persentase pemakaian.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc; padding:16px; font-family:system-ui,sans-serif;">
+      <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Kategori &amp; Budget</div>
+
+      <!-- Pill summary -->
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+        <div style="background:#fee2e2;border-radius:8px;padding:8px 12px;flex:1;min-width:120px;">
+          <div style="font-size:10px;color:#ef4444;font-weight:600;margin-bottom:2px;">TERPAKAI</div>
+          <div style="font-size:14px;font-weight:700;color:#dc2626;">Rp 2,4jt</div>
+        </div>
+        <div style="background:#f0fdf4;border-radius:8px;padding:8px 12px;flex:1;min-width:120px;">
+          <div style="font-size:10px;color:#22c55e;font-weight:600;margin-bottom:2px;">SISA BUDGET</div>
+          <div style="font-size:14px;font-weight:700;color:#16a34a;">Rp 1,6jt</div>
+        </div>
+        <div style="background:#eff6ff;border-radius:8px;padding:8px 12px;flex:1;min-width:120px;">
+          <div style="font-size:10px;color:#3b82f6;font-weight:600;margin-bottom:2px;">TOTAL BUDGET</div>
+          <div style="font-size:14px;font-weight:700;color:#2563eb;">Rp 4jt</div>
+        </div>
+      </div>
+
+      <!-- Category rows -->
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #f1f5f9;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;"></div>
+          <span style="font-size:12px;flex:1;">Makanan</span>
+          <input style="width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;" value="1.500.000" readonly />
+          <div style="width:16px;height:16px;color:#cbd5e1;">🗑</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #f1f5f9;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>
+          <span style="font-size:12px;flex:1;">Transport</span>
+          <input style="width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;" value="500.000" readonly />
+          <div style="width:16px;height:16px;color:#cbd5e1;">🗑</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div>
+          <span style="font-size:12px;flex:1;">Belanja</span>
+          <input style="width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;" value="2.000.000" readonly />
+          <div style="width:16px;height:16px;color:#cbd5e1;">🗑</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — 3 Pill Stats</h3>
+      <p>Tiga kotak kecil: Terpakai / Sisa Budget / Total Budget. Lebih compact, angka langsung keliatan semua, tanpa progress bar.</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc; padding:16px; font-family:system-ui,sans-serif;">
+      <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Kategori &amp; Budget</div>
+
+      <!-- Inline header summary -->
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fafafa;border-bottom:1px solid #f1f5f9;">
+          <span style="font-size:12px;color:#64748b;">Budget terpakai</span>
+          <span style="font-size:13px;font-weight:700;color:#ef4444;">Rp 2.400.000 <span style="font-size:11px;font-weight:400;color:#94a3b8;">/ Rp 4.000.000</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #f1f5f9;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;"></div>
+          <span style="font-size:12px;flex:1;">Makanan</span>
+          <input style="width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;" value="1.500.000" readonly />
+          <div style="width:16px;height:16px;color:#cbd5e1;">🗑</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #f1f5f9;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>
+          <span style="font-size:12px;flex:1;">Transport</span>
+          <input style="width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;" value="500.000" readonly />
+          <div style="width:16px;height:16px;color:#cbd5e1;">🗑</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div>
+          <span style="font-size:12px;flex:1;">Belanja</span>
+          <input style="width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;" value="2.000.000" readonly />
+          <div style="width:16px;height:16px;color:#cbd5e1;">🗑</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Header Row di Dalam Card</h3>
+      <p>Summary "Rp X / Rp Y" jadi baris pertama di dalam card yang sama dengan list kategori. Paling minimal — satu kesatuan tanpa elemen tambahan.</p>
+    </div>
+  </div>
+
+</div>
