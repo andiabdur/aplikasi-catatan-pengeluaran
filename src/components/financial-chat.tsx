@@ -16,6 +16,7 @@ type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   savedExpenses?: SavedExpense[];
+  createdAt?: string;
 };
 
 type ChatSession = {
@@ -65,6 +66,8 @@ export function FinancialChat({ householdId }: { householdId: string }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [hasMoreHistory, setHasMoreHistory] = useState(false);
+  const [loadingMoreHistory, setLoadingMoreHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -115,10 +118,11 @@ export function FinancialChat({ householdId }: { householdId: string }) {
     loadSessionsAndMemories();
   }, [householdId, lastSessionKey]);
 
-  // Load message history when activeSessionId changes
+  // Load initial 2 latest messages when activeSessionId changes
   useEffect(() => {
     if (!activeSessionId) {
       setMessages([]);
+      setHasMoreHistory(false);
       return;
     }
 
@@ -128,11 +132,13 @@ export function FinancialChat({ householdId }: { householdId: string }) {
 
     async function loadSessionMessages() {
       setLoadingHistory(true);
+      setHasMoreHistory(false);
       try {
-        const res = await fetch(`/api/chat-sessions/${activeSessionId}`);
+        const res = await fetch(`/api/chat-sessions/${activeSessionId}?limit=2`);
         if (res.ok) {
           const data = await res.json();
           setMessages(data.messages || []);
+          setHasMoreHistory(!!data.hasMore);
           if (data.session?.title) {
             setActiveTitle(data.session.title);
           }
@@ -146,14 +152,71 @@ export function FinancialChat({ householdId }: { householdId: string }) {
     loadSessionMessages();
   }, [activeSessionId, lastSessionKey]);
 
+  // Scroll to bottom on initial message load or new message sent
   useEffect(() => {
+    if (loadingHistory || loadingMoreHistory) return;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages.length, loading, loadingHistory, loadingMoreHistory]);
+
+  // Lazy load 3 older messages on demand (scroll to top or button click)
+  async function loadOlderMessages() {
+    if (!activeSessionId || !hasMoreHistory || loadingMoreHistory || loadingHistory || messages.length === 0) return;
+
+    const oldestMsg = messages[0];
+    if (!oldestMsg?.createdAt) return;
+
+    setLoadingMoreHistory(true);
+    const container = scrollRef.current;
+    const prevScrollHeight = container ? container.scrollHeight : 0;
+    const prevScrollTop = container ? container.scrollTop : 0;
+
+    try {
+      const res = await fetch(
+        `/api/chat-sessions/${activeSessionId}?limit=3&before=${encodeURIComponent(oldestMsg.createdAt)}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const older: ChatMessage[] = data.messages || [];
+        if (older.length > 0) {
+          setMessages((prev) => [...older, ...prev]);
+        }
+        setHasMoreHistory(!!data.hasMore);
+
+        // Retain scroll position so container doesn't jump
+        requestAnimationFrame(() => {
+          if (container) {
+            const newScrollHeight = container.scrollHeight;
+            container.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
+          }
+        });
+      }
+    } catch {
+      /* ignore */
+    }
+    setLoadingMoreHistory(false);
+  }
+
+  // Attach scroll listener to trigger loading older messages when scrolled to top
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    function handleScroll() {
+      if (!el) return;
+      if (el.scrollTop <= 20 && hasMoreHistory && !loadingMoreHistory && !loadingHistory) {
+        loadOlderMessages();
+      }
+    }
+
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [hasMoreHistory, loadingMoreHistory, loadingHistory, activeSessionId, messages]);
 
   // Create a brand new session
   async function createNewSession() {
     setError(null);
     setMessages([]);
+    setHasMoreHistory(false);
     setActiveSessionId(null);
     setActiveTitle("Percakapan Baru");
     setShowSessionDropdown(false);
@@ -686,6 +749,26 @@ export function FinancialChat({ householdId }: { householdId: string }) {
             </div>
           </div>
         ) : null}
+
+        {/* Indicator to load 3 older messages on scroll/click */}
+        {hasMoreHistory && !loadingHistory && (
+          <div className="flex justify-center py-1">
+            <button
+              type="button"
+              onClick={loadOlderMessages}
+              disabled={loadingMoreHistory}
+              className="text-[11px] font-medium text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-1.5 rounded-full transition flex items-center gap-1.5 shadow-sm"
+            >
+              {loadingMoreHistory ? (
+                <>
+                  <Loader2 className="w-3 h-3 animate-spin text-brand-600" /> Memuat 3 pesan terdahulu...
+                </>
+              ) : (
+                "↑ Scroll ke atas / Klik untuk muat 3 pesan terdahulu"
+              )}
+            </button>
+          </div>
+        )}
 
         {messages.map((m, i) => (
           <div key={m.id ?? i} className={cn("flex flex-col", m.role === "user" ? "items-end" : "items-start")}>

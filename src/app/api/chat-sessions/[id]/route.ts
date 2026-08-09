@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id: sessionId } = await params;
@@ -31,14 +31,49 @@ export async function GET(
     return NextResponse.json({ error: "Sesi tidak ditemukan." }, { status: 404 });
   }
 
-  const { data: messages } = await supabase
+  const { searchParams } = new URL(req.url);
+  const limitParam = searchParams.get("limit");
+  const beforeParam = searchParams.get("before");
+
+  let query = supabase
     .from("chat_messages")
     .select("id, role, content, saved_expenses, created_at")
-    .eq("session_id", sessionId)
-    .order("created_at", { ascending: true });
+    .eq("session_id", sessionId);
+
+  if (beforeParam) {
+    query = query.lt("created_at", beforeParam);
+  }
+
+  if (limitParam) {
+    const limit = Math.max(1, parseInt(limitParam, 10) || 2);
+    // Fetch limit + 1 to check if there are more older messages
+    query = query.order("created_at", { ascending: false }).limit(limit + 1);
+
+    const { data: rawMessages } = await query;
+    const msgList = rawMessages ?? [];
+    const hasMore = msgList.length > limit;
+    const items = hasMore ? msgList.slice(0, limit) : msgList;
+    // Reverse to chronological ascending order
+    items.reverse();
+
+    return NextResponse.json({
+      session,
+      hasMore,
+      messages: items.map((m) => ({
+        id: m.id,
+        role: m.role as "user" | "assistant",
+        content: m.content,
+        savedExpenses: (m.saved_expenses as any) ?? undefined,
+        createdAt: m.created_at,
+      })),
+    });
+  }
+
+  const { data: messages } = await query.order("created_at", { ascending: true });
 
   return NextResponse.json({
     session,
+    hasMore: false,
     messages: (messages ?? []).map((m) => ({
       id: m.id,
       role: m.role as "user" | "assistant",
