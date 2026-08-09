@@ -115,19 +115,85 @@ export async function buildFinancialContext(
   const catList = (latest?.rows ?? []).map((r) => ({ id: r.category_id, name: r.category_name }));
   if (catList.length === 0) return null;
 
-  const digest = perPeriod
-    .map((p) => {
+  // Compute Financial Indicators (Savings Rate %, Surplus/Deficit, Overbudget categories, Goal monthly requirements)
+  const periodMetrics = perPeriod.map((p) => {
+    const totalSpent = p.rows.reduce((sum, r) => sum + Number(r.spent || 0), 0);
+    const totalBudget = p.rows.reduce((sum, r) => sum + Number(r.budget || 0), 0);
+    const netSavings = p.income - totalSpent;
+    const savingsRate = p.income > 0 ? Math.round((netSavings / p.income) * 100) : 0;
+    const overbudgets = p.rows
+      .filter((r) => Number(r.spent) > Number(r.budget) && Number(r.budget) > 0)
+      .map((r) => `${r.category_name} (terpakai ${Math.round((Number(r.spent) / Number(r.budget)) * 100)}%)`);
+
+    return {
+      title: p.title,
+      income: p.income,
+      totalSpent,
+      totalBudget,
+      netSavings,
+      savingsRate,
+      overbudgets,
+    };
+  });
+
+  const avgSavingsRate = Math.round(
+    periodMetrics.reduce((acc, m) => acc + m.savingsRate, 0) / (periodMetrics.length || 1),
+  );
+  const avgIncome = Math.round(
+    periodMetrics.reduce((acc, m) => acc + m.income, 0) / (periodMetrics.length || 1),
+  );
+  const avgSpent = Math.round(
+    periodMetrics.reduce((acc, m) => acc + m.totalSpent, 0) / (periodMetrics.length || 1),
+  );
+
+  const now = new Date();
+  const goalAnalysisLines = goals.map((g) => {
+    const saved = savedByGoal.get(g.id) ?? 0;
+    const target = Number(g.target_amount || 0);
+    const remaining = Math.max(0, target - saved);
+    const pct = target > 0 ? Math.round((saved / target) * 100) : 0;
+
+    let targetDateInfo = "";
+    if (g.target_date) {
+      const tDate = new Date(g.target_date);
+      const monthsLeft = Math.max(
+        1,
+        (tDate.getFullYear() - now.getFullYear()) * 12 + (tDate.getMonth() - now.getMonth()),
+      );
+      const reqMonthly = Math.ceil(remaining / monthsLeft);
+      targetDateInfo = ` | Target: ${g.target_date} (${monthsLeft} bulan lagi -> butuh Rp ${reqMonthly.toLocaleString("id-ID")}/bulan)`;
+    }
+
+    return `- ${g.name}: terkumpul Rp ${Math.round(saved).toLocaleString("id-ID")} / Rp ${Math.round(target).toLocaleString("id-ID")} (${pct}%)${targetDateInfo}`;
+  });
+
+  const metricsDigest = [
+    `=== RANGKUMAN INDIKATOR KEUANGAN KELUARGA (CFP METRICS) ===`,
+    `- Rata-rata Pemasukan: Rp ${avgIncome.toLocaleString("id-ID")}/periode`,
+    `- Rata-rata Pengeluaran: Rp ${avgSpent.toLocaleString("id-ID")}/periode`,
+    `- Rata-rata Rasio Tabungan (Savings Rate): ${avgSavingsRate}% ${avgSavingsRate < 10 ? "(BAHAYA: Di bawah target ideal 15-20%)" : avgSavingsRate < 20 ? "(CUKUP: Masih bisa ditingkatkan)" : "(SEHAT: Di atas 20%)"}`,
+    ...periodMetrics.map(
+      (m) =>
+        `- ${m.title}: Pemasukan Rp ${Math.round(m.income).toLocaleString("id-ID")} | Pengeluaran Rp ${Math.round(m.totalSpent).toLocaleString("id-ID")} | ${m.netSavings >= 0 ? "Surplus" : "DEFISIT"} Rp ${Math.abs(Math.round(m.netSavings)).toLocaleString("id-ID")} (Savings Rate: ${m.savingsRate}%)${m.overbudgets.length > 0 ? ` | Overbudget: ${m.overbudgets.join(", ")}` : ""}`,
+    ),
+  ].join("\n");
+
+  const digest = [
+    metricsDigest,
+    "",
+    "=== BREAKDOWN PERIODE (BUDGET VS REALISASI PER KATEGORI) ===",
+    ...perPeriod.map((p) => {
       const lines = p.rows
         .map(
           (r) =>
-            `   - ${r.category_name}: budget ${Math.round(Number(r.budget))}, terpakai ${Math.round(
+            `   - ${r.category_name}: budget Rp ${Math.round(Number(r.budget)).toLocaleString("id-ID")}, terpakai Rp ${Math.round(
               Number(r.spent),
-            )} (${Math.round(Number(r.usage_pct))}%)`,
+            ).toLocaleString("id-ID")} (${Math.round(Number(r.usage_pct))}%)`,
         )
         .join("\n");
-      return `${p.title} — pemasukan ${Math.round(p.income)}:\n${lines}`;
-    })
-    .join("\n\n");
+      return `${p.title} — pemasukan Rp ${Math.round(p.income).toLocaleString("id-ID")}:\n${lines}`;
+    }),
+  ].join("\n\n");
 
   const ID_DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
   const ID_MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
@@ -160,7 +226,7 @@ export async function buildFinancialContext(
         const eventName = item.event_id ? eventNameMap.get(item.event_id) : null;
         const eventTag = eventName ? ` [Event: ${eventName}]` : "";
         const time = fmtTime(item.created_at);
-        const line = `     ${time} — ${item.description || "(no desc)"} [${catName}]${eventTag}: ${Math.round(Number(item.amount)).toLocaleString("id-ID")}`;
+        const line = `     ${time} — ${item.description || "(no desc)"} [${catName}]${eventTag}: Rp ${Math.round(Number(item.amount)).toLocaleString("id-ID")}`;
         if (!byDate.has(item.spent_at)) byDate.set(item.spent_at, []);
         byDate.get(item.spent_at)!.push(line);
       });
@@ -173,16 +239,8 @@ export async function buildFinancialContext(
     })
     .join("\n\n");
 
-  const goalDigest = goals.length
-    ? goals
-        .map((g) => {
-          const saved = savedByGoal.get(g.id) ?? 0;
-          const pct = g.target_amount > 0 ? Math.round((saved / Number(g.target_amount)) * 100) : 0;
-          return `- ${g.name}: terkumpul ${Math.round(saved)} dari target ${Math.round(
-            Number(g.target_amount),
-          )} (${pct}%)${g.target_date ? `, target tanggal ${g.target_date}` : ""}`;
-        })
-        .join("\n")
+  const goalDigest = goalAnalysisLines.length
+    ? goalAnalysisLines.join("\n")
     : "(belum ada goal)";
 
   return {

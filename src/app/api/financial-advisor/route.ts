@@ -40,39 +40,37 @@ export async function POST() {
   const { digest, itemDigest, goalDigest, eventDigest, memoryDigest, catList } = ctx;
   const catLines = catList.map((c) => `- ${c.name} (id: ${c.id})`).join("\n");
 
-  const prompt = `Kamu penasihat keuangan keluarga Indonesia yang membumi, jujur, dan praktis. Analisa data ${PERIODS_TO_ANALYZE} periode gajian terakhir keluarga ini, lalu beri diagnosa + rencana.
+  const prompt = `Kamu adalah Chief Financial Officer (CFO) & Senior Certified Financial Planner (CFP) Keluarga. Tugasmu adalah melakukan AUDIT KEUANGAN MENDALAM terhadap ${PERIODS_TO_ANALYZE} periode gajian terakhir keluarga ini, lalu menyusun diagnosa strategis dan rencana anggaran terukur.
 
-DATA PER PERIODE (budget vs realisasi per kategori):
+DATA PERIODE & INDIKATOR KEUANGAN KELUARGA (Pemasukan, Pengeluaran, Savings Rate, Overbudget):
 ${digest}
 
-DETAIL TRANSAKSI PER PERIODE (item, tanggal, nominal, event):
+DETAIL TRANSAKSI PER PERIODE (Tanggal, deskripsi, nominal, event):
 ${itemDigest}
 
-GOAL/TARGET TABUNGAN:
+GOAL / TARGET TABUNGAN KELUARGA:
 ${goalDigest}
 
-EVENT/KEGIATAN KELUARGA (Liburan, Dinas, Acara, dll):
+EVENT / KEGIATAN KELUARGA (Liburan, Dinas, Acara, dll):
 ${eventDigest}
 
-MEMORI & CATATAN PENTING KELUARGA (DIINGAT OLEH AI):
+MEMORI & CATATAN PENTING KELUARGA:
 ${memoryDigest}
 
-KATEGORI yang tersedia untuk usulan budget (pakai id ini):
+KATEGORI KEUANGAN (Gunakan ID ini untuk usulan budget):
 ${catLines}
 
-Tugasmu (semua dalam Bahasa Indonesia yang santai tapi sopan, panggil mereka "kamu sekeluarga"):
-1. "summary": 2-3 kalimat ringkasan kondisi keuangan keluarga + tingkat kesehatannya (pertimbangkan beban pengeluaran event/kegiatan jika ada).
-2. "health": satu kata: "sehat", "waspada", atau "boncos".
-3. "insights": daftar 3-5 temuan penting (kategori yang sering jebol, pengeluaran event besar, pola boros, hal positif). Tiap item {title, detail, severity: "good"|"warning"|"danger"}.
-4. "action_now": 2-4 hal konkret yang harus ditekan/diperbaiki BULAN INI (array string).
-5. "suggested_budgets": usulan budget untuk periode DEPAN per kategori. Tiap item {category_id (harus dari daftar id di atas), category_name, amount (integer rupiah), reason (alasan singkat)}. Realistis: berbasis rata-rata realisasi + buffer, dorong alokasi Nabung kalau memungkinkan.
-6. "goal_advice": saran per goal apakah laju nabung cukup buat capai target tepat waktu. Tiap item {goal_name, advice}. Kalau belum ada goal, kosongkan array.
+TUGAS AUDIT (Gunakan Bahasa Indonesia profesional, lugas, hangat, dan komunikatif, panggil mereka "kamu sekeluarga"):
+1. "summary": Executive summary 2-3 kalimat yang sangat padat dan tajam mengenai kesehatan finansial keluarga, stabilitas cashflow, serta rasio tabungan (Savings Rate).
+2. "health": Pilih satu kata kunci berdasarkan indikator obyektif: "sehat" (surplus & savings rate baik >=15%), "waspada" (savings rate tipis <15% / overbudget beberapa kategori), atau "boncos" (defisit / pengeluaran melebihi pemasukan).
+3. "insights": Daftar 3-5 temuan analitis mendalam (kategori kebocoran utama, anomali pengeluaran, dampak event, atau kebiasaan positif). Tiap item {title, detail, severity: "good"|"warning"|"danger"}. Sertakan angka nominal Rupiah konkret.
+4. "action_now": 3-4 langkah aksi taktis dan berprioritas tinggi yang wajib dieksekusi periode ini untuk memperbaiki cashflow (array string).
+5. "suggested_budgets": Usulan anggaran realistis & strategis untuk periode DEPAN (${ctx.nextPeriodTitle}) per kategori. Tiap item {category_id, category_name, amount (integer Rupiah), reason (alasan berbasis historis + optimasi)}. Dorong alokasi tabungan jika cashflow memungkinkan.
+6. "goal_advice": Analisis spesifik per goal mengenai kelayakan ketercapaian target berdasarkan laju tabungan saat ini dan sisa waktu target date. Tiap item {goal_name, advice}. Jika belum ada goal, kosongkan array.
 
-Jujur kalau memang boros, tapi tetap suportif dan beri jalan keluar.
+PRINSIP AUDIT: Sebut nominal Rupiah konkret. Jangan teori umum. JANGAN PAKAI TABEL MARKDOWN (tampil di HP, pakai bullet/paragraf).
 
-PENTING: JANGAN PAKAI TABEL MARKDOWN dalam jawaban. Chat ini tampil di HP, pakai bullet points atau kalimat biasa saja.
-
-Output JSON dengan field: summary, health, insights (array), action_now (array of string), suggested_budgets (array), goal_advice (array).`;
+Output JSON dengan field persis: summary, health, insights (array), action_now (array of string), suggested_budgets (array), goal_advice (array).`;
 
   try {
     const apiUrl = process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/chat/completions";
@@ -88,7 +86,7 @@ Output JSON dengan field: summary, health, insights (array), action_now (array o
           {
             role: "system",
             content:
-              "Kamu penasihat keuangan keluarga Indonesia yang membumi, jujur, dan praktis. Selalu output dalam format JSON sesuai instruksi user.",
+              "Kamu adalah Chief Financial Officer (CFO) & Senior Certified Financial Planner (CFP) Keluarga. Analisis data finansial keluarga ini secara tajam, jujur, realistis, dan berbobot berbasis indikator keuangan profesional (Savings Rate, Burn Rate, Overbudget ratio, dan Goal Feasibility). Output SELALU dalam format JSON sesuai instruksi.",
           },
           { role: "user", content: prompt },
         ],
