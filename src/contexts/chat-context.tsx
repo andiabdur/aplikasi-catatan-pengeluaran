@@ -37,6 +37,22 @@ export type AIMemory = {
   created_at: string;
 };
 
+export type Insight = { title: string; detail: string; severity: string };
+export type SuggestedBudget = { category_id: string; category_name: string; amount: number; reason: string };
+export type GoalAdvice = { goal_name: string; advice: string };
+
+export type Analysis = {
+  summary: string;
+  health: string;
+  insights: Insight[];
+  action_now: string[];
+  suggested_budgets: SuggestedBudget[];
+  goal_advice: GoalAdvice[];
+  next_label_month: string;
+  next_period_title: string;
+  periods_analyzed: string[];
+};
+
 interface ChatContextType {
   // State
   householdId: string | null;
@@ -52,6 +68,13 @@ interface ChatContextType {
   error: string | null;
   initialized: boolean;
 
+  // Financial Advisor Analysis State
+  analysisData: Analysis | null;
+  analysisLoading: boolean;
+  analysisError: string | null;
+  analysisApplied: boolean;
+  applyingBudgets: boolean;
+
   // Actions
   setHouseholdId: (id: string) => void;
   send: (text: string) => Promise<void>;
@@ -64,6 +87,8 @@ interface ChatContextType {
   addManualMemory: (content: string) => Promise<void>;
   undoExpense: (msgIdx: number, expenseId?: string) => Promise<void>;
   setError: (error: string | null) => void;
+  runAnalysis: () => Promise<void>;
+  applySuggestedBudgets: () => Promise<void>;
 }
 
 const ChatContext = createContext<ChatContextType | null>(null);
@@ -93,6 +118,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
 
+  // Financial Advisor State
+  const [analysisData, setAnalysisData] = useState<Analysis | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [analysisApplied, setAnalysisApplied] = useState(false);
+  const [applyingBudgets, setApplyingBudgets] = useState(false);
+
   // ── Refs (sync'd every render for safe async access) ────────────────────
   const householdIdRef = useRef(householdId);
   const activeSessionIdRef = useRef(activeSessionId);
@@ -101,6 +133,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const hasMoreHistoryRef = useRef(hasMoreHistory);
   const loadingMoreHistoryRef = useRef(loadingMoreHistory);
   const loadingHistoryRef = useRef(loadingHistory);
+  const analysisLoadingRef = useRef(analysisLoading);
 
   householdIdRef.current = householdId;
   activeSessionIdRef.current = activeSessionId;
@@ -109,6 +142,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   hasMoreHistoryRef.current = hasMoreHistory;
   loadingMoreHistoryRef.current = loadingMoreHistory;
   loadingHistoryRef.current = loadingHistory;
+  analysisLoadingRef.current = analysisLoading;
 
   // ── Helpers ─────────────────────────────────────────────────────────────
   function setActiveSessionId(id: string | null) {
@@ -127,9 +161,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     householdIdRef.current = id;
   }
 
-  // ── Initialize sessions & memories when householdId first available ─────
+  // ── Initialize sessions, memories & analysis when householdId first available ─────
   useEffect(() => {
     if (!householdId) return;
+
+    // Restore analysis from localStorage
+    try {
+      const raw = localStorage.getItem(`fin_analysis_${householdId}`);
+      if (raw) setAnalysisData(JSON.parse(raw));
+    } catch { /* */ }
 
     async function init() {
       try {
@@ -407,14 +447,74 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     startTransition(() => router.refresh());
   }
 
+  // ── Financial Advisor Analysis Actions ──────────────────────────────────
+  async function runAnalysis() {
+    if (analysisLoadingRef.current) return;
+    setAnalysisLoading(true);
+    analysisLoadingRef.current = true;
+    setAnalysisError(null);
+    setAnalysisApplied(false);
+
+    try {
+      const res = await fetch("/api/financial-advisor", { method: "POST" });
+      const json = await res.json();
+
+      if (!res.ok) {
+        setAnalysisError(json.error || "Gagal menganalisa.");
+      } else {
+        const analysis = json as Analysis;
+        setAnalysisData(analysis);
+        if (householdIdRef.current) {
+          try {
+            localStorage.setItem(
+              `fin_analysis_${householdIdRef.current}`,
+              JSON.stringify(analysis)
+            );
+          } catch { /* */ }
+        }
+      }
+    } catch {
+      setAnalysisError("Gagal terhubung. Cek koneksi.");
+    }
+
+    setAnalysisLoading(false);
+    analysisLoadingRef.current = false;
+  }
+
+  async function applySuggestedBudgets() {
+    const hId = householdIdRef.current;
+    if (!analysisData || !hId) return;
+    setApplyingBudgets(true);
+    const supabase = createClient();
+    const rows = analysisData.suggested_budgets.map((s) => ({
+      household_id: hId,
+      category_id: s.category_id,
+      month: analysisData.next_label_month,
+      amount: s.amount,
+    }));
+
+    const { error: err } = await supabase
+      .from("budgets")
+      .upsert(rows, { onConflict: "category_id,month" });
+    setApplyingBudgets(false);
+
+    if (err) {
+      setAnalysisError("Gagal menerapkan budget: " + err.message);
+      return;
+    }
+    setAnalysisApplied(true);
+  }
+
   // ── Context value ───────────────────────────────────────────────────────
   const value: ChatContextType = {
     householdId, sessions, activeSessionId, activeTitle,
     messages, loading, loadingHistory, hasMoreHistory,
     loadingMoreHistory, memories, error, initialized,
+    analysisData, analysisLoading, analysisError, analysisApplied, applyingBudgets,
     setHouseholdId, send, createNewSession, selectSession,
     deleteCurrentSession, loadOlderMessages, deleteMemory,
     saveEditedMemory, addManualMemory, undoExpense, setError,
+    runAnalysis, applySuggestedBudgets,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

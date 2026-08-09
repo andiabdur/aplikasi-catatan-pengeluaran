@@ -1,96 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { formatIDR } from "@/lib/format";
 import {
   Sparkles, Loader2, TrendingUp, AlertTriangle, CheckCircle2,
-  ListChecks, Wallet, Target, Check, BarChart3, MessageCircle,
+  ListChecks, Wallet, Target, Check, BarChart3, MessageCircle, RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FinancialChat } from "@/components/financial-chat";
-
-type Insight = { title: string; detail: string; severity: string };
-type SuggestedBudget = { category_id: string; category_name: string; amount: number; reason: string };
-type GoalAdvice = { goal_name: string; advice: string };
-
-type Analysis = {
-  summary: string;
-  health: string;
-  insights: Insight[];
-  action_now: string[];
-  suggested_budgets: SuggestedBudget[];
-  goal_advice: GoalAdvice[];
-  next_label_month: string;
-  next_period_title: string;
-  periods_analyzed: string[];
-};
+import { useChatContext } from "@/contexts/chat-context";
 
 export function AsistenClient({ householdId }: { householdId: string }) {
-  const storageKey = `fin_analysis_${householdId}`;
   const [tab, setTab] = useState<"analisa" | "chat">("analisa");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<Analysis | null>(null);
-  const [applying, setApplying] = useState(false);
-  const [applied, setApplied] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
 
-  // Restore last analysis so it survives navigation/reload.
+  const {
+    analysisData: data,
+    analysisLoading: loading,
+    analysisError: error,
+    analysisApplied: applied,
+    applyingBudgets: applying,
+    setHouseholdId,
+    runAnalysis: analyze,
+    applySuggestedBudgets: applyBudgets,
+  } = useChatContext();
+
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (raw) setData(JSON.parse(raw));
-    } catch { /* ignore */ }
-    setHydrated(true);
-  }, [storageKey]);
-
-  // Persist analysis (only overwritten when user re-analyzes).
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      if (data) localStorage.setItem(storageKey, JSON.stringify(data));
-    } catch { /* ignore */ }
-  }, [data, hydrated, storageKey]);
-
-  async function analyze() {
-    setLoading(true);
-    setError(null);
-    setApplied(false);
-    try {
-      const res = await fetch("/api/financial-advisor", { method: "POST" });
-      const json = await res.json();
-      if (!res.ok) {
-        setError(json.error || "Gagal menganalisa.");
-      } else {
-        setData(json as Analysis);
-      }
-    } catch {
-      setError("Gagal terhubung. Cek koneksi.");
-    }
-    setLoading(false);
-  }
-
-  async function applyBudgets() {
-    if (!data || !householdId) return;
-    setApplying(true);
-    const supabase = createClient();
-    const rows = data.suggested_budgets.map((s) => ({
-      household_id: householdId,
-      category_id: s.category_id,
-      month: data.next_label_month,
-      amount: s.amount,
-    }));
-    const { error: err } = await supabase
-      .from("budgets")
-      .upsert(rows, { onConflict: "category_id,month" });
-    setApplying(false);
-    if (err) {
-      setError("Gagal menerapkan budget: " + err.message);
-      return;
-    }
-    setApplied(true);
-  }
+    if (householdId) setHouseholdId(householdId);
+  }, [householdId, setHouseholdId]);
 
   const tabBar = (
     <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-700 rounded-xl">
@@ -102,7 +38,8 @@ export function AsistenClient({ householdId }: { householdId: string }) {
           tab === "analisa" ? "bg-white dark:bg-slate-600 text-brand-700 dark:text-brand-300 shadow-sm" : "text-slate-500 dark:text-slate-400",
         )}
       >
-        <BarChart3 className="w-4 h-4" /> Analisa
+        <BarChart3 className="w-4 h-4" />
+        <span>Analisa {loading && "..."}</span>
       </button>
       <button
         type="button"
@@ -126,30 +63,45 @@ export function AsistenClient({ householdId }: { householdId: string }) {
     );
   }
 
+  // Loading indicator banner when analysis is processing in background
+  const loadingBanner = loading && (
+    <div className="card bg-brand-50 dark:bg-brand-900/30 border-brand-200 dark:border-brand-800 p-4 space-y-2 text-center animate-pulse">
+      <div className="flex items-center justify-center gap-2 text-brand-700 dark:text-brand-300 font-semibold text-sm">
+        <Loader2 className="w-5 h-5 animate-spin text-brand-600 dark:text-brand-400" />
+        <span>Sedang Menganalisis Keuangan Keluarga...</span>
+      </div>
+      <p className="text-xs text-brand-600 dark:text-brand-400">
+        AI sedang membaca indikator cashflow, varians pengeluaran, dan memori keluarga Anda. Anda bisa bebas berpindah halaman, proses akan terus berjalan di background!
+      </p>
+    </div>
+  );
+
   if (!data) {
     return (
       <div className="space-y-4">
         {tabBar}
-        <div className="card text-center py-8 space-y-3">
-          <div className="w-14 h-14 rounded-2xl bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 flex items-center justify-center mx-auto">
-            <Sparkles className="w-7 h-7" />
+        {loadingBanner}
+        {!loading && (
+          <div className="card text-center py-8 space-y-3">
+            <div className="w-14 h-14 rounded-2xl bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 flex items-center justify-center mx-auto">
+              <Sparkles className="w-7 h-7" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-slate-900 dark:text-slate-100">Audit CFO &amp; Diagnosa Keuangan AI</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                AI CFO akan melakukan audit teknis mendalam atas indikator cashflow, Savings Rate %, Burn Rate, serta mengevaluasi kesesuaian dengan memori &amp; target keluarga Anda.
+              </p>
+            </div>
+            <button onClick={() => analyze()} disabled={loading} className="btn-primary w-full">
+              {loading ? (
+                <><Loader2 className="w-5 h-5 animate-spin" /> Menganalisa di background...</>
+              ) : (
+                <><Sparkles className="w-5 h-5" /> Audit Keuangan Keluarga Mendalam</>
+              )}
+            </button>
+            {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
           </div>
-          <div>
-            <h2 className="font-semibold text-slate-900 dark:text-slate-100">Minta saran dari AI</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              AI bakal baca pola belanja keluarga lu beberapa periode terakhir, kasih diagnosa,
-              hal yang harus ditekan, dan usulan budget buat periode depan.
-            </p>
-          </div>
-          <button onClick={analyze} disabled={loading} className="btn-primary w-full">
-            {loading ? (
-              <><Loader2 className="w-5 h-5 animate-spin" /> Menganalisa...</>
-            ) : (
-              <><Sparkles className="w-5 h-5" /> Analisa keuangan keluarga gue</>
-            )}
-          </button>
-          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-        </div>
+        )}
       </div>
     );
   }
@@ -157,18 +109,20 @@ export function AsistenClient({ householdId }: { householdId: string }) {
   return (
     <div className="space-y-4">
       {tabBar}
+      {loadingBanner}
+
       {/* Summary + health */}
       <div className="card space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-            Ringkasan
+            Diagnosa Eksekutif CFO
           </span>
           <HealthBadge health={data.health} />
         </div>
-        <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">{data.summary}</p>
+        <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-normal">{data.summary}</p>
         {data.periods_analyzed.length > 0 && (
           <p className="text-[11px] text-slate-400">
-            Berdasarkan: {data.periods_analyzed.join(", ")}
+            Audit berbasis {data.periods_analyzed.length} periode: {data.periods_analyzed.join(", ")}
           </p>
         )}
       </div>
@@ -176,14 +130,14 @@ export function AsistenClient({ householdId }: { householdId: string }) {
       {/* Insights */}
       {data.insights.length > 0 && (
         <div className="card space-y-3">
-          <SectionTitle icon={TrendingUp}>Temuan</SectionTitle>
-          <div className="space-y-2.5">
+          <SectionTitle icon={TrendingUp}>Temuan Analitis Mendalam</SectionTitle>
+          <div className="space-y-2.5 divide-y divide-slate-100 dark:divide-slate-800/60">
             {data.insights.map((ins, i) => (
-              <div key={i} className="flex gap-2.5">
+              <div key={i} className={cn("flex gap-2.5", i > 0 && "pt-2.5")}>
                 <SeverityIcon severity={ins.severity} />
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{ins.title}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">{ins.detail}</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{ins.title}</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mt-0.5">{ins.detail}</p>
                 </div>
               </div>
             ))}
@@ -194,7 +148,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
       {/* Action now */}
       {data.action_now.length > 0 && (
         <div className="card space-y-3">
-          <SectionTitle icon={ListChecks}>Yang harus ditekan sekarang</SectionTitle>
+          <SectionTitle icon={ListChecks}>Langkah Aksi Taktis Berprioritas</SectionTitle>
           <ul className="space-y-2">
             {data.action_now.map((a, i) => (
               <li key={i} className="flex gap-2 text-sm text-slate-700 dark:text-slate-200">
@@ -209,12 +163,12 @@ export function AsistenClient({ householdId }: { householdId: string }) {
       {/* Goal advice */}
       {data.goal_advice.length > 0 && (
         <div className="card space-y-3">
-          <SectionTitle icon={Target}>Soal goal kamu</SectionTitle>
-          <div className="space-y-2.5">
+          <SectionTitle icon={Target}>Analisis Kecepatan &amp; Kelayakan Goal</SectionTitle>
+          <div className="space-y-2.5 divide-y divide-slate-100 dark:divide-slate-800/60">
             {data.goal_advice.map((g, i) => (
-              <div key={i}>
-                <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{g.goal_name}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">{g.advice}</p>
+              <div key={i} className={cn(i > 0 && "pt-2.5")}>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{g.goal_name}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mt-0.5">{g.advice}</p>
               </div>
             ))}
           </div>
@@ -225,16 +179,16 @@ export function AsistenClient({ householdId }: { householdId: string }) {
       {data.suggested_budgets.length > 0 && (
         <div className="card space-y-3">
           <SectionTitle icon={Wallet}>
-            Usulan budget — {data.next_period_title}
+            Usulan Budget Terukur — {data.next_period_title}
           </SectionTitle>
           <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {data.suggested_budgets.map((s) => (
-              <div key={s.category_id} className="py-2 flex items-start justify-between gap-3">
+              <div key={s.category_id} className="py-2.5 flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{s.category_name}</p>
-                  {s.reason && <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">{s.reason}</p>}
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{s.category_name}</p>
+                  {s.reason && <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug mt-0.5">{s.reason}</p>}
                 </div>
-                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 shrink-0">
+                <span className="text-sm font-bold text-brand-700 dark:text-brand-300 shrink-0">
                   {formatIDR(s.amount)}
                 </span>
               </div>
@@ -246,7 +200,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
               <Check className="w-4 h-4" /> Budget {data.next_period_title} berhasil di-set!
             </div>
           ) : (
-            <button onClick={applyBudgets} disabled={applying} className="btn-primary w-full">
+            <button onClick={() => applyBudgets()} disabled={applying} className="btn-primary w-full">
               {applying ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
@@ -255,7 +209,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
             </button>
           )}
           <p className="text-[11px] text-slate-400 text-center">
-            Tetap bisa kamu ubah manual di menu Atur setelah diterapkan.
+            Tetap bisa Anda ubah manual di menu Atur setelah diterapkan.
           </p>
         </div>
       )}
@@ -263,11 +217,15 @@ export function AsistenClient({ householdId }: { householdId: string }) {
       {error && <p className="text-sm text-red-600 dark:text-red-400 px-1">{error}</p>}
 
       <button
-        onClick={analyze}
+        onClick={() => analyze()}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition disabled:opacity-60"
       >
-        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Analisa ulang"}
+        {loading ? (
+          <><Loader2 className="w-4 h-4 animate-spin text-brand-600" /> Menganalisa ulang di background...</>
+        ) : (
+          <><RefreshCw className="w-4 h-4" /> Analisa Ulang (Audit Baru)</>
+        )}
       </button>
     </div>
   );

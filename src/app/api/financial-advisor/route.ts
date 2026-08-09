@@ -40,18 +40,20 @@ export async function POST() {
   const { digest, itemDigest, goalDigest, eventDigest, memoryDigest, catList } = ctx;
   const catLines = catList.map((c) => `- ${c.name} (id: ${c.id})`).join("\n");
 
-  const prompt = `Kamu adalah Chief Financial Officer (CFO) & Senior Certified Financial Planner (CFP) Keluarga. Tugasmu adalah melakukan AUDIT KEUANGAN MENDALAM terhadap ${PERIODS_TO_ANALYZE} periode gajian terakhir keluarga ini, lalu menyusun diagnosa strategis dan rencana anggaran terukur.
+  const prompt = `Kamu adalah Chief Financial Officer (CFO) & Senior Certified Financial Planner (CFP) Keluarga berstandar internasional. Tugasmu adalah melakukan AUDIT KEUANGAN TEKNIS MENDALAM & DIAGNOSA STRATEGIS TERSTRUKTUR terhadap ${PERIODS_TO_ANALYZE} periode gajian terakhir keluarga ini.
+
+Gunakan indikator finansial kuantitatif (Savings Rate, Burn Rate harian, Rasio Varians Kategori, Liquidity Velocity, serta Alignment terhadap Memori & Goal Keluarga).
 
 DATA PERIODE & INDIKATOR KEUANGAN KELUARGA (Pemasukan, Pengeluaran, Savings Rate, Overbudget):
 ${digest}
 
-DETAIL TRANSAKSI PER PERIODE (Tanggal, deskripsi, nominal, event):
+DETAIL TRANSAKSI PER PERIODE (Tanggal, jam, deskripsi, nominal, kategori, event):
 ${itemDigest}
 
 GOAL / TARGET TABUNGAN KELUARGA:
 ${goalDigest}
 
-EVENT / KEGIATAN KELUARGA (Liburan, Dinas, Acara, dll):
+EVENT / KEGIATAN KELUARGA (Liburan, Acara, Dinas, dll):
 ${eventDigest}
 
 MEMORI & CATATAN PENTING KELUARGA:
@@ -60,15 +62,18 @@ ${memoryDigest}
 KATEGORI KEUANGAN (Gunakan ID ini untuk usulan budget):
 ${catLines}
 
-TUGAS AUDIT (Gunakan Bahasa Indonesia profesional, lugas, hangat, dan komunikatif, panggil mereka "kamu sekeluarga"):
-1. "summary": Executive summary 2-3 kalimat yang sangat padat dan tajam mengenai kesehatan finansial keluarga, stabilitas cashflow, serta rasio tabungan (Savings Rate).
-2. "health": Pilih satu kata kunci berdasarkan indikator obyektif: "sehat" (surplus & savings rate baik >=15%), "waspada" (savings rate tipis <15% / overbudget beberapa kategori), atau "boncos" (defisit / pengeluaran melebihi pemasukan).
-3. "insights": Daftar 3-5 temuan analitis mendalam (kategori kebocoran utama, anomali pengeluaran, dampak event, atau kebiasaan positif). Tiap item {title, detail, severity: "good"|"warning"|"danger"}. Sertakan angka nominal Rupiah konkret.
-4. "action_now": 3-4 langkah aksi taktis dan berprioritas tinggi yang wajib dieksekusi periode ini untuk memperbaiki cashflow (array string).
-5. "suggested_budgets": Usulan anggaran realistis & strategis untuk periode DEPAN (${ctx.nextPeriodTitle}) per kategori. Tiap item {category_id, category_name, amount (integer Rupiah), reason (alasan berbasis historis + optimasi)}. Dorong alokasi tabungan jika cashflow memungkinkan.
-6. "goal_advice": Analisis spesifik per goal mengenai kelayakan ketercapaian target berdasarkan laju tabungan saat ini dan sisa waktu target date. Tiap item {goal_name, advice}. Jika belum ada goal, kosongkan array.
+INSTRUKSI AUDIT TEKNIS MENDALAM (Bahasa Indonesia profesional, lugas, analytical-rigor, komunikatif, panggil mereka "kamu sekeluarga"):
+1. "summary": Diagnosa Eksekutif CFO 3-4 kalimat berbobot teknis yang mengkalkulasi kesehatan cashflow, Rasio Tabungan (Savings Rate %), laju pengeluaran harian (Burn Rate), serta evaluasi kepatuhan terhadap catatan memori & goal keluarga. Sertakan angka nominal Rupiah konkret dan persentase tepat.
+2. "health": Pilih satu kata kunci berdasarkan indikator kuantitatif obyektif: "sehat" (surplus konsisten & savings rate >=15%), "waspada" (savings rate tipis <15% atau overbudget di 2+ kategori utama), atau "boncos" (defisit cashflow / pengeluaran melebihi pemasukan).
+3. "insights": Daftar 4-6 temuan analitis teknis & mendalam (anomali pengeluaran, kebocoran kategori spesifik, rasio lonjakan dibanding periode sebelumnya, efisiensi event, atau kesesuaian dengan memori keluarga). Tiap item {title, detail, severity: "good"|"warning"|"danger"}. Sertakan persentase varians, nominal Rupiah eksak, dan akar penyebab transaksi.
+4. "action_now": 3-5 langkah aksi taktis terukur (disertai estimasi potensi penghematan dalam Rupiah & target penghentian kebocoran) yang harus segera dieksekusi periode ini (array of string).
+5. "suggested_budgets": Usulan anggaran terukur & realistis untuk periode DEPAN (${ctx.nextPeriodTitle}) per kategori. Tiap item {category_id, category_name, amount (integer Rupiah), reason (alasan teknis berbasis histori 3 periode, varians, & alokasi surplus tabungan)}.
+6. "goal_advice": Analisis rasio kecepatan tabungan (Goal Velocity) per goal aktif terhadap target date & sisa nominal. Tiap item {goal_name, advice}. Sebutkan estimasi bulan ketercapaian aktual berdasarkan laju simpanan saat ini. Jika belum ada goal, kosongkan array.
 
-PRINSIP AUDIT: Sebut nominal Rupiah konkret. Jangan teori umum. JANGAN PAKAI TABEL MARKDOWN (tampil di HP, pakai bullet/paragraf).
+PRINSIP AUDIT:
+- WAJIB sebutkan nominal Rupiah eksak dan rasio persentase. Hindari nasihat umum/platitud normatif.
+- Integrasikan fakta dari MEMORI KELUARGA ke dalam diagnosa jika relevan (misal: janji hemat, rencana liburan, atau tanggungan tertentu).
+- JANGAN GUNAKAN TABEL MARKDOWN. Gunakan bullet/paragraf berbobot.
 
 Output JSON dengan field persis: summary, health, insights (array), action_now (array of string), suggested_budgets (array), goal_advice (array).`;
 
@@ -86,7 +91,7 @@ Output JSON dengan field persis: summary, health, insights (array), action_now (
           {
             role: "system",
             content:
-              "Kamu adalah Chief Financial Officer (CFO) & Senior Certified Financial Planner (CFP) Keluarga. Analisis data finansial keluarga ini secara tajam, jujur, realistis, dan berbobot berbasis indikator keuangan profesional (Savings Rate, Burn Rate, Overbudget ratio, dan Goal Feasibility). Output SELALU dalam format JSON sesuai instruksi.",
+              "Kamu adalah Chief Financial Officer (CFO) & Senior Certified Financial Planner (CFP) spesialis keuangan keluarga. Berikan audit finansial kuantitatif yang sangat mendalam, teknis, berbasis data faktual (Savings Rate, Burn Rate, Category Variance, Event Impact, dan Memory Context Alignment). Output SELALU berupa JSON valid sesuai skema.",
           },
           { role: "user", content: prompt },
         ],
