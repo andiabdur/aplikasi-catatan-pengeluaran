@@ -34,7 +34,7 @@ export default async function DashboardPage() {
   const initialLabel = labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods));
 
   return (
-    <PageShell title={`Hai, ${displayName} 👋`} subtitle="Ringkasan periode gajian">
+    <PageShell title={`Hai, ${displayName}`} subtitle="Ringkasan periode gajian">
       <DashboardClient
         householdId={householdId ?? ""}
         payDay={payDay}

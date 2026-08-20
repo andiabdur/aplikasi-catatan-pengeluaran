@@ -236,60 +236,60 @@ export function FloatingActions({ householdId }: { householdId?: string }) {
 
       {/* ── Voice result toast ── */}
       {showVoiceResult && (
-        <div className="fixed bottom-32 inset-x-4 z-50 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <div className="flex items-center justify-between px-3 pt-3 pb-2">
-            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-              {voiceExpenses.length > 0 ? `${voiceExpenses.length} pengeluaran tersimpan` : "Tidak terdeteksi"}
+        <div className="fixed bottom-32 inset-x-4 z-50 neo-card-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden p-3.5 space-y-2">
+          <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-slate-800">
+            <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
+              {voiceExpenses.length > 0 ? `${voiceExpenses.length} Pengeluaran Tersimpan` : "Tidak Terdeteksi"}
             </p>
-            <button onClick={() => { setShowVoiceResult(false); setVoiceExpenses([]); setVoiceError(null); setVoiceTranscript(null); }} className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <button onClick={() => { setShowVoiceResult(false); setVoiceExpenses([]); setVoiceError(null); setVoiceTranscript(null); }} className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
               <X className="w-4 h-4" />
             </button>
           </div>
           {voiceTranscript && voiceExpenses.length === 0 && (
-            <p className="px-3 pb-2 text-xs text-slate-500 dark:text-slate-400 italic">&ldquo;{voiceTranscript}&rdquo;</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 italic font-mono">&ldquo;{voiceTranscript}&rdquo;</p>
           )}
           {voiceExpenses.map((s, i) => (
-            <div key={s.id ?? i} className="mx-3 mb-2 flex items-start gap-2 bg-green-50 dark:bg-green-900/20 rounded-xl px-2.5 py-2">
-              <Check className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+            <div key={s.id ?? i} className="flex items-start gap-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2.5">
+              <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">{s.description}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{formatIDR(s.amount)}{s.categoryName ? ` · ${s.categoryName}` : ""}</p>
-                {s.items.length > 1 && <p className="text-[11px] text-slate-400 leading-snug mt-0.5">{s.items.map((it) => `${it.name} ${formatIDR(it.price)}`).join(" + ")}</p>}
+                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">{s.description}</p>
+                <p className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">{formatIDR(s.amount)}{s.categoryName ? ` · ${s.categoryName}` : ""}</p>
+                {s.items.length > 1 && <p className="text-[10px] font-mono text-slate-400 leading-snug mt-0.5">{s.items.map((it) => `${it.name} ${formatIDR(it.price)}`).join(" + ")}</p>}
               </div>
-              <button onClick={() => undoVoice(s.id)} className="text-xs font-medium text-red-500 hover:text-red-600 shrink-0">Batalkan</button>
+              <button onClick={() => undoVoice(s.id)} className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline shrink-0">Batalkan</button>
             </div>
           ))}
-          {voiceError && <p className="px-3 pb-3 text-xs text-red-600 dark:text-red-400">{voiceError}</p>}
+          {voiceError && <p className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 p-2 rounded-xl border border-rose-200 dark:border-rose-800">{voiceError}</p>}
         </div>
       )}
 
       {/* ── Receipt result toast ── */}
       {showReceiptResult && (
-        <div className="fixed bottom-32 inset-x-4 z-50 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <div className="flex items-center justify-between px-3 pt-3 pb-2">
+        <div className="fixed bottom-32 inset-x-4 z-50 neo-card-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden p-3.5 space-y-2">
+          <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2">
-              {preview && <img src={preview} alt="struk" className="w-8 h-8 rounded-lg object-cover border border-slate-200 dark:border-slate-600" />}
+              {preview && <img src={preview} alt="struk" className="w-8 h-8 rounded-lg object-cover border border-slate-200 dark:border-slate-700" />}
               <div>
-                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-                  {receiptExpenses.length > 0 ? `${receiptExpenses.length} pengeluaran tersimpan` : "Tidak terdeteksi"}
+                <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  {receiptExpenses.length > 0 ? `${receiptExpenses.length} Pengeluaran Tersimpan` : "Tidak Terdeteksi"}
                 </p>
-                {merchant && <p className="text-[11px] text-slate-400">{merchant}</p>}
+                {merchant && <p className="text-[10px] font-mono text-slate-400">{merchant}</p>}
               </div>
             </div>
-            <button onClick={() => { setShowReceiptResult(false); setReceiptExpenses([]); setReceiptError(null); setPreview(null); setMerchant(""); }} className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <button onClick={() => { setShowReceiptResult(false); setReceiptExpenses([]); setReceiptError(null); setPreview(null); setMerchant(""); }} className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="px-3 pb-3 space-y-1.5">
+          <div className="space-y-1.5">
             {receiptExpenses.map((s, i) => (
-              <div key={s.id ?? i} className="flex items-start gap-2 bg-green-50 dark:bg-green-900/20 rounded-xl px-2.5 py-2">
-                <Check className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+              <div key={s.id ?? i} className="flex items-start gap-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2.5">
+                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">{s.description}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{formatIDR(s.amount)} · {s.categoryName}</p>
-                  {s.items.length > 1 && <p className="text-[11px] text-slate-400 leading-snug mt-0.5">{s.items.map((it) => `${it.name} ${formatIDR(it.price)}`).join(" + ")}</p>}
+                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">{s.description}</p>
+                  <p className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400">{formatIDR(s.amount)} · {s.categoryName}</p>
+                  {s.items.length > 1 && <p className="text-[10px] font-mono text-slate-400 leading-snug mt-0.5">{s.items.map((it) => `${it.name} ${formatIDR(it.price)}`).join(" + ")}</p>}
                 </div>
-                <button onClick={() => undoReceipt(s.id)} className="p-1 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition shrink-0">
+                <button onClick={() => undoReceipt(s.id)} className="p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition shrink-0">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -321,16 +321,16 @@ export function FloatingActions({ householdId }: { householdId?: string }) {
           disabled={voiceState === "processing"}
           aria-label={voiceState === "recording" ? "Stop rekam" : "Rekam pengeluaran dengan suara"}
           style={{ bottom: "9.5rem", right: "1rem", transitionDelay: fabOpen ? "60ms" : "0ms" }}
-          className={`fixed z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 active:scale-95 disabled:opacity-70 ${
+          className={`fixed z-40 w-12 h-12 rounded-xl flex items-center justify-center border border-slate-950 dark:border-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none disabled:opacity-70 ${
             fabOpen || voiceState !== "idle"
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 translate-y-4 pointer-events-none"
           } ${
             voiceState === "recording"
-              ? "bg-red-500 shadow-red-500/40 animate-pulse"
+              ? "bg-rose-500 text-white animate-pulse"
               : voiceState === "processing"
-              ? "bg-slate-500 shadow-slate-500/30 dark:bg-slate-600"
-              : "bg-slate-700 shadow-slate-700/30 dark:bg-slate-600"
+              ? "bg-slate-700 text-white"
+              : "bg-slate-800 text-white dark:bg-slate-700"
           }`}
         >
           {voiceState === "processing" ? (
@@ -350,14 +350,14 @@ export function FloatingActions({ householdId }: { householdId?: string }) {
           disabled={receiptState === "processing"}
           aria-label="Foto struk pengeluaran"
           style={{ bottom: "13.5rem", right: "1rem", transitionDelay: fabOpen ? "30ms" : "0ms" }}
-          className={`fixed z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 active:scale-95 disabled:opacity-70 ${
+          className={`fixed z-40 w-12 h-12 rounded-xl flex items-center justify-center border border-slate-950 dark:border-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none disabled:opacity-70 ${
             fabOpen || receiptState !== "idle"
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 translate-y-4 pointer-events-none"
           } ${
             receiptState === "processing"
-              ? "bg-amber-500 shadow-amber-500/40"
-              : "bg-slate-600 shadow-slate-600/30 dark:bg-slate-500"
+              ? "bg-amber-500 text-white"
+              : "bg-slate-700 text-white dark:bg-slate-600"
           }`}
         >
           {receiptState === "processing" ? (
@@ -374,7 +374,7 @@ export function FloatingActions({ householdId }: { householdId?: string }) {
           onClick={() => { setChatOpen(true); setFabOpen(false); }}
           aria-label="Chat dengan asisten keuangan"
           style={{ bottom: "17.5rem", right: "1rem", transitionDelay: fabOpen ? "0ms" : "0ms" }}
-          className={`fixed z-40 w-12 h-12 rounded-full bg-brand-600 text-white shadow-lg shadow-brand-600/40 flex items-center justify-center active:scale-95 transition-all duration-200 ${
+          className={`fixed z-40 w-12 h-12 rounded-xl bg-brand-500 text-slate-950 border border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all duration-200 ${
             fabOpen
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 translate-y-4 pointer-events-none"
@@ -388,21 +388,21 @@ export function FloatingActions({ householdId }: { householdId?: string }) {
       {fabOpen && !isAdd && (
         <>
           <span
-            style={{ bottom: "10.9rem", right: "5rem" }}
-            className="fixed z-40 bg-slate-900/80 dark:bg-slate-700 text-white text-[11px] font-medium px-2.5 py-1 rounded-full pointer-events-none shadow-md backdrop-blur-sm"
+            style={{ bottom: "10.6rem", right: "4.75rem" }}
+            className="fixed z-40 bg-slate-900 border border-slate-800 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg pointer-events-none shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)]"
           >
-            {voiceState === "recording" ? "Tap stop" : "Suara"}
+            {voiceState === "recording" ? "Tap Stop" : "Suara"}
           </span>
           <span
-            style={{ bottom: "14.9rem", right: "5rem" }}
-            className="fixed z-40 bg-slate-900/80 dark:bg-slate-700 text-white text-[11px] font-medium px-2.5 py-1 rounded-full pointer-events-none shadow-md backdrop-blur-sm"
+            style={{ bottom: "14.6rem", right: "4.75rem" }}
+            className="fixed z-40 bg-slate-900 border border-slate-800 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg pointer-events-none shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)]"
           >
             Foto Struk
           </span>
           {!isAsisten && householdId && (
             <span
-              style={{ bottom: "18.9rem", right: "5rem" }}
-              className="fixed z-40 bg-slate-900/80 dark:bg-slate-700 text-white text-[11px] font-medium px-2.5 py-1 rounded-full pointer-events-none shadow-md backdrop-blur-sm"
+              style={{ bottom: "18.6rem", right: "4.75rem" }}
+              className="fixed z-40 bg-slate-900 border border-slate-800 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg pointer-events-none shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)]"
             >
               AI Chat
             </span>
@@ -418,22 +418,22 @@ export function FloatingActions({ householdId }: { householdId?: string }) {
             setFabOpen((v) => !v);
           }}
           aria-label={fabOpen ? "Tutup menu" : "Buka menu aksi cepat"}
-          className={`fixed bottom-[5.5rem] right-4 z-40 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 active:scale-95 ${
+          className={`fixed bottom-[5.5rem] right-4 z-40 w-13 h-13 rounded-2xl flex items-center justify-center border border-slate-950 dark:border-slate-800 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none ${
             fabOpen
-              ? "bg-slate-800 dark:bg-slate-600 shadow-slate-900/40 rotate-45"
+              ? "bg-slate-900 text-white dark:bg-slate-800"
               : isBusy
               ? voiceState === "recording"
-                ? "bg-red-500 shadow-red-500/40 animate-pulse"
-                : "bg-amber-500 shadow-amber-500/40"
-              : "bg-brand-600 shadow-brand-600/40"
+                ? "bg-rose-500 text-white animate-pulse"
+                : "bg-amber-500 text-white"
+              : "bg-brand-500 text-slate-950"
           }`}
         >
           {voiceState === "recording" ? (
-            <MicOff className="w-6 h-6 text-white" />
+            <MicOff className="w-6 h-6" />
           ) : voiceState === "processing" || receiptState === "processing" ? (
-            <Loader2 className="w-6 h-6 text-white animate-spin" />
+            <Loader2 className="w-6 h-6 animate-spin" />
           ) : (
-            <Plus className={`w-6 h-6 text-white transition-transform duration-300 ${fabOpen ? "rotate-45" : ""}`} />
+            <Plus className={`w-6 h-6 transition-transform duration-300 ${fabOpen ? "rotate-45" : ""}`} />
           )}
         </button>
       )}
@@ -441,7 +441,7 @@ export function FloatingActions({ householdId }: { householdId?: string }) {
       {/* ── Backdrop to close FAB ── */}
       {fabOpen && (
         <div
-          className="fixed inset-0 z-30"
+          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-[2px]"
           onClick={() => setFabOpen(false)}
         />
       )}
@@ -451,32 +451,32 @@ export function FloatingActions({ householdId }: { householdId?: string }) {
         <>
           {chatOpen && (
             <div
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
               onClick={() => setChatOpen(false)}
             />
           )}
           <div
-            className={`fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-slate-900 rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out ${
+            className={`fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-slate-900 rounded-t-2xl border-t-2 border-slate-950 dark:border-slate-700 shadow-2xl transition-transform duration-300 ease-out ${
               chatOpen ? "translate-y-0" : "translate-y-full"
             }`}
             style={{ maxHeight: "85dvh" }}
           >
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
             </div>
-            <div className="flex items-center justify-between px-4 pt-2 pb-3 border-b border-slate-100 dark:border-slate-700">
+            <div className="flex items-center justify-between px-4 pt-2 pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-brand-500/10 border border-brand-500/30 text-brand-600 dark:text-brand-400 flex items-center justify-center">
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm">Asisten Keuangan</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">AI · data keuangan real-time</p>
+                  <p className="font-bold text-slate-900 dark:text-slate-100 text-sm">Asisten Keuangan</p>
+                  <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500">AI · Live Financial Data</p>
                 </div>
               </div>
               <button
                 onClick={() => setChatOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               >
                 <X className="w-5 h-5" />
               </button>

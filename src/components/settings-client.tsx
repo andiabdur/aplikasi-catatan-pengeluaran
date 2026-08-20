@@ -272,35 +272,35 @@ export function SettingsClient({
   return (
     <div className="space-y-4">
       <section>
-        <Link href="/events" className="card flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-           <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                <Tent className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">Kelola Event / Perjalanan</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Grup pengeluaran untuk liburan dsb.
-                </p>
-              </div>
-           </div>
-           <p className="text-slate-400 text-lg">›</p>
+        <Link href="/events" className="neo-card p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/80 transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+              <Tent className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Kelola Event / Perjalanan</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Grup pengeluaran untuk liburan, renovasi, dsb.
+              </p>
+            </div>
+          </div>
+          <p className="text-slate-400 font-bold text-lg">›</p>
         </Link>
       </section>
 
       {/* Pay day setting */}
       <section>
-        <div className="card flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center">
+        <div className="neo-card p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 flex items-center justify-center">
             <CalendarCog className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium">Pay Day (tanggal gajian)</p>
+            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Pay Day (Tanggal Gajian)</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Periode dihitung dari tanggal ini setiap bulan
             </p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <input
               type="number"
               min={1}
@@ -310,7 +310,7 @@ export function SettingsClient({
                 const v = Number(e.target.value);
                 if (v !== payDay) savePayDay(v);
               }}
-              className="w-16 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground rounded-lg px-2 py-1.5 text-center text-sm font-semibold"
+              className="w-16 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl px-2 py-2 text-center text-sm font-mono font-bold focus:outline-none focus:border-brand-500"
             />
             {savingKey === "pd" && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
           </div>
@@ -318,7 +318,7 @@ export function SettingsClient({
       </section>
 
       {/* Period selector */}
-      <div className="card space-y-4">
+      <div className="neo-card p-4 space-y-4">
         <PeriodSelector
           labelMonth={labelMonth}
           payDay={payDay}
@@ -328,7 +328,7 @@ export function SettingsClient({
         {labelMonthKey(labelMonth) !== labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods)) && (
           <button
             onClick={() => setLabelMonth(currentPeriodLabelWithCustom(payDay, customPeriods))}
-            className="mt-2 text-xs text-brand-600 dark:text-brand-400 w-full text-center"
+            className="mt-2 text-xs font-semibold text-brand-600 dark:text-brand-400 w-full text-center hover:underline"
           >
             Ke periode sekarang
           </button>
@@ -343,18 +343,17 @@ export function SettingsClient({
         />
       </div>
 
-
       {/* Income */}
       <section>
         <div className="flex items-center justify-between mb-2 px-1">
-          <h2 className="font-semibold">Income</h2>
-          <button onClick={addIncome} className="text-xs text-brand-600 dark:text-brand-400 flex items-center gap-1">
-            <Plus className="w-3 h-3" /> Tambah
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Income / Pemasukan</h2>
+          <button onClick={addIncome} className="text-xs font-bold text-brand-600 dark:text-brand-400 flex items-center gap-1 hover:underline">
+            <Plus className="w-3.5 h-3.5" /> Tambah
           </button>
         </div>
-        <div className="card divide-y divide-slate-100 dark:divide-slate-700 p-0">
+        <div className="neo-card divide-y divide-slate-100 dark:divide-slate-800/80 p-0 overflow-hidden">
           {incomes.length === 0 && (
-            <p className="p-4 text-sm text-slate-500 dark:text-slate-400">Belum ada income di periode ini.</p>
+            <p className="p-4 text-xs font-medium text-slate-500 dark:text-slate-400">Belum ada income di periode ini.</p>
           )}
           {incomes.map((inc) => (
             <IncomeRow
@@ -368,7 +367,7 @@ export function SettingsClient({
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 px-1">
           Total income:{" "}
-          <span className="font-semibold text-slate-700 dark:text-slate-200">
+          <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
             {formatIDR(incomes.reduce((s, i) => s + Number(i.amount), 0))}
           </span>
         </p>
@@ -377,22 +376,22 @@ export function SettingsClient({
       {/* Categories & budgets */}
       <section>
         <div className="flex items-center justify-between mb-2 px-1">
-          <h2 className="font-semibold">Kategori & Budget</h2>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Kategori &amp; Budget</h2>
           <div className="flex items-center gap-3">
             <button
               onClick={copyBudgetsFromPrevPeriod}
-              className="text-xs text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
+              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
               title="Copy budget dari periode sebelumnya"
             >
               Copy prev
             </button>
-            <button onClick={addCategory} className="text-xs text-brand-600 dark:text-brand-400 flex items-center gap-1">
-              <Plus className="w-3 h-3" /> Tambah
+            <button onClick={addCategory} className="text-xs font-bold text-brand-600 dark:text-brand-400 flex items-center gap-1 hover:underline">
+              <Plus className="w-3.5 h-3.5" /> Tambah
             </button>
           </div>
         </div>
 
-        {/* Budget spent summary pills — hanya muncul kalau ada minimal 1 budget yang di-set */}
+        {/* Budget spent summary pills */}
         {budgets.some((b) => b.amount > 0) && (() => {
           const totalSpent = summary.reduce((s, r) => s + Number(r.spent), 0);
           const totalBudget = budgets.reduce((s, b) => s + Number(b.amount), 0);
@@ -401,26 +400,26 @@ export function SettingsClient({
           const vsIncome = totalIncome - totalBudget;
           return (
             <>
-              <div className="flex gap-2 mb-2">
-                <div className="flex-1 rounded-xl px-3 py-2.5 bg-red-50 dark:bg-red-500/10">
-                  <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 uppercase tracking-wide mb-0.5">Terpakai</p>
-                  <p className="text-sm font-bold text-red-600 dark:text-red-400">{formatIDR(totalSpent)}</p>
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                <div className="neo-card p-2.5 bg-rose-500/10 border-rose-500/20">
+                  <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5">Terpakai</p>
+                  <p className="text-xs sm:text-sm font-mono font-bold text-rose-600 dark:text-rose-400 truncate">{formatIDR(totalSpent)}</p>
                 </div>
-                <div className={`flex-1 rounded-xl px-3 py-2.5 ${sisa >= 0 ? "bg-green-50 dark:bg-green-500/10" : "bg-red-50 dark:bg-red-500/10"}`}>
-                  <p className={`text-[10px] font-semibold uppercase tracking-wide mb-0.5 ${sisa >= 0 ? "text-green-500 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>Sisa Budget</p>
-                  <p className={`text-sm font-bold ${sisa >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>{formatIDR(sisa)}</p>
+                <div className={`neo-card p-2.5 ${sisa >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"}`}>
+                  <p className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${sisa >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>Sisa Budget</p>
+                  <p className={`text-xs sm:text-sm font-mono font-bold truncate ${sisa >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>{formatIDR(sisa)}</p>
                 </div>
-                <div className="flex-1 rounded-xl px-3 py-2.5 bg-blue-50 dark:bg-blue-500/10">
-                  <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wide mb-0.5">Total Budget</p>
-                  <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatIDR(totalBudget)}</p>
+                <div className="neo-card p-2.5 bg-blue-500/10 border-blue-500/20">
+                  <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-0.5">Total Budget</p>
+                  <p className="text-xs sm:text-sm font-mono font-bold text-blue-600 dark:text-blue-400 truncate">{formatIDR(totalBudget)}</p>
                 </div>
               </div>
               {totalIncome > 0 && (
-                <div className={`flex items-center justify-between rounded-xl px-3 py-2 mb-3 text-xs ${vsIncome >= 0 ? "bg-green-50 dark:bg-green-500/10" : "bg-red-50 dark:bg-red-500/10"}`}>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Budget vs Income <span className="font-medium text-slate-600 dark:text-slate-300">({formatIDR(totalIncome)})</span>
+                <div className={`neo-card p-2.5 mb-3 flex items-center justify-between text-xs ${vsIncome >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"}`}>
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">
+                    Budget vs Income <span className="font-mono font-bold">({formatIDR(totalIncome)})</span>
                   </span>
-                  <span className={`font-bold ${vsIncome >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                  <span className={`font-mono font-bold ${vsIncome >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
                     {vsIncome >= 0 ? `Surplus ${formatIDR(vsIncome)}` : `Defisit ${formatIDR(Math.abs(vsIncome))}`}
                   </span>
                 </div>
@@ -429,7 +428,7 @@ export function SettingsClient({
           );
         })()}
 
-        <div className="card divide-y divide-slate-100 dark:divide-slate-700 p-0">
+        <div className="neo-card divide-y divide-slate-100 dark:divide-slate-800/80 p-0 overflow-hidden">
           {cats.map((c) => (
             <CategoryRow
               key={c.id + labelKey}
@@ -445,12 +444,12 @@ export function SettingsClient({
 
       {/* Account */}
       <section>
-        <div className="card flex items-center justify-between">
+        <div className="neo-card p-4 flex items-center justify-between">
           <div className="min-w-0">
-            <p className="text-xs text-slate-500 dark:text-slate-400">Masuk sebagai</p>
-            <p className="font-medium truncate text-sm">{email}</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Masuk Sebagai</p>
+            <p className="font-semibold truncate text-sm text-slate-900 dark:text-slate-100 mt-0.5">{email}</p>
           </div>
-          <button onClick={logout} className="btn-ghost text-sm">
+          <button onClick={logout} className="btn-ghost text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
             <LogOut className="w-4 h-4" /> Keluar
           </button>
         </div>
@@ -480,10 +479,10 @@ function IncomeRow({
     }
   }, [income.amount]);
   return (
-    <div className="flex items-center gap-2 p-3">
-      <span className="text-sm font-medium flex-1 truncate">{income.source}</span>
+    <div className="flex items-center gap-3 p-3.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex-1 truncate">{income.source}</span>
       <div className="relative w-36">
-        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-brand-600 dark:text-brand-400">
           Rp
         </span>
         <input
@@ -496,12 +495,12 @@ function IncomeRow({
             isFocused.current = false;
             onChange(parseIDRInput(text));
           }}
-          className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
+          className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl pl-8 pr-2.5 py-1.5 text-xs font-mono font-bold text-right focus:outline-none focus:border-brand-500"
           placeholder="0"
         />
       </div>
       {saving && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
-      <button onClick={onDelete} className="p-1.5 text-slate-300 dark:text-slate-600 hover:text-red-500">
+      <button onClick={onDelete} className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
         <Trash2 className="w-4 h-4" />
       </button>
     </div>
@@ -530,14 +529,19 @@ function CategoryRow({
   }, [budget]);
   const Icon = getCategoryIcon(category.name);
   return (
-    <div className="flex items-center gap-2 p-3">
-      <Icon
-        className="w-4 h-4 shrink-0"
-        style={{ color: category.color ?? "#94a3b8" }}
-      />
-      <span className="text-sm font-medium flex-1 truncate">{category.name}</span>
+    <div className="flex items-center gap-3 p-3.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+      <div
+        className="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-800 shrink-0"
+        style={{ backgroundColor: `${category.color ?? "#94a3b8"}15` }}
+      >
+        <Icon
+          className="w-4 h-4 shrink-0"
+          style={{ color: category.color ?? "#94a3b8" }}
+        />
+      </div>
+      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex-1 truncate">{category.name}</span>
       <div className="relative w-36">
-        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-brand-600 dark:text-brand-400">
           Rp
         </span>
         <input
@@ -550,12 +554,12 @@ function CategoryRow({
             isFocused.current = false;
             onBudgetChange(parseIDRInput(text));
           }}
-          className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground rounded-lg pl-7 pr-2 py-1.5 text-sm text-right"
+          className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl pl-8 pr-2.5 py-1.5 text-xs font-mono font-bold text-right focus:outline-none focus:border-brand-500"
           placeholder="0"
         />
       </div>
       {saving && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
-      <button onClick={onDelete} className="p-1.5 text-slate-300 dark:text-slate-600 hover:text-red-500">
+      <button onClick={onDelete} className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
         <Trash2 className="w-4 h-4" />
       </button>
     </div>
@@ -589,21 +593,21 @@ function CustomPeriodEditor({
 
   if (!isEditing) {
     return (
-      <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-3">
+      <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3">
         <span className="text-xs text-slate-500 dark:text-slate-400">
           {range.isCustom ? (
-            <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded">
+            <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-lg">
               Custom Range
             </span>
           ) : (
-            <span className="text-slate-400">Tanggal default</span>
+            <span className="text-slate-400 font-mono">Rentang default</span>
           )}
         </span>
         <div className="flex items-center gap-2">
           {range.isCustom && (
             <button
               onClick={onReset}
-              className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition"
+              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               disabled={saving}
             >
               <RotateCcw className="w-3 h-3" /> Reset
@@ -611,7 +615,7 @@ function CustomPeriodEditor({
           )}
           <button
             onClick={() => setIsEditing(true)}
-            className="text-xs text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-400 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-brand-50 dark:hover:bg-brand-500/10 transition font-medium"
+            className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-brand-500/10 border border-brand-500/20 transition"
             disabled={saving}
           >
             <Edit3 className="w-3 h-3" /> Ubah Range
@@ -622,32 +626,32 @@ function CustomPeriodEditor({
   }
 
   return (
-    <div className="border-t border-slate-100 dark:border-slate-700 pt-3 space-y-3">
-      <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Custom Rentang Tanggal</p>
+    <div className="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-3">
+      <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Custom Rentang Tanggal</p>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-[10px] text-slate-500 dark:text-slate-400 block mb-0.5">Mulai</label>
+          <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1 uppercase">Mulai</label>
           <input
             type="date"
             value={start}
             onChange={(e) => setStart(e.target.value)}
-            className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
+            className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl px-2.5 py-2 text-xs font-mono font-bold focus:outline-none focus:border-brand-500"
           />
         </div>
         <div>
-          <label className="text-[10px] text-slate-500 dark:text-slate-400 block mb-0.5">Selesai</label>
+          <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1 uppercase">Selesai</label>
           <input
             type="date"
             value={end}
             onChange={(e) => setEnd(e.target.value)}
-            className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-500"
+            className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl px-2.5 py-2 text-xs font-mono font-bold focus:outline-none focus:border-brand-500"
           />
         </div>
       </div>
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 justify-end pt-1">
         <button
           onClick={() => setIsEditing(false)}
-          className="text-xs text-slate-500 dark:text-slate-400 px-3 py-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition"
+          className="text-xs font-bold text-slate-500 dark:text-slate-400 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           disabled={saving}
         >
           Batal
@@ -657,7 +661,7 @@ function CustomPeriodEditor({
             await onSave(start, end);
             setIsEditing(false);
           }}
-          className="text-xs font-semibold bg-brand-600 text-white px-3 py-1.5 rounded-lg hover:bg-brand-700 flex items-center gap-1.5 shadow-sm transition"
+          className="btn-primary text-xs font-bold px-4 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm"
           disabled={saving}
         >
           {saving ? "Menyimpan..." : "Simpan"}

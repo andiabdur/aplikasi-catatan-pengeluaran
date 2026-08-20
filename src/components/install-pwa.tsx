@@ -87,56 +87,56 @@ export default function InstallPWA() {
       <button
         type="button"
         onClick={handleClick}
-        className="w-full flex items-center justify-center gap-2 rounded-xl border border-brand-200 dark:border-brand-500/30 bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-400 font-medium py-2.5 text-sm shadow-sm active:scale-[0.99] transition"
+        className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm shadow-sm flex items-center justify-center gap-2"
       >
         <Download className="w-4 h-4" />
-        Install aplikasi di HP
+        Install Aplikasi di HP
       </button>
 
       {showIOS && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4"
           onClick={() => setShowIOS(false)}
         >
           <div
-            className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-xl"
+            className="w-full max-w-sm neo-card-lg bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-2xl space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-slate-900 dark:text-slate-100">Install di iPhone/iPad</h2>
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <h2 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Install di iPhone / iPad</h2>
               <button
                 type="button"
                 onClick={() => setShowIOS(false)}
-                className="text-slate-400 p-1"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
                 aria-label="Tutup"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <ol className="space-y-3 text-sm text-slate-700 dark:text-slate-200">
-              <li className="flex items-start gap-2">
-                <span className="font-semibold text-brand-600 dark:text-brand-400">1.</span>
-                <span className="flex items-center gap-1 flex-wrap">
-                  Tap tombol <Share className="inline w-4 h-4 text-blue-500" />{" "}
-                  <b>Share</b> di bawah layar Safari.
+            <ol className="space-y-3 text-xs text-slate-700 dark:text-slate-200">
+              <li className="flex items-start gap-2.5">
+                <span className="font-mono font-bold text-brand-600 dark:text-brand-400 bg-brand-500/10 w-5 h-5 rounded-full flex items-center justify-center shrink-0">1</span>
+                <span className="flex items-center gap-1 flex-wrap pt-0.5">
+                  Tap tombol <Share className="inline w-3.5 h-3.5 text-blue-500" />{" "}
+                  <b>Share</b> di menu bawah Safari.
                 </span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="font-semibold text-brand-600 dark:text-brand-400">2.</span>
-                <span className="flex items-center gap-1 flex-wrap">
+              <li className="flex items-start gap-2.5">
+                <span className="font-mono font-bold text-brand-600 dark:text-brand-400 bg-brand-500/10 w-5 h-5 rounded-full flex items-center justify-center shrink-0">2</span>
+                <span className="flex items-center gap-1 flex-wrap pt-0.5">
                   Pilih <b>Add to Home Screen</b>{" "}
-                  <Plus className="inline w-4 h-4 text-slate-500 dark:text-slate-400" />.
+                  <Plus className="inline w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />.
                 </span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="font-semibold text-brand-600 dark:text-brand-400">3.</span>
-                <span>
-                  Tap <b>Add</b>. Aplikasi muncul di layar utama seperti app biasa.
+              <li className="flex items-start gap-2.5">
+                <span className="font-mono font-bold text-brand-600 dark:text-brand-400 bg-brand-500/10 w-5 h-5 rounded-full flex items-center justify-center shrink-0">3</span>
+                <span className="pt-0.5">
+                  Tap <b>Add</b>. Aplikasi siap dibuka seperti app native.
                 </span>
               </li>
             </ol>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-4">
-              Catatan: harus dibuka di <b>Safari</b> (bukan Chrome) supaya menu ini muncul.
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800">
+              Wajib dibuka di browser <b>Safari</b> di iOS.
             </p>
           </div>
         </div>
