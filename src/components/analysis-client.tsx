@@ -264,162 +264,181 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
   return (
     <div className="space-y-4 pb-20">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Link href="/" className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
-          <ArrowLeft className="w-5 h-5 text-slate-500" />
+      <div className="flex items-center gap-3">
+        <Link href="/" className="p-2 neo-card hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-700 dark:text-slate-200" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold flex items-center gap-1.5 leading-none">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             Analisis Pengeluaran
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Visualisasi area interaktif pengeluaran berkala Anda.
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Visualisasi tren temporal & alokasi belanja keluarga
           </p>
         </div>
       </div>
 
       {/* Date Range Selector Card */}
-      <Card className="shadow-none">
-        <CardContent className="p-3.5 sm:p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5" /> Rentang Analisis Tanggal
-            </span>
-          </div>
+      <div className="neo-card p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5" /> Rentang Waktu
+          </span>
+        </div>
 
-          {/* Preset Buttons - Responsive Grid */}
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
-            {[
-              { label: "7 Hari", value: "7d" },
-              { label: "30 Hari", value: "30d" },
-              { label: "3 Bulan", value: "3m" },
-              { label: "6 Bulan", value: "6m" },
-              { label: "Custom", value: "custom" },
-            ].map((opt) => (
-              <Button
-                key={opt.value}
-                size="sm"
-                variant={range === opt.value ? "default" : "outline"}
-                className="w-full text-xs font-medium rounded-lg px-2 py-1 h-8 truncate"
-                onClick={() => {
-                  if (opt.value === "custom") {
-                    setRange("custom");
-                  } else {
-                    selectPresetRange(opt.value as any);
-                  }
-                }}
-              >
-                {opt.label}
-              </Button>
-            ))}
-          </div>
+        {/* Preset Buttons - Neo Chips */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          {[
+            { label: "7 Hari", value: "7d" },
+            { label: "30 Hari", value: "30d" },
+            { label: "3 Bulan", value: "3m" },
+            { label: "6 Bulan", value: "6m" },
+            { label: "Kustom", value: "custom" },
+          ].map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={cn(
+                "neo-button font-bold text-xs px-4 py-2 rounded-full whitespace-nowrap transition-all",
+                range === opt.value
+                  ? "bg-brand-500 text-slate-950 border-brand-500 shadow-sm"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700",
+              )}
+              onClick={() => {
+                if (opt.value === "custom") {
+                  setRange("custom");
+                } else {
+                  selectPresetRange(opt.value as any);
+                }
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
 
-          {/* Custom Date Pickers */}
-          {range === "custom" && (
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div>
-                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
-                  Dari Tanggal
-                </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="input text-xs py-1.5 w-full"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
-                  Sampai Tanggal
-                </label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="input text-xs py-1.5 w-full"
-                />
-              </div>
+        {/* Custom Date Pickers */}
+        {range === "custom" && (
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
+                Dari Tanggal
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100"
+              />
             </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Financial Summary Information Cards - Mobile-First Responsive Layout */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-        {/* Card 1: Total Pengeluaran */}
-        <div className="bg-gradient-to-br from-slate-900 to-slate-950 dark:from-slate-900 dark:to-slate-950 text-white rounded-xl p-2.5 sm:p-3.5 shadow-sm border border-slate-800 flex flex-col justify-between min-w-0">
-          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-400 min-w-0">
-            <Wallet className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-400 shrink-0" />
-            <span className="truncate">Total Pengeluaran</span>
+            <div>
+              <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
+                Sampai Tanggal
+              </label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100"
+              />
+            </div>
           </div>
-          <div className="my-1">
-            <p className="text-[11px] xs:text-xs sm:text-sm md:text-base font-extrabold tracking-tight text-brand-400 leading-tight break-words">
+        )}
+      </div>
+
+      {/* 2x2 Grid Stats (Stitch Neo-Brutalist Layout) */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Card 1: Total Spent */}
+        <div className="neo-card bg-slate-950 text-white dark:bg-slate-900 border-2 border-slate-800 p-4 flex flex-col justify-between h-28">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider">Total Spent</span>
+            <Wallet className="w-3.5 h-3.5 text-brand-400" />
+          </div>
+          <div>
+            <p className="font-mono text-lg font-bold text-brand-400 truncate">
               {formatIDR(totalSpent)}
             </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">{daysDiff} hari rentang</p>
           </div>
-          <p className="text-[9px] sm:text-[10px] text-slate-400">{daysDiff} hari rentang</p>
         </div>
 
-        {/* Card 2: Rata-Rata / Hari */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 sm:p-3.5 shadow-sm flex flex-col justify-between min-w-0">
-          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 min-w-0">
-            <CalendarDays className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-500 shrink-0" />
-            <span className="truncate">Rata-Rata / Hari</span>
+        {/* Card 2: Daily Burn Rate */}
+        <div className="neo-card p-4 flex flex-col justify-between h-28">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider">Daily Burn Rate</span>
+            <CalendarDays className="w-3.5 h-3.5 text-amber-500" />
           </div>
-          <div className="my-1">
-            <p className="text-[11px] xs:text-xs sm:text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-slate-100 leading-tight break-words">
-              {formatIDR(Math.round(dailyAverage))}
-            </p>
+          <div>
+            <div className="flex items-baseline gap-1">
+              <span className="font-mono text-lg font-bold text-amber-600 dark:text-amber-400 truncate">
+                {formatIDR(Math.round(dailyAverage))}
+              </span>
+              <span className="text-[10px] font-bold text-slate-400">/hari</span>
+            </div>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Rata-rata harian</p>
           </div>
-          <p className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500">Estimasi harian</p>
         </div>
 
-        {/* Card 3: Kategori Terbesar */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 sm:p-3.5 shadow-sm flex flex-col justify-between min-w-0">
-          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 min-w-0">
-            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 shrink-0" />
-            <span className="truncate">Kategori Terbesar</span>
+        {/* Card 3: Top Category */}
+        <div className="neo-card p-4 flex flex-col justify-between h-28">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider">Top Category</span>
+            <Sparkles className="w-3.5 h-3.5 text-brand-500" />
           </div>
-          <div className="my-1 min-w-0">
-            <p className="text-[11px] xs:text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-slate-100 leading-tight line-clamp-1">
-              {topCategory ? topCategory.name : "-"}
-            </p>
-            <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-semibold leading-tight mt-0.5 break-words">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-800 shrink-0"
+                style={{ backgroundColor: `${topCategory?.color ?? "#16a34a"}20` }}
+              >
+                {(() => {
+                  const Icon = getCategoryIcon(topCategory?.name ?? "");
+                  return (
+                    <Icon
+                      className="w-3.5 h-3.5"
+                      style={{ color: topCategory?.color ?? "#16a34a" }}
+                    />
+                  );
+                })()}
+              </div>
+              <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                {topCategory ? topCategory.name : "-"}
+              </p>
+            </div>
+            <p className="font-mono text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-1">
               {topCategory ? formatIDR(topCategory.amount) : "0"}
             </p>
           </div>
         </div>
 
         {/* Card 4: Total Transaksi */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 sm:p-3.5 shadow-sm flex flex-col justify-between min-w-0">
-          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 min-w-0">
-            <Hash className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-500 shrink-0" />
-            <span className="truncate">Total Transaksi</span>
+        <div className="neo-card p-4 flex flex-col justify-between h-28">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider">Total Transaksi</span>
+            <Hash className="w-3.5 h-3.5 text-indigo-500" />
           </div>
-          <div className="my-1">
-            <p className="text-[11px] xs:text-xs sm:text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
-              {expenses.length} <span className="text-[10px] sm:text-xs font-normal text-slate-500">item</span>
+          <div>
+            <p className="font-mono text-lg font-bold text-slate-900 dark:text-slate-100">
+              {expenses.length} <span className="text-xs font-normal text-slate-400">item</span>
             </p>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Dalam rentang ini</p>
           </div>
-          <p className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500">Dalam rentang ini</p>
         </div>
       </div>
 
       {/* Interactive Chart Section */}
-      <Card className="shadow-none overflow-hidden">
-        <CardHeader className="p-4 border-b border-slate-100 dark:border-slate-800/80">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
-                <BarChart3 className="w-4 h-4 text-brand-600 dark:text-brand-400" /> Tren Waktu Harian
-              </CardTitle>
-              <CardDescription className="text-xs mt-0.5">
-                Klik tag warna kategori pada legenda di bawah untuk menyembunyikan/menampilkannya.
-              </CardDescription>
-            </div>
+      <div className="neo-card p-4 space-y-3 overflow-hidden">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+              <BarChart3 className="w-4 h-4 text-brand-600 dark:text-brand-400" /> Tren Waktu Harian
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Sentuh area grafik untuk melihat rincian pengeluaran harian
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="p-4">
+        </div>
+        <div className="pt-2">
           {loading ? (
             <div className="space-y-3 py-6">
               <Skeleton className="h-56 w-full rounded-lg" />
@@ -430,7 +449,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
               </div>
             </div>
           ) : chartData.length === 0 ? (
-            <div className="text-center py-20 text-slate-500 text-sm">
+            <div className="text-center py-16 text-slate-500 text-sm">
               <TrendingDown className="w-8 h-8 mx-auto mb-2 text-slate-400" />
               Tidak ada data pengeluaran ditemukan dalam rentang tanggal ini.
             </div>
@@ -459,32 +478,33 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                         <stop
                           offset="95%"
                           stopColor={cat.color}
-                          stopOpacity={0.01}
+                          stopOpacity={0.0}
                         />
                       </linearGradient>
                     ))}
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    className="stroke-slate-100 dark:stroke-slate-800"
+                    className="stroke-slate-200 dark:stroke-slate-800"
                     vertical={false}
                   />
                   <XAxis
                     dataKey="formattedDate"
+                    tick={{ fontSize: 10 }}
+                    className="text-slate-500 dark:text-slate-400 font-mono"
+                    axisLine={false}
                     tickLine={false}
-                    className="text-[10px] fill-slate-400"
                   />
                   <YAxis
-                    tickLine={false}
+                    tick={{ fontSize: 10 }}
+                    className="text-slate-500 dark:text-slate-400 font-mono"
                     axisLine={false}
-                    className="text-[10px] fill-slate-400"
-                    tickFormatter={(val) =>
-                      val >= 1000000
-                        ? `${(val / 1000000).toFixed(1)}jt`
-                        : val >= 1000
-                        ? `${(val / 1000).toFixed(0)}rb`
-                        : val
-                    }
+                    tickLine={false}
+                    tickFormatter={(val) => {
+                      if (val >= 1000000) return `${(val / 1000000).toFixed(1)}jt`;
+                      if (val >= 1000) return `${(val / 1000).toFixed(0)}rb`;
+                      return val;
+                    }}
                   />
                   <Tooltip content={<CustomAnalysisTooltip />} />
                   <Legend
@@ -511,94 +531,92 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
               </ResponsiveContainer>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Category Breakdown & Toggle Controls */}
-      <h2 className="font-semibold text-sm flex items-center gap-1.5 px-1 mt-2">
-        <Filter className="w-4 h-4 text-slate-500" /> Detail &amp; Kontrol Filter Kategori
+      <h2 className="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5 px-1 mt-2">
+        <Filter className="w-3.5 h-3.5" /> Detail &amp; Kontrol Filter Kategori
       </h2>
-      <Card className="shadow-none">
-        <CardContent className="p-4 space-y-3">
-          {/* Enable / Disable all categories helper btns */}
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-[11px] h-7 rounded-md"
-              onClick={() => toggleAllCategories(true)}
-            >
-              Centang Semua
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-[11px] h-7 rounded-md"
-              onClick={() => toggleAllCategories(false)}
-            >
-              Matikan Semua
-            </Button>
-          </div>
+      <div className="neo-card p-4 space-y-3">
+        {/* Enable / Disable all categories helper btns */}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-[11px] h-7 rounded-lg border-slate-200 dark:border-slate-800 font-semibold"
+            onClick={() => toggleAllCategories(true)}
+          >
+            Centang Semua
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-[11px] h-7 rounded-lg border-slate-200 dark:border-slate-800 font-semibold"
+            onClick={() => toggleAllCategories(false)}
+          >
+            Matikan Semua
+          </Button>
+        </div>
 
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {categoryStats.map((cat) => {
-              const Icon = getCategoryIcon(cat.name);
-              const isVisible = visibleCategories[cat.name] !== false;
-              const percentage = totalSpent > 0 ? (cat.amount / totalSpent) * 100 : 0;
-              return (
-                <div
-                  key={cat.name}
-                  className="flex items-center justify-between py-2.5 transition active:bg-slate-50/50 dark:active:bg-slate-900/30 cursor-pointer"
-                  onClick={() => toggleCategorySelection(cat.name)}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                    <div
-                      className={`flex items-center justify-center w-8 h-8 rounded-lg border transition ${
-                        isVisible
-                          ? "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800"
-                          : "bg-slate-100 dark:bg-slate-900/20 border-slate-200/50 dark:border-slate-800/40 opacity-40"
-                      }`}
-                    >
-                      <Icon
-                        className="w-4 h-4 shrink-0"
-                        style={{ color: cat.color ?? "#94a3b8" }}
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p
-                        className={`text-sm font-semibold truncate ${
-                          isVisible ? "text-slate-900 dark:text-slate-100" : "text-slate-400 dark:text-slate-600 line-through"
-                        }`}
-                      >
-                        {cat.name}
-                      </p>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                        {percentage.toFixed(1)}% dari total
-                      </p>
-                    </div>
+        <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+          {categoryStats.map((cat) => {
+            const Icon = getCategoryIcon(cat.name);
+            const isVisible = visibleCategories[cat.name] !== false;
+            const percentage = totalSpent > 0 ? (cat.amount / totalSpent) * 100 : 0;
+            return (
+              <div
+                key={cat.name}
+                className="flex items-center justify-between py-2.5 transition active:bg-slate-50/50 dark:active:bg-slate-800/40 cursor-pointer"
+                onClick={() => toggleCategorySelection(cat.name)}
+              >
+                <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                  <div
+                    className={`flex items-center justify-center w-8 h-8 rounded-lg border transition ${
+                      isVisible
+                        ? "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm"
+                        : "bg-slate-100 dark:bg-slate-900/20 border-slate-200/50 dark:border-slate-800/40 opacity-40"
+                    }`}
+                  >
+                    <Icon
+                      className="w-4 h-4 shrink-0"
+                      style={{ color: cat.color ?? "#94a3b8" }}
+                    />
                   </div>
-                  <div className="text-right shrink-0">
+                  <div className="min-w-0">
                     <p
-                      className={`text-sm font-bold ${
-                        isVisible ? "text-slate-800 dark:text-slate-200" : "text-slate-400 dark:text-slate-600"
+                      className={`text-sm font-semibold truncate ${
+                        isVisible ? "text-slate-900 dark:text-slate-100" : "text-slate-400 dark:text-slate-600 line-through"
                       }`}
                     >
-                      {formatIDR(cat.amount)}
+                      {cat.name}
+                    </p>
+                    <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                      {percentage.toFixed(1)}% dari total
                     </p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+                <div className="text-right shrink-0">
+                  <p
+                    className={`text-sm font-mono font-bold ${
+                      isVisible ? "text-slate-900 dark:text-slate-100" : "text-slate-400 dark:text-slate-600"
+                    }`}
+                  >
+                    {formatIDR(cat.amount)}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-          <div className="border-t border-slate-100 dark:border-slate-800 pt-3 flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Total Pengeluaran</span>
-            <span className="text-base font-bold text-brand-600 dark:text-brand-400">
-              {formatIDR(totalSpent)}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="border-t border-slate-100 dark:border-slate-800 pt-3 flex items-center justify-between">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Pengeluaran</span>
+          <span className="text-base font-mono font-bold text-brand-600 dark:text-brand-400">
+            {formatIDR(totalSpent)}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

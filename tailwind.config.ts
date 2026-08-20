@@ -19,6 +19,11 @@ const config: Config = {
   				'900': '#14532d',
   				DEFAULT: '#16a34a'
   			},
+  			"background-dark": "#020617",
+  			"surface-dark": "#0f172a",
+  			"surface-container-high": "#1e293b",
+  			"surface-container-highest": "#334155",
+  			"outline-variant": "#334155",
   			background: 'var(--background)',
   			foreground: 'var(--foreground)',
   			card: {
@@ -68,7 +73,8 @@ const config: Config = {
   			}
   		},
   		fontFamily: {
-  			sans: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"]
+  			sans: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+  			mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"]
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

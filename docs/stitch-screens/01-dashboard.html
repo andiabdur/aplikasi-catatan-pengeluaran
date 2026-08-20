@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Family CFO - Dashboard</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS via CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#62df7d",
+                        "background-dark": "#020617",
+                        "surface-dark": "#0f172a",
+                        "on-secondary-fixed": "#002109",
+                        "inverse-on-surface": "#2b322b",
+                        "surface": "#0e150f",
+                        "surface-dim": "#0e150f",
+                        "on-primary": "#003914",
+                        "background": "#0e150f",
+                        "on-tertiary-fixed": "#3f0016",
+                        "surface-container-highest": "#30372f",
+                        "on-secondary-fixed-variant": "#005321",
+                        "warning": "#f59e0b",
+                        "primary-container": "#1ca64d",
+                        "surface-container-low": "#171d16",
+                        "surface-container": "#1b211a",
+                        "on-secondary": "#003915",
+                        "on-surface": "#dde5d9",
+                        "info": "#6366f1",
+                        "error-container": "#93000a",
+                        "on-secondary-container": "#004119",
+                        "tertiary-container": "#ec6284",
+                        "on-tertiary-fixed-variant": "#8a143c",
+                        "on-background": "#dde5d9",
+                        "surface-container-lowest": "#09100a",
+                        "secondary": "#4ae176",
+                        "primary-fixed-dim": "#62df7d",
+                        "outline-variant": "#3e4a3d",
+                        "surface-bright": "#343b33",
+                        "on-surface-variant": "#bdcaba",
+                        "tertiary": "#ffb2bf",
+                        "primary-fixed": "#7ffc97",
+                        "danger": "#ef4444",
+                        "surface-light": "#ffffff",
+                        "on-primary-container": "#003111",
+                        "background-light": "#f8fafc",
+                        "on-tertiary-container": "#5a0022",
+                        "inverse-primary": "#006e2d",
+                        "outline": "#879485",
+                        "surface-tint": "#62df7d",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed": "#002109",
+                        "surface-container-high": "#252c24",
+                        "tertiary-fixed-dim": "#ffb2bf",
+                        "tertiary-fixed": "#ffd9de",
+                        "secondary-container": "#00b954",
+                        "on-primary-fixed-variant": "#005320",
+                        "secondary-fixed": "#6bff8f",
+                        "inverse-surface": "#dde5d9",
+                        "secondary-fixed-dim": "#4ae176",
+                        "surface-variant": "#30372f",
+                        "on-tertiary": "#660027"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "container-padding": "1rem",
+                        "stack-sm": "0.5rem",
+                        "stack-md": "1rem",
+                        "stack-lg": "1.5rem",
+                        "gutter": "1rem"
+                    },
+                    fontFamily: {
+                        "currency-display": ["Space Grotesk"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Space Grotesk"],
+                        "data-mono": ["JetBrains Mono"],
+                        "headline-lg": ["Space Grotesk"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    fontSize: {
+                        "currency-display": ["28px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "700" }],
+                        "label-sm": ["12px", { lineHeight: "16px", fontWeight: "600" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "data-mono": ["14px", { lineHeight: "20px", fontWeight: "500" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3e4a3d; /* outline-variant */
+            border-radius: 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-on-surface font-body-md antialiased min-h-screen flex justify-center">
+<!-- Mobile Constraint Wrapper (PWA Simulation) -->
+<div class="w-full max-w-[390px] h-[884px] relative flex flex-col bg-background-dark overflow-hidden shadow-2xl border-x border-outline-variant/30">
+<!-- TopAppBar (JSON) -->
+<header class="bg-background dark:bg-background-dark w-full top-0 sticky border-b border-outline-variant dark:border-outline shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center px-container-padding py-stack-md z-40">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border-2 border-outline-variant overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A highly detailed, professional headshot portrait of an adult in a well-lit, modern minimalist office space. The lighting is crisp and cool, casting soft geometric shadows, adhering strictly to a high-contrast Neo-Brutalist visual style with subtle cool grey and slate undertones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHTnUEHxWzxjhtsDpvMWvczClXoW9eVIgi1F6HUCLuCAsSzN65kOqcjQMy-hWgoRj5Oyx0Rz0zogf2jNu0Sjed41b6mV0myIn2VN__fMEn92IWuV45_i7a6NruOE2L5akKuIacBFWBgCNIIc2LLOar5YFDoFS8nmXaOKs2tkk2N4BFflV-Gp3OEaLcMvpCHb352-L3RXfdr_0l4UUHlALyWKU9TCX_vVTwXv8pymvShJNCK6ym0TZH"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed tracking-tight">Family CFO</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high active:translate-y-0.5 transition-all">
+<span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
+</button>
+</header>
+<!-- Main Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto overflow-x-hidden pt-stack-lg pb-32 px-container-padding flex flex-col gap-stack-lg">
+<!-- Greeting & Period Selector -->
+<section class="flex flex-col gap-stack-sm">
+<p class="font-body-lg text-on-surface-variant">Halo, Abbi.</p>
+<div class="flex items-center justify-between bg-surface-dark border border-outline-variant p-3 rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+<button class="text-on-surface-variant active:scale-90 transition-transform p-1"><span class="material-symbols-outlined">chevron_left</span></button>
+<div class="flex flex-col items-center">
+<h2 class="font-label-sm text-on-surface uppercase tracking-wider">Gajian Juni 2026</h2>
+<span class="font-data-mono text-[10px] text-on-surface-variant mt-0.5">25 Mei - 24 Jun</span>
+</div>
+<button class="text-on-surface-variant active:scale-90 transition-transform p-1"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</section>
+<!-- Hero Card (Neo-Brutalist) -->
+<section class="bg-surface-dark border-2 border-outline-variant rounded-2xl p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-4 relative overflow-hidden">
+<!-- Subtle background pattern accent -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none"></div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-on-surface-variant uppercase">Sisa uang periode ini</span>
+<h3 class="font-currency-display text-currency-display text-primary">Rp 8.450.000</h3>
+</div>
+<!-- Progress Section -->
+<div class="flex flex-col gap-2 mt-2">
+<div class="flex justify-between items-end">
+<span class="font-label-sm text-on-surface">Total Budget</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant">Rp 18.000.000</span>
+</div>
+<div class="h-4 w-full bg-surface-container-highest border border-outline-variant rounded-full overflow-hidden flex">
+<div class="h-full bg-primary" style="width: 62.4%;"></div>
+</div>
+<div class="flex justify-end">
+<span class="font-data-mono text-[12px] text-primary">62.4% Tersisa</span>
+</div>
+</div>
+<!-- Income/Spent Mini Stats -->
+<div class="grid grid-cols-2 gap-4 mt-2 pt-4 border-t border-outline-variant border-dashed">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">arrow_downward</span> Pemasukan</span>
+<span class="font-data-mono text-data-mono text-on-surface mt-1">Rp 18.000.000</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> Pengeluaran</span>
+<span class="font-data-mono text-data-mono text-on-surface mt-1">Rp 9.550.000</span>
+</div>
+</div>
+</section>
+<!-- AI CFO Banner -->
+<button class="w-full bg-surface-container-high border border-outline-variant rounded-xl p-4 flex items-center gap-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 transition-all text-left">
+<div class="w-12 h-12 rounded-lg bg-surface-dark border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="flex flex-col flex-1">
+<h4 class="font-label-sm text-on-surface uppercase tracking-wide">Audit CFO AI</h4>
+<p class="font-body-md text-on-surface-variant text-sm mt-0.5">Diagnosa kesehatan periode ini</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">arrow_forward</span>
+</button>
+<!-- Breakdown Budget -->
+<section class="flex flex-col gap-stack-md mt-2">
+<div class="flex justify-between items-end">
+<h3 class="font-headline-md text-headline-md text-on-surface">Alokasi Budget</h3>
+<button class="font-label-sm text-primary uppercase">Lihat Semua</button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Item 1: Tagihan (Warning >80%) -->
+<div class="bg-surface-dark border border-outline-variant rounded-xl p-4 flex flex-col gap-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-warning text-[18px]">receipt_long</span>
+</div>
+<span class="font-body-md font-semibold text-on-surface">Tagihan &amp; Cicilan</span>
+</div>
+<span class="font-data-mono text-[14px] text-warning">85%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-warning" style="width: 85%;"></div>
+</div>
+<div class="flex justify-between items-center text-[12px] font-data-mono text-on-surface-variant">
+<span>Rp 4.250.000 terpakai</span>
+<span>dari Rp 5.000.000</span>
+</div>
+</div>
+<!-- Item 2: Makan -->
+<div class="bg-surface-dark border border-outline-variant rounded-xl p-4 flex flex-col gap-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface text-[18px]">restaurant</span>
+</div>
+<span class="font-body-md font-semibold text-on-surface">Makan &amp; Belanja</span>
+</div>
+<span class="font-data-mono text-[14px] text-primary">45%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 45%;"></div>
+</div>
+<div class="flex justify-between items-center text-[12px] font-data-mono text-on-surface-variant">
+<span>Rp 1.800.000 terpakai</span>
+<span>dari Rp 4.000.000</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Transactions -->
+<section class="flex flex-col gap-stack-md mt-4">
+<h3 class="font-headline-md text-headline-md text-on-surface">Transaksi Terakhir</h3>
+<div class="bg-surface-dark border border-outline-variant rounded-xl overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+<!-- Tx 1 -->
+<div class="flex items-center justify-between p-4 border-b border-outline-variant hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center border border-outline-variant shrink-0">
+<span class="material-symbols-outlined text-on-surface">school</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface">SPP Anak</span>
+<span class="font-label-sm text-on-surface-variant">Hari ini, 09:00</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-on-surface">- Rp 1.500.000</span>
+</div>
+<!-- Tx 2 -->
+<div class="flex items-center justify-between p-4 border-b border-outline-variant hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center border border-outline-variant shrink-0">
+<span class="material-symbols-outlined text-on-surface">shopping_cart</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface">Supermarket</span>
+<span class="font-label-sm text-on-surface-variant">Kemarin, 18:30</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-on-surface">- Rp 850.000</span>
+</div>
+<!-- Tx 3 -->
+<div class="flex items-center justify-between p-4 border-b border-outline-variant hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center border border-outline-variant shrink-0">
+<span class="material-symbols-outlined text-on-surface">local_gas_station</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface">BBM Mobil</span>
+<span class="font-label-sm text-on-surface-variant">2 Jun, 07:15</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-on-surface">- Rp 350.000</span>
+</div>
+<!-- Tx 4 -->
+<div class="flex items-center justify-between p-4 border-b border-outline-variant hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center border border-outline-variant shrink-0">
+<span class="material-symbols-outlined text-on-surface">flash_on</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface">Token Listrik</span>
+<span class="font-label-sm text-on-surface-variant">1 Jun, 10:00</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-on-surface">- Rp 500.000</span>
+</div>
+<!-- Tx 5 -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center border border-outline-variant shrink-0">
+<span class="material-symbols-outlined text-primary">payments</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface">Gaji Masuk</span>
+<span class="font-label-sm text-on-surface-variant">25 Mei, 08:00</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-primary">+ Rp 18.000.000</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button (Speed Dial Pattern) -->
+<div class="absolute bottom-24 right-4 z-40 flex flex-col items-end gap-2" id="fab-container">
+<!-- Speed dial items (hidden by default, handled via inline JS if needed, but keeping simple for UI design) -->
+<button class="w-14 h-14 bg-primary text-background-dark rounded-xl border-2 border-outline-variant shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center active:translate-y-1 active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
+<span class="material-symbols-outlined text-[28px]">mic</span>
+</button>
+</div>
+<!-- BottomNavBar (JSON) -->
+<nav class="bg-surface dark:bg-surface-dark fixed bottom-0 w-full max-w-[390px] z-50 border-t border-outline-variant dark:border-outline shadow-[0px_-2px_0px_0px_rgba(0,0,0,1)] flex justify-around items-center h-16 px-2">
+<!-- Home (Active) -->
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed font-bold hover:bg-surface-container dark:hover:bg-surface-container-low active:scale-95 transition-transform w-16 h-full rounded-lg">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-[10px] mt-1">Home</span>
+</button>
+<!-- History -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low active:scale-95 transition-transform w-16 h-full rounded-lg">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-sm text-[10px] mt-1">History</span>
+</button>
+<!-- Add (Center) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low active:scale-95 transition-transform w-16 h-full rounded-lg">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-label-sm text-[10px] mt-1">Add</span>
+</button>
+<!-- Goals -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low active:scale-95 transition-transform w-16 h-full rounded-lg">
+<span class="material-symbols-outlined" data-icon="target">track_changes</span> <!-- using track_changes as standard material substitute for target if unavailable, but will stick to literal string if strictly enforced, wait, system rule: "literal string from data-icon". So 'target' it is. -->
+<span class="font-label-sm text-[10px] mt-1">Goals</span>
+</button>
+<!-- Settings -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low active:scale-95 transition-transform w-16 h-full rounded-lg">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-sm text-[10px] mt-1">Settings</span>
+</button>
+</nav>
+</div>
+</body></html>

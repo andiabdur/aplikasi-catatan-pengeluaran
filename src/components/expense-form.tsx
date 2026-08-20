@@ -106,211 +106,193 @@ export function ExpenseForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Voice note */}
-      <Card className="bg-brand-50 dark:bg-brand-500/10 border-brand-200 dark:border-brand-500/30 shadow-none">
-        <CardContent className="p-4 space-y-2">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={voiceState === "recording" ? stopRecording : startRecording}
-              disabled={voiceState === "processing"}
-              className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition shadow-sm",
-                voiceState === "recording"
-                  ? "bg-red-500 text-white animate-pulse"
-                  : voiceState === "processing"
-                    ? "bg-slate-300 text-white"
-                    : "bg-brand-600 text-white hover:bg-brand-700 active:scale-95",
-              )}
-              aria-label={voiceState === "recording" ? "Stop rekam" : "Rekam suara"}
-            >
-              {voiceState === "recording" ? (
-                <Square className="w-5 h-5" fill="currentColor" />
-              ) : voiceState === "processing" ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <Mic className="w-6 h-6" />
-              )}
-            </button>
-            <div className="min-w-0 flex-1">
-              {voiceState === "recording" ? (
-                <>
-                  <p className="text-sm font-semibold text-red-600 dark:text-red-400">
-                    Merekam... {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Tap tombol stop kalau sudah selesai ngomong.</p>
-                </>
-              ) : voiceState === "processing" ? (
-                <>
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Mendengarkan & menulis...</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Lagi diproses AI sebentar.</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm font-semibold text-brand-800 dark:text-brand-300 flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5" /> Catat pakai suara
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Sebut beberapa item sekaligus — beda kategori otomatis jadi post terpisah.
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-          {transcript && voiceState === "idle" && savedExpenses.length === 0 && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 bg-white/70 dark:bg-slate-900/40 rounded-lg px-3 py-1.5">
-              Terdengar: <span className="text-slate-700 dark:text-slate-200">&quot;{transcript}&quot;</span>
-            </p>
-          )}
-          {savedExpenses.length > 0 && voiceState === "idle" && (
-            <div className="space-y-1.5">
-              {savedExpenses.length > 1 && (
-                <div className="flex items-center justify-between px-1">
-                  <p className="text-xs font-semibold text-green-700 dark:text-green-400 flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> {savedExpenses.length} pengeluaran tersimpan
-                  </p>
-                  <button
-                    type="button"
-                    onClick={undoAll}
-                    className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700"
-                  >
-                    Batalkan semua
-                  </button>
-                </div>
-              )}
-              {savedExpenses.map((s, i) => (
-                <div
-                  key={s.id ?? i}
-                  className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30 rounded-lg px-3 py-2 space-y-1"
-                >
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0" />
-                    <p className="text-xs text-slate-700 dark:text-slate-200 min-w-0 flex-1 truncate">
-                      <span className="font-semibold">{s.description}</span> ·{" "}
-                      <span className="font-semibold">{formatIDR(s.amount)}</span>
-                      {s.categoryName && ` · ${s.categoryName}`}
-                      {s.goalName && ` 🎯 ${s.goalName}`}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => undoSaved(s.id)}
-                      className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 shrink-0"
-                    >
-                      Batalkan
-                    </button>
-                  </div>
-                  {s.items.length > 1 && (
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 pl-6 leading-snug">
-                      {s.items
-                        .map((it) => `${it.name} ${formatIDR(it.price).replace("Rp ", "")}`)
-                        .join(" + ")}{" "}
-                      = {formatIDR(s.amount).replace("Rp ", "")}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          {voiceError && <p className="text-xs text-red-600 dark:text-red-400 px-1">{voiceError}</p>}
-        </CardContent>
-      </Card>
+      {/* Nominal Input (Neo-Brutalist Stitch Style) */}
+      <div className="neo-card p-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="cost" className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Nominal Pengeluaran
+          </Label>
+          <button
+            type="button"
+            onClick={() => setCalcOpen((o) => !o)}
+            className={cn(
+              "flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border font-semibold transition-all",
+              calcOpen
+                ? "bg-brand-600 text-white border-brand-600 shadow-sm"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700",
+            )}
+          >
+            <CalcIcon className="w-3.5 h-3.5" />
+            Kalkulator
+          </button>
+        </div>
 
-      {/* Detail Pengeluaran */}
-      <Card className="shadow-none">
-        <CardContent className="p-4 space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="date">Tanggal</Label>
-            <Input
-              id="date"
-              type="date"
-              value={spentAt}
-              onChange={(e) => setSpentAt(e.target.value)}
-              className="w-full text-sm dark:bg-slate-900 dark:border-slate-800"
+        <div className="flex items-center bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus-within:border-brand-500 transition-all shadow-inner">
+          <span className="font-mono text-xl font-bold text-brand-600 dark:text-brand-400 mr-2.5">
+            Rp
+          </span>
+          <input
+            id="cost"
+            type="text"
+            inputMode="numeric"
+            value={costText}
+            onChange={(e) => setCostText(formatIDRInput(e.target.value))}
+            placeholder="0"
+            className="w-full bg-transparent font-mono text-2xl font-bold text-slate-900 dark:text-slate-100 focus:outline-none placeholder-slate-400"
+            autoComplete="off"
+          />
+        </div>
+
+        {/* Calculator panel */}
+        {calcOpen && (
+          <div className="pt-2">
+            <Calculator
+              onResult={(result) => setCostText(formatIDRInput(String(result)))}
+              onClose={() => setCalcOpen(false)}
             />
           </div>
+        )}
 
-          <div className="space-y-1.5">
-            <Label htmlFor="description">Kebutuhan</Label>
-            <Input
-              id="description"
-              ref={descRef}
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="contoh: Susu ultra, Bensin, dll"
-              autoComplete="off"
-              className="text-sm dark:bg-slate-900 dark:border-slate-800"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between mb-1">
-              <Label htmlFor="cost">Cost (Rp)</Label>
+        {!calcOpen && (
+          <div className="flex gap-2 pt-1 overflow-x-auto no-scrollbar">
+            {[5000, 10000, 25000, 50000, 100000].map((v) => (
               <button
                 type="button"
-                onClick={() => { setCalcOpen((o) => !o); }}
-                className={cn(
-                  "flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg transition",
-                  calcOpen
-                    ? "bg-brand-600 text-white"
-                    : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600",
-                )}
+                key={v}
+                onClick={() =>
+                  setCostText(formatIDRInput(String(parseIDRInput(costText) + v)))
+                }
+                className="text-xs font-mono font-semibold px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 transition-all shrink-0"
               >
-                <CalcIcon className="w-3.5 h-3.5" />
-                Kalkulator
+                +{(v / 1000).toFixed(0)}rb
               </button>
-            </div>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium text-sm">
-                Rp
-              </span>
-              <Input
-                id="cost"
-                type="text"
-                inputMode="numeric"
-                value={costText}
-                onChange={(e) => setCostText(formatIDRInput(e.target.value))}
-                placeholder="0"
-                className="pl-12 text-lg font-semibold dark:bg-slate-900 dark:border-slate-800"
-                autoComplete="off"
-              />
-            </div>
+            ))}
+          </div>
+        )}
+      </div>
 
-            {/* Calculator panel */}
-            {calcOpen && (
-              <Calculator
-                onResult={(result) => setCostText(formatIDRInput(String(result)))}
-                onClose={() => setCalcOpen(false)}
-              />
-            )}
+      {/* Voice Note Card (Stitch Centered Style) */}
+      <div className="neo-card p-5 flex flex-col items-center justify-center text-center gap-3 relative overflow-hidden group">
+        <div className="absolute inset-0 bg-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        <button
+          type="button"
+          onClick={voiceState === "recording" ? stopRecording : startRecording}
+          disabled={voiceState === "processing"}
+          className={cn(
+            "w-16 h-16 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all z-10",
+            voiceState === "recording"
+              ? "bg-rose-500 text-white animate-pulse"
+              : voiceState === "processing"
+                ? "bg-slate-300 text-slate-600"
+                : "bg-brand-500 text-slate-950 hover:bg-brand-400",
+          )}
+          aria-label={voiceState === "recording" ? "Stop rekam" : "Rekam suara"}
+        >
+          {voiceState === "recording" ? (
+            <Square className="w-6 h-6" fill="currentColor" />
+          ) : voiceState === "processing" ? (
+            <Loader2 className="w-6 h-6 animate-spin" />
+          ) : (
+            <Mic className="w-7 h-7" />
+          )}
+        </button>
+        <div className="z-10 space-y-1">
+          {voiceState === "recording" ? (
+            <p className="font-mono text-xs font-bold text-rose-500 bg-rose-500/10 px-3 py-1 rounded-full border border-rose-500/30 inline-block">
+              Merekam {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")} · Tap untuk selesai
+            </p>
+          ) : voiceState === "processing" ? (
+            <p className="font-mono text-xs font-bold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/30 inline-block">
+              Menganalisis suara dengan AI...
+            </p>
+          ) : (
+            <>
+              <p className="font-mono text-xs font-bold text-brand-600 dark:text-brand-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 inline-block">
+                Catat Instan via Suara
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-[280px] mx-auto mt-1 leading-relaxed">
+                Sebut belanjaan sekaligus, AI akan memisahkan kategori otomatis
+              </p>
+            </>
+          )}
+        </div>
 
-            {!calcOpen && (
-              <div className="flex gap-2 mt-2">
-                {[5000, 10000, 25000, 50000, 100000].map((v) => (
-                  <button
-                    type="button"
-                    key={v}
-                    onClick={() =>
-                      setCostText(formatIDRInput(String(parseIDRInput(costText) + v)))
-                    }
-                    className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
-                  >
-                    +{(v / 1000).toFixed(0)}rb
-                  </button>
-                ))}
+        {transcript && voiceState === "idle" && savedExpenses.length === 0 && (
+          <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-xl p-2.5 w-full border border-slate-200 dark:border-slate-700">
+            Terdengar: <span className="font-semibold text-slate-900 dark:text-slate-100">&quot;{transcript}&quot;</span>
+          </p>
+        )}
+
+        {savedExpenses.length > 0 && voiceState === "idle" && (
+          <div className="space-y-2 w-full pt-1">
+            {savedExpenses.length > 1 && (
+              <div className="flex items-center justify-between px-1">
+                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5" /> {savedExpenses.length} pengeluaran tersimpan
+                </p>
+                <button
+                  type="button"
+                  onClick={undoAll}
+                  className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline"
+                >
+                  Batalkan semua
+                </button>
               </div>
             )}
+            {savedExpenses.map((s, i) => (
+              <div
+                key={s.id ?? i}
+                className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-xl p-3 text-left space-y-1 shadow-sm"
+              >
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <p className="text-xs text-slate-800 dark:text-slate-200 min-w-0 flex-1 truncate">
+                    <span className="font-bold">{s.description}</span> ·{" "}
+                    <span className="font-mono font-bold">{formatIDR(s.amount)}</span>
+                    {s.categoryName && ` · ${s.categoryName}`}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => undoSaved(s.id)}
+                    className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline shrink-0"
+                  >
+                    Batalkan
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+        )}
+        {voiceError && <p className="text-xs text-rose-600 dark:text-rose-400">{voiceError}</p>}
+      </div>
 
-      {/* Kategori */}
-      <Card className="shadow-none">
-        <CardContent className="p-4 space-y-3">
-          <Label>Kategori</Label>
+      {/* Form Details */}
+      <div className="neo-card p-4 space-y-4">
+        {/* Description Input */}
+        <div className="space-y-1.5">
+          <Label htmlFor="description" className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Nama Kebutuhan
+          </Label>
+          <Input
+            id="description"
+            ref={descRef}
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Contoh: Makan siang Nasi Padang, Token PLN, dll"
+            autoComplete="off"
+            className="text-sm rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus-visible:ring-brand-500"
+          />
+        </div>
+
+        {/* Categories (Frequent Chips + Full Grid) */}
+        <div className="space-y-2">
+          <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Kategori
+          </Label>
           {topCategories.length > 0 && (
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Sering dipakai</p>
+              <p className="text-[11px] font-semibold text-slate-400 mb-1.5">Sering Dipakai</p>
               <div className="flex flex-wrap gap-2">
                 {topCategories.map((c) => (
                   <CategoryChip
@@ -323,9 +305,10 @@ export function ExpenseForm({
               </div>
             </div>
           )}
-          <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Semua kategori</p>
-            <div className="grid grid-cols-2 gap-2">
+
+          <div className="pt-2">
+            <p className="text-[11px] font-semibold text-slate-400 mb-1.5">Semua Kategori</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {categories.map((c) => (
                 <CategoryChip
                   key={c.id}
@@ -337,93 +320,73 @@ export function ExpenseForm({
               ))}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Goal picker — only when a savings (Nabung) category is selected */}
-      {/* Event Link Picker */}
-      {activeEvents.length > 0 && (
-        <Card className="border-slate-200 dark:border-slate-800 shadow-none">
-          <CardContent className="p-4 space-y-2">
-            <Label>Tautkan ke Event (Opsional)</Label>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedEventId(null)}
-                className={cn(
-                  "px-3 py-2 rounded-xl text-sm border transition",
-                  selectedEventId === null
-                    ? "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 font-medium"
-                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
-                )}
-              >
-                Tanpa Event
-              </button>
-              {activeEvents.map((evt) => (
-                <button
-                  key={evt.id}
-                  type="button"
-                  onClick={() => setSelectedEventId(evt.id)}
-                  className={cn(
-                    "px-3 py-2 rounded-xl text-sm border transition",
-                    selectedEventId === evt.id
-                      ? "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 font-medium"
-                      : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
-                  )}
-                >
-                  {evt.name}
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      {isSavingsCategory(categories.find((c) => c.id === categoryId)?.name) && goals.length > 0 && (
-        <Card className="border-brand-200 dark:border-brand-500/30 bg-brand-50/50 dark:bg-brand-500/10 shadow-none">
-          <CardContent className="p-4 space-y-2">
-            <Label className="flex items-center gap-1.5">
-              <Target className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" /> Nabung buat goal? (opsional)
+        {/* Date & Event/Goal Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div className="space-y-1.5">
+            <Label htmlFor="date" className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Tanggal
             </Label>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setGoalId("")}
-                className={cn(
-                  "px-3 py-2 rounded-xl text-sm border transition",
-                  goalId === ""
-                    ? "bg-slate-700 border-slate-700 text-white font-medium"
-                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600",
-                )}
+            <Input
+              id="date"
+              type="date"
+              value={spentAt}
+              onChange={(e) => setSpentAt(e.target.value)}
+              className="w-full text-sm rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono"
+            />
+          </div>
+
+          {activeEvents.length > 0 && (
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Event (Opsional)
+              </Label>
+              <select
+                value={selectedEventId ?? ""}
+                onChange={(e) => setSelectedEventId(e.target.value || null)}
+                className="w-full h-10 px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
-                Tanpa goal
-              </button>
-              {goals.map((g) => (
-                <button
-                  key={g.id}
-                  type="button"
-                  onClick={() => setGoalId(g.id)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm border transition",
-                    goalId === g.id
-                      ? "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 font-medium"
-                      : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600",
-                  )}
-                >
-                  <span>{g.emoji}</span>
-                  <span className="truncate max-w-[8rem]">{g.name}</span>
-                </button>
-              ))}
+                <option value="">Tanpa Event</option>
+                {activeEvents.map((evt) => (
+                  <option key={evt.id} value={evt.id}>
+                    {evt.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </div>
 
-      {error && <p className="text-sm text-red-600 dark:text-red-400 px-1">{error}</p>}
+        {/* Goal Linker if Nabung Category */}
+        {isSavingsCategory(categories.find((c) => c.id === categoryId)?.name) && goals.length > 0 && (
+          <div className="p-3 bg-brand-500/10 border border-brand-500/30 rounded-xl space-y-2">
+            <Label className="text-xs font-bold text-brand-700 dark:text-brand-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Target className="w-3.5 h-3.5" /> Alokasikan ke Goal Tabungan
+            </Label>
+            <select
+              value={goalId}
+              onChange={(e) => setGoalId(e.target.value)}
+              className="w-full h-10 px-3 py-2 text-sm rounded-xl border border-brand-500/30 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="">Tanpa Goal Khusus</option>
+              {goals.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
 
+      {error && <p className="text-sm font-semibold text-rose-600 dark:text-rose-400 px-1">{error}</p>}
+
+      {/* Submit Button */}
       <Button
         type="submit"
         disabled={pending}
-        className="w-full text-base py-6 bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-500 font-semibold"
+        className="w-full text-base py-6 bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-500 dark:text-slate-950 font-bold rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)] dark:shadow-[3px_3px_0px_0px_rgba(0,0,0,0.6)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
       >
         {pending ? (
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -435,10 +398,6 @@ export function ExpenseForm({
           "Simpan Pengeluaran"
         )}
       </Button>
-
-      <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
-        Setelah simpan, form kosong otomatis biar Anda bisa input cepat berturut-turut.
-      </p>
     </form>
   );
 }
@@ -460,17 +419,22 @@ function CategoryChip({
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition",
+        "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all active:scale-95",
         full ? "w-full justify-start" : "",
         selected
-          ? "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 font-medium"
-          : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600",
+          ? "bg-brand-500/15 dark:bg-brand-500/20 border-brand-500 text-brand-700 dark:text-brand-300 shadow-sm"
+          : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700",
       )}
     >
-      <Icon
-        className="w-4 h-4 shrink-0"
-        style={{ color: category.color ?? "#94a3b8" }}
-      />
+      <div
+        className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
+        style={{ backgroundColor: `${category.color ?? "#16a34a"}20` }}
+      >
+        <Icon
+          className="w-3.5 h-3.5"
+          style={{ color: category.color ?? "#16a34a" }}
+        />
+      </div>
       <span className="truncate">{category.name}</span>
     </button>
   );

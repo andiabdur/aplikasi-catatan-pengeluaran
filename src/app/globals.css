@@ -84,11 +84,20 @@
   .card {
     @apply bg-card text-card-foreground border border-slate-200/80 dark:border-slate-800/80 rounded-xl shadow-none p-5;
   }
+  .neo-card {
+    @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,0.06)] dark:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.6)];
+  }
+  .neo-card-lg {
+    @apply bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,0.08)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)];
+  }
+  .neo-button {
+    @apply border border-slate-200 dark:border-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.06)] dark:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.6)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all;
+  }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
   .btn-primary {
-    @apply btn bg-brand-600 dark:bg-brand-500 text-white hover:bg-brand-700 dark:hover:bg-brand-600;
+    @apply btn bg-brand-600 dark:bg-brand-500 text-white hover:bg-brand-700 dark:hover:bg-brand-600 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.6)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none;
   }
   .btn-ghost {
     @apply btn hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200;

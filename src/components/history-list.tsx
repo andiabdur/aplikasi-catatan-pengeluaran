@@ -212,13 +212,13 @@ export function HistoryList({
     const [evtId, setEvtId] = useState(row.event_id || "");
 
     return (
-      <div className="p-3 space-y-2 bg-slate-50 dark:bg-slate-900/60">
+      <div className="p-3 space-y-2 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800">
         <div className="grid grid-cols-2 gap-2">
           <input
             type="text"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
-            className="input text-sm py-1.5"
+            className="input text-sm py-1.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
             autoFocus
             placeholder="Nama kebutuhan"
           />
@@ -226,13 +226,13 @@ export function HistoryList({
             type="date"
             value={spentAt}
             onChange={(e) => setSpentAt(e.target.value)}
-            className="input text-sm py-1.5"
+            className="input text-sm py-1.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 font-mono"
           />
         </div>
         <select
           value={catId}
           onChange={(e) => setCatId(e.target.value)}
-          className="input text-sm py-1.5"
+          className="input text-sm py-1.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
         >
           {cats.map((c) => (
             <option key={c.id} value={c.id}>
@@ -244,7 +244,7 @@ export function HistoryList({
           <select
             value={evtId}
             onChange={(e) => setEvtId(e.target.value)}
-            className="input text-sm py-1.5"
+            className="input text-sm py-1.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
           >
             <option value="">(Tanpa Event)</option>
             {activeEvents.map((evt) => (
@@ -255,7 +255,7 @@ export function HistoryList({
           </select>
         )}
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-brand-600 dark:text-brand-400">
             Rp
           </span>
           <input
@@ -263,10 +263,10 @@ export function HistoryList({
             inputMode="numeric"
             value={amtText}
             onChange={(e) => setAmtText(formatIDRInput(e.target.value))}
-            className="input pl-8 text-sm py-1.5 text-right"
+            className="input pl-9 text-sm py-1.5 font-mono font-bold text-right rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 pt-1">
           <button
             onClick={() =>
               onSave({
@@ -276,11 +276,11 @@ export function HistoryList({
                 spent_at: spentAt, event_id: evtId || null,
               })
             }
-            className="btn-primary flex-1 text-sm py-2 flex items-center justify-center gap-1.5"
+            className="btn-primary flex-1 text-sm py-2 flex items-center justify-center gap-1.5 font-bold rounded-xl shadow-sm"
           >
-            <Check className="w-3.5 h-3.5" /> Simpan
+            <Check className="w-4 h-4" /> Simpan
           </button>
-          <button onClick={onCancel} className="btn-ghost text-sm py-2 px-4">
+          <button onClick={onCancel} className="btn-ghost text-sm py-2 px-4 rounded-xl border border-slate-200 dark:border-slate-800">
             Batal
           </button>
         </div>
@@ -289,25 +289,37 @@ export function HistoryList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3.5">
       {/* Filter panel */}
-      <div className="card space-y-3">
+      <div className="neo-card p-4 space-y-3">
+        {/* Search */}
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cari transaksi, kategori, atau jumlah..."
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 placeholder:text-slate-400 transition-colors"
+          />
+        </div>
+
         {/* Mode tabs */}
-        <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-700 rounded-xl">
+        <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
           <button
             onClick={() => setFilterMode("period")}
             className={cn(
-              "py-1.5 text-sm font-medium rounded-lg transition",
-              filterMode === "period" ? "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100" : "text-slate-500 dark:text-slate-400",
+              "py-1.5 text-xs font-bold rounded-lg transition-all",
+              filterMode === "period" ? "bg-white dark:bg-slate-900 shadow-sm text-brand-600 dark:text-brand-400" : "text-slate-500 dark:text-slate-400",
             )}
           >
-            Per Periode
+            Periode Gajian
           </button>
           <button
             onClick={() => setFilterMode("custom")}
             className={cn(
-              "py-1.5 text-sm font-medium rounded-lg transition",
-              filterMode === "custom" ? "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100" : "text-slate-500 dark:text-slate-400",
+              "py-1.5 text-xs font-bold rounded-lg transition-all",
+              filterMode === "custom" ? "bg-white dark:bg-slate-900 shadow-sm text-brand-600 dark:text-brand-400" : "text-slate-500 dark:text-slate-400",
             )}
           >
             Custom Tanggal
@@ -325,55 +337,42 @@ export function HistoryList({
             {labelMonthKey(labelMonth) !== labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods)) && (
               <button
                 onClick={() => setLabelMonth(currentPeriodLabelWithCustom(payDay, customPeriods))}
-                className="mt-1 text-xs text-brand-600 dark:text-brand-400 w-full text-center"
+                className="mt-1.5 text-xs font-semibold text-brand-600 dark:text-brand-400 w-full text-center hover:underline"
               >
                 Ke periode sekarang
               </button>
             )}
           </div>
-
         ) : (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 pt-1">
             <div>
-              <label className="text-xs text-slate-500 dark:text-slate-400">Dari</label>
+              <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Dari</label>
               <input
                 type="date"
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
-                className="input py-2 text-sm"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100"
               />
             </div>
             <div>
-              <label className="text-xs text-slate-500 dark:text-slate-400">Sampai</label>
+              <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Sampai</label>
               <input
                 type="date"
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
-                className="input py-2 text-sm"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100"
               />
             </div>
           </div>
         )}
 
-        {/* Search */}
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari kebutuhan..."
-            className="input pl-9"
-          />
-        </div>
-
         {/* Category chips */}
-        <div className="flex gap-2 overflow-x-auto -mx-1 px-1 pb-1">
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 pt-1">
           <button
             onClick={() => setCatFilter("")}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs whitespace-nowrap",
-              !catFilter ? "bg-brand-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+              "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all",
+              !catFilter ? "bg-brand-600 text-white shadow-sm" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700",
             )}
           >
             Semua
@@ -385,13 +384,15 @@ export function HistoryList({
                 key={c.id}
                 onClick={() => setCatFilter(c.id)}
                 className={cn(
-                  "px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex items-center gap-1.5",
-                  catFilter === c.id ? "bg-brand-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+                  "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-all border",
+                  catFilter === c.id
+                    ? "bg-brand-600 text-white border-brand-600 shadow-sm"
+                    : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700",
                 )}
               >
                 <Icon
                   className="w-3.5 h-3.5 shrink-0"
-                  style={{ color: c.color ?? "#94a3b8" }}
+                  style={{ color: catFilter === c.id ? "#ffffff" : c.color ?? "#94a3b8" }}
                 />
                 {c.name}
               </button>
@@ -399,14 +400,14 @@ export function HistoryList({
           })}
         </div>
 
-        {/* Event chips — hanya tampil kalau ada events */}
+        {/* Event chips */}
         {events && events.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto -mx-1 px-1 pb-1">
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
             <button
               onClick={() => setEvtFilter("")}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs whitespace-nowrap",
-                !evtFilter ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+                "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all",
+                !evtFilter ? "bg-indigo-600 text-white shadow-sm" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700",
               )}
             >
               Semua Event
@@ -414,8 +415,8 @@ export function HistoryList({
             <button
               onClick={() => setEvtFilter("__none__")}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs whitespace-nowrap",
-                evtFilter === "__none__" ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+                "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border",
+                evtFilter === "__none__" ? "bg-indigo-600 text-white border-indigo-600 shadow-sm" : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300",
               )}
             >
               Tanpa Event
@@ -425,13 +426,13 @@ export function HistoryList({
                 key={evt.id}
                 onClick={() => setEvtFilter(evt.id)}
                 className={cn(
-                  "px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex items-center gap-1.5",
-                  evtFilter === evt.id ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+                  "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-all border",
+                  evtFilter === evt.id ? "bg-indigo-600 text-white border-indigo-600 shadow-sm" : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300",
                 )}
               >
                 {evt.name}
                 {evt.status === "active" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
                 )}
               </button>
             ))}
@@ -445,22 +446,22 @@ export function HistoryList({
               setEvtFilter("");
               setSearch("");
             }}
-            className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1"
+            className="text-xs font-semibold text-rose-500 dark:text-rose-400 flex items-center gap-1 hover:underline pt-1"
           >
-            <X className="w-3 h-3" /> Reset filter
+            <X className="w-3.5 h-3.5" /> Reset filter
           </button>
         )}
       </div>
 
       {/* Summary card */}
-      <div id="history-list-top" className="card flex items-center justify-between bg-brand-50 dark:bg-brand-500/10 border-brand-200 dark:border-brand-500/30">
+      <div id="history-list-top" className="neo-card p-4 flex items-center justify-between bg-brand-500/10 border-brand-500/30">
         <div>
-          <p className="text-xs text-slate-600 dark:text-slate-300">
+          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             {evtFilter && evtFilter !== "__none__"
               ? `${events?.find(e => e.id === evtFilter)?.name ?? "Event"} · ${filtered.length} item`
-              : `Total (${filtered.length} item)`}
+              : `Total Pengeluaran (${filtered.length} item)`}
           </p>
-          <p className="font-bold text-brand-700 dark:text-brand-400 text-lg">{formatIDR(total)}</p>
+          <p className="font-mono font-bold text-brand-600 dark:text-brand-400 text-xl mt-0.5">{formatIDR(total)}</p>
         </div>
         <button
           onClick={() => {
@@ -471,25 +472,25 @@ export function HistoryList({
               setChartOpen((v) => !v);
             }
           }}
-          className="text-xs font-medium text-brand-700 dark:text-brand-300 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-brand-200 dark:border-brand-500/30 shadow-sm flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+          className="text-xs font-bold text-brand-700 dark:text-brand-300 bg-white dark:bg-slate-800 px-3.5 py-2 rounded-xl border border-brand-500/30 shadow-sm flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition active:scale-95"
         >
-          <PieIcon className="w-3.5 h-3.5" />
+          <PieIcon className="w-4 h-4" />
           <span>Lihat Chart</span>
         </button>
       </div>
 
       {/* List */}
       {loading ? (
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400 py-8">Memuat...</p>
+        <p className="text-center text-sm font-medium text-slate-500 dark:text-slate-400 py-8">Memuat data...</p>
       ) : grouped.length === 0 ? (
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400 py-8">Tidak ada pengeluaran.</p>
+        <p className="text-center text-sm font-medium text-slate-500 dark:text-slate-400 py-8">Tidak ada pengeluaran ditemukan.</p>
       ) : (
         grouped.map(([date, items]) => {
           const dayTotal = items.reduce((s, r) => s + Number(r.amount), 0);
           return (
-            <div key={date}>
-              <div className="flex items-center justify-between px-2 py-2">
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+            <div key={date} className="space-y-1.5">
+              <div className="flex items-center justify-between px-1 py-1">
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   {new Date(date).toLocaleDateString("id-ID", {
                     weekday: "short",
                     day: "numeric",
@@ -497,9 +498,9 @@ export function HistoryList({
                     year: "numeric",
                   })}
                 </p>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{formatIDR(dayTotal)}</p>
+                <p className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">{formatIDR(dayTotal)}</p>
               </div>
-              <div className="card divide-y divide-slate-100 dark:divide-slate-700 p-0">
+              <div className="neo-card divide-y divide-slate-100 dark:divide-slate-800/80 p-0 overflow-hidden">
                 {items.map((r) =>
                   editingId === r.id ? (
                     <EditExpenseRow
@@ -513,13 +514,12 @@ export function HistoryList({
                   ) : (
                     <div 
                       key={r.id} 
-                      className={`flex items-center justify-between p-3 group select-none transition-colors ${selectedIds.has(r.id) ? 'bg-indigo-50/70 dark:bg-indigo-900/40 relative before:absolute before:inset-0 before:border-2 before:border-indigo-400 before:pointer-events-none before:z-10' : ''}`}
+                      className={`flex items-center justify-between p-3.5 group select-none transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 ${selectedIds.has(r.id) ? 'bg-indigo-50/80 dark:bg-indigo-950/40 relative before:absolute before:inset-0 before:border-2 before:border-indigo-400 before:pointer-events-none before:z-10' : ''}`}
                       onTouchStart={() => {
                         const t = setTimeout(() => {
                           if (!isSelectionMode) setIsSelectionMode(true);
                           toggleSelection(r.id);
-                        }, 500); // 500ms long press
-                        // Store timer ID on the element
+                        }, 500);
                         (r as any)._timer = t;
                       }}
                       onTouchEnd={() => clearTimeout((r as any)._timer)}
@@ -533,50 +533,65 @@ export function HistoryList({
                       }}
                       onMouseUp={() => clearTimeout((r as any)._timer)}
                       onMouseLeave={() => clearTimeout((r as any)._timer)}
-                      onClick={(e) => {
-                        // If in selection mode, any click just toggles
+                      onClick={() => {
                         if (isSelectionMode) {
                           toggleSelection(r.id);
                         }
                       }}
                     >
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
+                      <div className="min-w-0 flex-1 flex items-center gap-3">
+                        {isSelectionMode && (
+                          <div className={cn("w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-colors", selectedIds.has(r.id) ? "bg-indigo-600 border-indigo-600 text-white" : "border-slate-300 dark:border-slate-700")}>
+                            {selectedIds.has(r.id) && <Check className="w-3.5 h-3.5" />}
+                          </div>
+                        )}
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm shrink-0"
+                          style={{ backgroundColor: `${r.categories?.color ?? "#94a3b8"}15` }}
+                        >
                           {(() => {
                             const Icon = getCategoryIcon(r.categories?.name ?? "");
                             return (
                               <Icon
-                                className="w-4 h-4 shrink-0"
+                                className="w-5 h-5 shrink-0"
                                 style={{ color: r.categories?.color ?? "#94a3b8" }}
                               />
                             );
                           })()}
-                          <p className="font-medium truncate">{r.description}</p>
                         </div>
-                        <div className="flex items-center gap-2 ml-4 mt-0.5 flex-wrap">
-                          <p className="text-xs text-slate-500 dark:text-slate-400">{r.categories?.name}</p>
-                          {r.event_id && (() => {
-                            const evt = events?.find(e => e.id === r.event_id);
-                            return evt ? (
-                              <span className="text-xs px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center gap-1">
-                                {evt.name}
-                              </span>
-                            ) : null;
-                          })()}
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">{r.description}</p>
+                          <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-slate-500 dark:text-slate-400">
+                            <span className="font-medium">{r.categories?.name}</span>
+                            {r.event_id && (() => {
+                              const evt = events?.find(e => e.id === r.event_id);
+                              return evt ? (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                                  {evt.name}
+                                </span>
+                              ) : null;
+                            })()}
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <p className="font-semibold text-sm mr-1">{formatIDR(r.amount)}</p>
+                      <div className="flex items-center gap-1.5 shrink-0 ml-3">
+                        <p className="font-mono font-bold text-sm text-slate-900 dark:text-slate-100 mr-1">{formatIDR(r.amount)}</p>
                         <button
-                          onClick={() => setEditingId(r.id)}
-                          className="p-1.5 text-slate-300 dark:text-slate-600 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingId(r.id);
+                          }}
+                          className="p-1.5 text-slate-400 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                           aria-label="Edit"
                         >
                           <Pencil className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(r.id)}
-                          className="p-1.5 text-slate-300 dark:text-slate-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(r.id);
+                          }}
+                          className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                           aria-label="Hapus"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -593,7 +608,7 @@ export function HistoryList({
 
       {/* Dynamic Pagination Bar */}
       {filtered.length > 0 && (
-        <div className="card flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 py-3">
+        <div className="neo-card flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-slate-50 dark:bg-slate-900/60">
           <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
             <span>Menampilkan <strong>{totalCount > 0 ? startIndex + 1 : 0}–{endIndex}</strong> dari <strong>{totalCount}</strong> item</span>
             <span className="text-slate-300 dark:text-slate-700">|</span>
@@ -605,7 +620,7 @@ export function HistoryList({
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-800 dark:text-slate-200 font-semibold focus:outline-none"
+                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-800 dark:text-slate-200 font-bold focus:outline-none"
               >
                 <option value={15}>15</option>
                 <option value={30}>30</option>
@@ -626,14 +641,14 @@ export function HistoryList({
                 }
               }}
               disabled={safePage <= 1}
-              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               title="Halaman Sebelumnya"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-1 px-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-              <span>Halaman {safePage} dari {totalPages}</span>
+            <div className="flex items-center gap-1 px-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+              <span>{safePage} / {totalPages}</span>
             </div>
 
             <button
@@ -646,7 +661,7 @@ export function HistoryList({
                 }
               }}
               disabled={safePage >= totalPages}
-              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               title="Halaman Selanjutnya"
             >
               <ChevronRight className="w-4 h-4" />
@@ -655,22 +670,22 @@ export function HistoryList({
         </div>
       )}
 
-      {/* Chart Section — Positioned BELOW the transaction list */}
+      {/* Chart Section */}
       {chartOpen && filtered.length > 0 && (
-        <div id="category-analysis-chart" className="card space-y-3 mt-6 border-slate-200 dark:border-slate-800">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+        <div id="category-analysis-chart" className="neo-card p-4 space-y-3 mt-6">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                 <PieIcon className="w-4 h-4 text-brand-600 dark:text-brand-400" /> Analisis Visual Kategori
               </h3>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">Proporsi pengeluaran per kategori di periode ini</p>
             </div>
-            <div className="flex bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5">
+            <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-0.5 border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setChartMode("pie")}
                 className={cn(
-                  "p-1.5 rounded text-slate-500 dark:text-slate-400 transition",
-                  chartMode === "pie" && "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100 font-semibold",
+                  "p-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition",
+                  chartMode === "pie" && "bg-white dark:bg-slate-900 shadow-sm text-brand-600 dark:text-brand-400 font-bold",
                 )}
                 aria-label="Pie chart"
                 title="Diagram Lingkaran"
@@ -680,8 +695,8 @@ export function HistoryList({
               <button
                 onClick={() => setChartMode("bar")}
                 className={cn(
-                  "p-1.5 rounded text-slate-500 dark:text-slate-400 transition",
-                  chartMode === "bar" && "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100 font-semibold",
+                  "p-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition",
+                  chartMode === "bar" && "bg-white dark:bg-slate-900 shadow-sm text-brand-600 dark:text-brand-400 font-bold",
                 )}
                 aria-label="Bar chart"
                 title="Grafik Batang"
@@ -700,7 +715,7 @@ export function HistoryList({
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
             <Link
               href="/analysis"
-              className="text-xs text-brand-600 dark:text-brand-400 font-medium hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
             >
               Lihat Tren Temporal Berkala <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
@@ -710,17 +725,17 @@ export function HistoryList({
 
       {isSelectionMode && selectedIds.size > 0 && (
         <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
-          <div className="bg-slate-900 dark:bg-slate-50 text-white dark:text-slate-900 shadow-2xl rounded-2xl p-4 flex items-center justify-between border border-slate-700 dark:border-slate-300">
+          <div className="neo-card-lg bg-slate-950 text-white dark:bg-slate-900 border-2 border-slate-700 p-4 flex items-center justify-between shadow-2xl">
             <div>
-              <p className="text-xs text-slate-300 dark:text-slate-600 font-medium">Terpilih {selectedIds.size} item</p>
-              <p className="font-bold text-lg">{formatIDR(selectedSum)}</p>
+              <p className="text-xs text-slate-400 font-semibold">Terpilih {selectedIds.size} item</p>
+              <p className="font-mono font-bold text-lg text-brand-400">{formatIDR(selectedSum)}</p>
             </div>
             <button 
               onClick={() => {
                 setSelectedIds(new Set());
                 setIsSelectionMode(false);
               }}
-              className="px-4 py-2 bg-slate-800 dark:bg-slate-200 hover:bg-slate-700 dark:hover:bg-slate-300 rounded-xl text-sm font-medium transition-colors"
+              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-white border border-slate-700 transition-colors"
             >
               Tutup
             </button>

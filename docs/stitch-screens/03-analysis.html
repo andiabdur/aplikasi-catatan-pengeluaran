@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analisis Pengeluaran - Family CFO</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@500&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary": "#62df7d",
+                      "background-dark": "#020617",
+                      "surface-dark": "#0f172a",
+                      "on-secondary-fixed": "#002109",
+                      "inverse-on-surface": "#2b322b",
+                      "surface": "#0e150f",
+                      "surface-dim": "#0e150f",
+                      "on-primary": "#003914",
+                      "background": "#0e150f",
+                      "on-tertiary-fixed": "#3f0016",
+                      "surface-container-highest": "#30372f",
+                      "on-secondary-fixed-variant": "#005321",
+                      "warning": "#f59e0b",
+                      "primary-container": "#1ca64d",
+                      "surface-container-low": "#171d16",
+                      "surface-container": "#1b211a",
+                      "on-secondary": "#003915",
+                      "on-surface": "#dde5d9",
+                      "info": "#6366f1",
+                      "error-container": "#93000a",
+                      "on-secondary-container": "#004119",
+                      "tertiary-container": "#ec6284",
+                      "on-tertiary-fixed-variant": "#8a143c",
+                      "on-background": "#dde5d9",
+                      "surface-container-lowest": "#09100a",
+                      "secondary": "#4ae176",
+                      "primary-fixed-dim": "#62df7d",
+                      "outline-variant": "#3e4a3d",
+                      "surface-bright": "#343b33",
+                      "on-surface-variant": "#bdcaba",
+                      "tertiary": "#ffb2bf",
+                      "primary-fixed": "#7ffc97",
+                      "danger": "#ef4444",
+                      "surface-light": "#ffffff",
+                      "on-primary-container": "#003111",
+                      "background-light": "#f8fafc",
+                      "on-tertiary-container": "#5a0022",
+                      "inverse-primary": "#006e2d",
+                      "outline": "#879485",
+                      "surface-tint": "#62df7d",
+                      "on-error": "#690005",
+                      "on-error-container": "#ffdad6",
+                      "error": "#ffb4ab",
+                      "on-primary-fixed": "#002109",
+                      "surface-container-high": "#252c24",
+                      "tertiary-fixed-dim": "#ffb2bf",
+                      "tertiary-fixed": "#ffd9de",
+                      "secondary-container": "#00b954",
+                      "on-primary-fixed-variant": "#005320",
+                      "secondary-fixed": "#6bff8f",
+                      "inverse-surface": "#dde5d9",
+                      "secondary-fixed-dim": "#4ae176",
+                      "surface-variant": "#30372f",
+                      "on-tertiary": "#660027"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-padding": "1rem",
+                      "stack-sm": "0.5rem",
+                      "stack-md": "1rem",
+                      "stack-lg": "1.5rem",
+                      "gutter": "1rem"
+              },
+              "fontFamily": {
+                      "currency-display": [
+                              "Space Grotesk"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ],
+                      "data-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "currency-display": [
+                              "28px",
+                              {
+                                      "lineHeight": "34px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "data-mono": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Neo-Brutalist utility classes */
+        .neo-card {
+            border: 1px solid theme('colors.outline-variant');
+            box-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
+            border-radius: theme('borderRadius.xl');
+        }
+        .neo-button {
+            border: 1px solid theme('colors.outline-variant');
+            box-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
+            transition: all 0.1s ease;
+        }
+        .neo-button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
+        }
+        
+        /* Chart container placeholder */
+        .chart-placeholder {
+            background: linear-gradient(180deg, rgba(98, 223, 125, 0.2) 0%, rgba(98, 223, 125, 0) 100%);
+            border-bottom: 2px solid theme('colors.primary');
+        }
+        
+        /* Hide scrollbar for time chips */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-on-surface font-body-md antialiased flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-background dark:bg-background-dark border-b border-outline-variant dark:border-outline shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center px-container-padding py-stack-md z-40">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-outline-variant">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a user in a clean, studio lighting setting. High contrast, sharp focus, suitable for a dark mode fintech app avatar. The subject is well lit against a dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIvzhftGme4VLtOZh0NmwtWqpUfrpom00X3hLMNJJYud5MoeXzOwERA5r1i73YW8wqDi0aUw4A4h4UqEpFZaC6vom7C9M51Zr6SdTYZrLcyeYh4cCbWPmwNjUaYr49PGeC4COFAuv4dmH8pyWxNviyKLQfRYN41aaN_J2gq1Om4yRHjF_sW9CSoZSYbEVmRS7dESepASoMJry5EO0yN2sT6smn-ZgsSflWfVL6h5BfB0K2bNy4-mEm"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Family CFO</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high dark:hover:bg-surface-container-highest active:translate-y-0.5 transition-all text-primary dark:text-primary-fixed">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dark_mode</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-1 px-container-padding py-stack-lg mb-20 overflow-y-auto">
+<!-- Header -->
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-stack-md">Analisis Pengeluaran</h2>
+<!-- Time Chips -->
+<div class="flex gap-2 overflow-x-auto no-scrollbar mb-stack-lg pb-1">
+<button class="neo-button bg-primary text-background-dark font-label-sm text-label-sm px-4 py-2 rounded-full whitespace-nowrap">7 Hari</button>
+<button class="neo-button bg-surface-container text-on-surface-variant font-label-sm text-label-sm px-4 py-2 rounded-full whitespace-nowrap">30 Hari</button>
+<button class="neo-button bg-surface-container text-on-surface-variant font-label-sm text-label-sm px-4 py-2 rounded-full whitespace-nowrap">3 Bulan</button>
+<button class="neo-button bg-surface-container text-on-surface-variant font-label-sm text-label-sm px-4 py-2 rounded-full whitespace-nowrap">1 Tahun</button>
+<button class="neo-button bg-surface-container text-on-surface-variant font-label-sm text-label-sm px-4 py-2 rounded-full whitespace-nowrap">Kustom</button>
+</div>
+<!-- 2x2 Grid Stats -->
+<div class="grid grid-cols-2 gap-gutter mb-stack-lg">
+<!-- Total Spent -->
+<div class="neo-card bg-surface-dark p-4 flex flex-col justify-between h-28">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Total Spent</span>
+<span class="font-currency-display text-currency-display text-on-surface">Rp4.2M</span>
+</div>
+<!-- Daily Burn Rate -->
+<div class="neo-card bg-surface-dark p-4 flex flex-col justify-between h-28">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Daily Burn Rate</span>
+<div class="flex items-end gap-1">
+<span class="font-data-mono text-data-mono text-warning">Rp600k</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">/day</span>
+</div>
+</div>
+<!-- Top Category -->
+<div class="neo-card bg-surface-dark p-4 flex flex-col justify-between h-28">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Top Category</span>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">restaurant</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Makanan</span>
+</div>
+</div>
+<!-- Frequency -->
+<div class="neo-card bg-surface-dark p-4 flex flex-col justify-between h-28">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Frequency</span>
+<div class="flex items-end gap-1">
+<span class="font-headline-md text-headline-md text-on-surface">24</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-1">trx</span>
+</div>
+</div>
+</div>
+<!-- Stacked Area Chart Section -->
+<div class="neo-card bg-surface-dark p-4 mb-stack-lg">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg">Trend Pengeluaran</h3>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<!-- Interactive Chart Area (Visual Representation) -->
+<div class="relative h-48 w-full border-l border-b border-outline-variant/50 flex items-end pt-4 pb-2 pr-2">
+<!-- Y-Axis Labels -->
+<div class="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant -ml-8 py-2">
+<span>1M</span>
+<span>500k</span>
+<span>0</span>
+</div>
+<!-- Chart content placeholder -->
+<div class="w-full h-full relative chart-placeholder flex items-end justify-between px-2 opacity-80">
+<!-- SVG Path for the area chart effect -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0 100 L0 50 Q 25 30 50 60 T 100 20 L100 100 Z" fill="url(#chart-gradient)" opacity="0.3"></path>
+<path d="M0 50 Q 25 30 50 60 T 100 20" fill="none" stroke="theme('colors.primary')" stroke-width="2"></path>
+<defs>
+<lineargradient id="chart-gradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#62df7d" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#62df7d" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+</svg>
+<!-- Vertical grid lines -->
+<div class="w-px h-full bg-outline-variant/30"></div>
+<div class="w-px h-full bg-outline-variant/30"></div>
+<div class="w-px h-full bg-outline-variant/30"></div>
+<div class="w-px h-full bg-outline-variant/30"></div>
+<div class="w-px h-full bg-outline-variant/30"></div>
+<!-- Interactive Tooltip Marker -->
+<div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full border-2 border-surface-dark shadow-[0_0_10px_rgba(98,223,125,0.5)] z-10 cursor-pointer group">
+<!-- Tooltip -->
+<div class="hidden group-hover:flex absolute -top-16 left-1/2 -translate-x-1/2 bg-surface-container-highest border border-outline-variant rounded-md p-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex-col gap-1 w-32 z-20">
+<span class="font-data-mono text-data-mono text-[10px] text-on-surface-variant">4 Hari lalu</span>
+<div class="flex justify-between items-center text-[11px]">
+<span class="text-primary flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span> Makanan</span>
+<span class="text-on-surface">Rp150k</span>
+</div>
+<div class="flex justify-between items-center text-[11px]">
+<span class="text-warning flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-warning inline-block"></span> Transport</span>
+<span class="text-on-surface">Rp50k</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- X-Axis Labels -->
+<div class="flex justify-between mt-2 px-2 text-[10px] text-on-surface-variant font-data-mono">
+<span>Sen</span>
+<span>Sel</span>
+<span>Rab</span>
+<span>Kam</span>
+<span>Jum</span>
+<span>Sab</span>
+<span>Min</span>
+</div>
+</div>
+<!-- Legend -->
+<div class="neo-card bg-surface-dark p-4 mb-stack-lg">
+<h4 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Kategori</h4>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Makanan &amp; Minuman</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">visibility</span>
+</div>
+<div class="flex items-center justify-between cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-warning"></div>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-warning transition-colors">Transportasi</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">visibility</span>
+</div>
+<div class="flex items-center justify-between cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-info"></div>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-info transition-colors">Utilitas</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">visibility</span>
+</div>
+<div class="flex items-center justify-between cursor-pointer group opacity-50">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-tertiary-container"></div>
+<span class="font-body-md text-body-md text-on-surface line-through">Hiburan</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">visibility_off</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface dark:bg-surface-dark border-t border-outline-variant dark:border-outline shadow-[0px_-2px_0px_0px_rgba(0,0,0,1)] flex justify-around items-center h-16 px-2">
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low active:scale-95 transition-transform w-16 h-full rounded-lg">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</button>
+<!-- Setting History as Active (Closest match to Analysis/Spending history) -->
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed font-bold hover:bg-surface-container dark:hover:bg-surface-container-low active:scale-95 transition-transform w-16 h-full rounded-lg">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">history</span>
+<span class="font-label-sm text-label-sm">History</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low active:scale-95 transition-transform w-16 h-full rounded-lg -translate-y-4">
+<div class="bg-primary text-background-dark rounded-full w-12 h-12 flex items-center justify-center neo-button">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+</div>
+<span class="font-label-sm text-label-sm mt-1 sr-only">Add</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low active:scale-95 transition-transform w-16 h-full rounded-lg">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">target</span>
+<span class="font-label-sm text-label-sm">Goals</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low active:scale-95 transition-transform w-16 h-full rounded-lg">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">settings</span>
+<span class="font-label-sm text-label-sm">Settings</span>
+</button>
+</nav>
+</body></html>

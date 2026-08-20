@@ -41,3 +41,8 @@ __pycache__
 # graphify
 graphify-out/
 .graphifyignore
+
+# agent memory
+memory/
+memory
+
