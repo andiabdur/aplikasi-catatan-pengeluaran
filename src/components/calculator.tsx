@@ -35,13 +35,13 @@ export function Calculator({ onResult, onClose }: CalculatorProps) {
   }
 
   return (
-    <div className="mt-2 neo-card p-0 overflow-hidden">
-      <div className="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-right min-h-10 flex items-center justify-end">
-        <span className="text-base font-mono font-bold text-slate-900 dark:text-slate-100 truncate">
+    <div className="mt-2 bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-0 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+      <div className="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-950 border-b-2 border-slate-950 dark:border-slate-100 text-right min-h-10 flex items-center justify-end">
+        <span className="text-lg font-mono font-black text-slate-950 dark:text-slate-100 truncate">
           {calcExpr || "0"}
         </span>
       </div>
-      <div className="grid grid-cols-4 gap-px bg-slate-200 dark:bg-slate-800">
+      <div className="grid grid-cols-4 gap-px bg-slate-950 dark:bg-slate-100 border-t-0">
         {(["AC", "⌫", "÷", "×", "7", "8", "9", "-", "4", "5", "6", "+", "1", "2", "3", "=", "0", "00", "000", "."] as const).map(
           (k) => (
             <button
@@ -49,11 +49,11 @@ export function Calculator({ onResult, onClose }: CalculatorProps) {
               key={k}
               onClick={() => calcPress(k)}
               className={cn(
-                "py-3.5 text-xs font-mono font-bold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 active:bg-slate-100 dark:active:bg-slate-700 transition-colors",
-                (k === "AC" || k === "⌫") && "text-rose-500 hover:text-rose-600",
+                "py-3.5 text-xs font-mono font-bold bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 transition-colors",
+                (k === "AC" || k === "⌫") && "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-600 hover:text-white",
                 (k === "÷" || k === "×" || k === "-" || k === "+") &&
-                  "text-brand-600 dark:text-brand-400 bg-slate-50 dark:bg-slate-950",
-                k === "=" && "btn-primary !rounded-none col-span-1 text-slate-950 font-bold",
+                  "bg-slate-100 dark:bg-slate-900 font-black",
+                k === "=" && "bg-brand-500 text-slate-950 font-black hover:bg-brand-400 dark:hover:bg-brand-400 hover:text-slate-950",
               )}
             >
               {k}

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function AsistenPage() {
   const householdId = await getCurrentHouseholdId();
   return (
-    <PageShell title="Asisten Keuangan ✨" subtitle="Analisa AI dari pola belanja keluarga">
+    <PageShell title="Asisten Keuangan" subtitle="Analisa AI & Rekomendasi CFO Finansial">
       <AsistenClient householdId={householdId ?? ""} />
     </PageShell>
   );

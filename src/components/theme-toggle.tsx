@@ -32,14 +32,13 @@ export function ThemeToggle() {
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
+    <button
+      type="button"
       onClick={toggle}
       aria-label={dark ? "Aktifkan light mode" : "Aktifkan dark mode"}
-      className="rounded-xl text-slate-500 dark:text-slate-400 dark:hover:bg-slate-800"
+      className="w-10 h-10 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 hover:bg-slate-950 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center justify-center shrink-0"
     >
       {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-    </Button>
+    </button>
   );
 }

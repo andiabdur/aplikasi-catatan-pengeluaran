@@ -92,17 +92,17 @@ export function GoalsClient({
       <button
         type="button"
         onClick={() => setEdit({ mode: "new" })}
-        className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm shadow-sm flex items-center justify-center gap-2"
+        className="w-full py-3.5 bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black text-sm uppercase tracking-wider rounded-none border-4 border-slate-950 dark:border-slate-100 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-2 transition-all"
       >
-        <Plus className="w-5 h-5" /> Tambah Goal Baru
+        <Plus className="w-5 h-5" /> Tambah Target Finansial Baru
       </button>
 
       {active.length === 0 && done.length === 0 && (
-        <div className="neo-card text-center py-12 px-4 space-y-3">
-          <div className="w-14 h-14 rounded-2xl bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/30 flex items-center justify-center mx-auto shadow-sm">
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none text-center py-12 px-4 space-y-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <div className="w-14 h-14 rounded-none bg-brand-500 text-slate-950 border-2 border-slate-950 flex items-center justify-center mx-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <Target className="w-7 h-7" />
           </div>
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-300 max-w-xs mx-auto leading-relaxed">
+          <p className="text-xs font-mono uppercase text-slate-600 dark:text-slate-300 max-w-xs mx-auto leading-relaxed">
             Belum ada goal. Buat target pertama keluarga Anda — Umroh, dana darurat, liburan, atau DP rumah.
           </p>
         </div>
@@ -122,7 +122,7 @@ export function GoalsClient({
 
       {done.length > 0 && (
         <div className="pt-3">
-          <p className="text-xs font-bold text-slate-400 px-1 mb-2.5 uppercase tracking-wider">
+          <p className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 px-1 mb-2.5 uppercase tracking-wider">
             Selesai / Diarsipkan
           </p>
           <div className="space-y-3">
@@ -181,17 +181,17 @@ function GoalCard({
   const isActive = goal.status === "active";
 
   return (
-    <div className={cn("neo-card p-4 space-y-3.5", !isActive && "opacity-75")}>
+    <div className={cn("bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]", !isActive && "opacity-75")}>
       <div className="flex items-start gap-3">
         <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-800 shadow-sm"
-          style={{ background: `${goal.color}20` }}
+          className="w-11 h-11 rounded-none flex items-center justify-center shrink-0 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+          style={{ backgroundColor: goal.color ?? "#16a34a" }}
         >
-          <GoalIcon iconNameOrEmoji={goal.emoji} style={{ color: goal.color }} />
+          <GoalIcon iconNameOrEmoji={goal.emoji} className="w-5 h-5 text-white" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">{goal.name}</h3>
+            <h3 className="font-headline font-bold text-sm text-slate-950 dark:text-slate-100 uppercase tracking-wider truncate">{goal.name}</h3>
             {goal.status === "achieved" && (
               <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
             )}
@@ -199,24 +199,24 @@ function GoalCard({
               <Archive className="w-4 h-4 text-slate-400 shrink-0" />
             )}
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+          <p className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400 mt-0.5">
             {formatIDR(goal.saved)} / {formatIDR(goal.target_amount)}
             {goal.target_date && ` · ${formatTargetDate(goal.target_date)}`}
           </p>
         </div>
         <span
           className={cn(
-            "text-sm font-mono font-bold shrink-0",
-            reached ? "text-emerald-600 dark:text-emerald-400" : "text-slate-900 dark:text-slate-100",
+            "text-base font-headline font-black shrink-0",
+            reached ? "text-emerald-600 dark:text-emerald-400" : "text-slate-950 dark:text-slate-100",
           )}
         >
           {pct}%
         </span>
       </div>
 
-      <div className="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-800/80">
+      <div className="h-3 rounded-none bg-slate-100 dark:bg-slate-950 overflow-hidden border-2 border-slate-950 dark:border-slate-100">
         <div
-          className="h-full rounded-full transition-all"
+          className="h-full rounded-none transition-all"
           style={{
             width: `${pct}%`,
             background: reached ? "#22c55e" : goal.color,
@@ -225,14 +225,14 @@ function GoalCard({
       </div>
 
       <div className="flex items-center justify-between pt-0.5">
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-xs font-mono font-bold uppercase text-slate-600 dark:text-slate-400">
           {reached ? (
-            <span className="text-emerald-600 dark:text-emerald-400 font-bold">Target tercapai!</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-headline font-black">Target tercapai!</span>
           ) : (
-            <>Kurang <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{formatIDR(remaining)}</span></>
+            <>Kurang <span className="font-bold text-slate-950 dark:text-slate-100">{formatIDR(remaining)}</span></>
           )}
         </p>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           {busy ? (
             <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
           ) : (
@@ -252,10 +252,10 @@ function GoalCard({
                   <Target className="w-4 h-4" />
                 </IconBtn>
               )}
-              <IconBtn title="Edit" onClick={onEdit} className="text-slate-400 hover:text-brand-500">
+              <IconBtn title="Edit" onClick={onEdit} className="text-slate-600 hover:text-slate-950">
                 <Pencil className="w-4 h-4" />
               </IconBtn>
-              <IconBtn title="Hapus" onClick={onDelete} className="text-slate-400 hover:text-rose-500">
+              <IconBtn title="Hapus" onClick={onDelete} className="text-slate-600 hover:text-rose-600">
                 <Trash2 className="w-4 h-4" />
               </IconBtn>
             </>
@@ -279,7 +279,7 @@ function IconBtn({
       type="button"
       onClick={onClick}
       title={title}
-      className={cn("p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition", className)}
+      className={cn("p-1.5 rounded-none border border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 transition", className)}
     >
       {children}
     </button>
@@ -332,24 +332,24 @@ function GoalEditor({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm neo-card-lg bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-2xl space-y-4 max-h-[90dvh] overflow-y-auto"
+        className="w-full max-w-sm bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] space-y-4 max-h-[90dvh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="font-bold text-slate-900 dark:text-slate-100 text-base">
+        <div className="flex items-center justify-between pb-2 border-b-2 border-slate-950 dark:border-slate-100">
+          <h2 className="font-headline font-bold text-slate-950 dark:text-slate-100 uppercase text-base tracking-wider">
             {goal ? "Edit Goal" : "Goal Baru"}
           </h2>
-          <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
-            <X className="w-5 h-5" />
+          <button type="button" onClick={onClose} className="p-1 rounded-none border border-slate-950 text-slate-950 dark:text-slate-100 hover:bg-slate-950 hover:text-white">
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         <div>
-          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">Pilih Ikon</label>
+          <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1.5">Pilih Ikon</label>
           <div className="flex flex-wrap gap-2">
             {ICON_CHOICES.map((ic) => (
               <button
@@ -357,10 +357,10 @@ function GoalEditor({
                 type="button"
                 onClick={() => setEmoji(ic)}
                 className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
+                  "w-10 h-10 rounded-none flex items-center justify-center border-2 transition-all",
                   emoji === ic
-                    ? "border-brand-500 bg-brand-500/10 text-brand-600 dark:text-brand-400 shadow-sm"
-                    : "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700",
+                    ? "border-slate-950 bg-brand-500 text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-bold"
+                    : "border-slate-950 bg-slate-50 dark:bg-slate-950 text-slate-500 hover:bg-slate-100"
                 )}
               >
                 <GoalIcon iconNameOrEmoji={ic} className="w-5 h-5" />
@@ -370,21 +370,21 @@ function GoalEditor({
         </div>
 
         <div>
-          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">Nama Goal</label>
+          <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1.5">Nama Goal</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="contoh: Umroh sekeluarga"
-            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-500"
+            className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none py-2.5 px-3.5 text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
             autoFocus
           />
         </div>
 
         <div>
-          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">Target Nominal (Rp)</label>
+          <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1.5">Target Nominal (Rp)</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-brand-600 dark:text-brand-400">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-headline font-black text-slate-950 dark:text-slate-100">
               Rp
             </span>
             <input
@@ -393,28 +393,28 @@ function GoalEditor({
               value={amountText}
               onChange={(e) => setAmountText(formatIDRInput(e.target.value))}
               placeholder="0"
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-3.5 text-sm font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-500"
+              className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none py-2.5 pl-10 pr-3.5 text-xs font-mono font-bold text-slate-950 dark:text-slate-100 focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
             />
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">Target Tanggal (Opsional)</label>
+          <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1.5">Target Tanggal (Opsional)</label>
           <input
             type="date"
             value={targetDate}
             onChange={(e) => setTargetDate(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 px-3.5 text-xs font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-500"
+            className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none py-2.5 px-3.5 text-xs font-mono font-bold text-slate-950 dark:text-slate-100 focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
           />
         </div>
 
-        {error && <p className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800">{error}</p>}
+        {error && <p className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-none border-2 border-rose-600 uppercase">{error}</p>}
 
         <button
           type="button"
           onClick={save}
           disabled={saving}
-          className="btn-primary w-full py-3 rounded-xl font-bold text-sm shadow-sm"
+          className="w-full py-3.5 bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black uppercase tracking-wider text-xs rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
         >
           {saving ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : goal ? "Simpan Perubahan" : "Buat Goal"}
         </button>

@@ -82,31 +82,31 @@
 
 @layer components {
   .card {
-    @apply bg-card text-card-foreground border border-slate-200/80 dark:border-slate-800/80 rounded-xl shadow-none p-5;
+    @apply bg-card text-card-foreground border-2 border-slate-900 dark:border-slate-100 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] p-5;
   }
-  .neo-card {
-    @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,0.06)] dark:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.6)];
+  .neo-card, .bauhaus-card {
+    @apply bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-100 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)];
   }
-  .neo-card-lg {
-    @apply bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,0.08)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)];
+  .neo-card-lg, .bauhaus-card-lg {
+    @apply bg-white dark:bg-slate-900 border-4 border-slate-950 dark:border-slate-100 rounded-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)];
   }
-  .neo-button {
-    @apply border border-slate-200 dark:border-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.06)] dark:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.6)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all;
+  .neo-button, .bauhaus-button {
+    @apply border-2 border-slate-950 dark:border-slate-100 uppercase font-bold tracking-wider rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-none px-4 py-2.5 text-sm font-bold uppercase tracking-wider transition-all focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none;
   }
   .btn-primary {
-    @apply btn bg-brand-600 dark:bg-brand-500 text-white hover:bg-brand-700 dark:hover:bg-brand-600 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.6)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none;
+    @apply btn bg-brand-500 text-slate-950 border-2 border-slate-950 dark:border-slate-100 hover:bg-brand-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
   }
   .btn-ghost {
-    @apply btn hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200;
+    @apply btn border-2 border-transparent hover:border-slate-950 dark:hover:border-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100;
   }
   .input {
-    @apply flex h-10 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-foreground px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-11 w-full rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 text-foreground px-3.5 py-2 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] disabled:cursor-not-allowed disabled:opacity-50 font-bold;
   }
   .label {
-    @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 select-none text-slate-700 dark:text-slate-300;
+    @apply text-xs font-bold uppercase tracking-wider leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 select-none text-slate-900 dark:text-slate-100;
   }
   .skeleton {
     @apply rounded-lg;

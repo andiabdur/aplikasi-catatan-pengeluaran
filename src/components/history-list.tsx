@@ -212,13 +212,13 @@ export function HistoryList({
     const [evtId, setEvtId] = useState(row.event_id || "");
 
     return (
-      <div className="p-3 space-y-2 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800">
+      <div className="p-3.5 space-y-2.5 bg-slate-50 dark:bg-slate-950 border-t-4 border-slate-950 dark:border-slate-100">
         <div className="grid grid-cols-2 gap-2">
           <input
             type="text"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
-            className="input text-sm py-1.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
+            className="input text-xs py-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 font-headline font-bold uppercase"
             autoFocus
             placeholder="Nama kebutuhan"
           />
@@ -226,13 +226,13 @@ export function HistoryList({
             type="date"
             value={spentAt}
             onChange={(e) => setSpentAt(e.target.value)}
-            className="input text-sm py-1.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 font-mono"
+            className="input text-xs py-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 font-mono font-bold"
           />
         </div>
         <select
           value={catId}
           onChange={(e) => setCatId(e.target.value)}
-          className="input text-sm py-1.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
+          className="input text-xs py-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 font-headline font-bold uppercase"
         >
           {cats.map((c) => (
             <option key={c.id} value={c.id}>
@@ -244,7 +244,7 @@ export function HistoryList({
           <select
             value={evtId}
             onChange={(e) => setEvtId(e.target.value)}
-            className="input text-sm py-1.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
+            className="input text-xs py-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 font-headline font-bold uppercase"
           >
             <option value="">(Tanpa Event)</option>
             {activeEvents.map((evt) => (
@@ -255,7 +255,7 @@ export function HistoryList({
           </select>
         )}
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-brand-600 dark:text-brand-400">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-headline font-black text-slate-950 dark:text-slate-100">
             Rp
           </span>
           <input
@@ -263,7 +263,7 @@ export function HistoryList({
             inputMode="numeric"
             value={amtText}
             onChange={(e) => setAmtText(formatIDRInput(e.target.value))}
-            className="input pl-9 text-sm py-1.5 font-mono font-bold text-right rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
+            className="input pl-9 text-xs py-1.5 font-mono font-bold text-right rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950"
           />
         </div>
         <div className="flex gap-2 pt-1">
@@ -273,14 +273,18 @@ export function HistoryList({
                 description: desc.trim(),
                 category_id: catId,
                 amount: parseIDRInput(amtText),
-                spent_at: spentAt, event_id: evtId || null,
+                spent_at: spentAt,
+                event_id: evtId || null,
               })
             }
-            className="btn-primary flex-1 text-sm py-2 flex items-center justify-center gap-1.5 font-bold rounded-xl shadow-sm"
+            className="btn-primary flex-1 text-xs py-2 flex items-center justify-center gap-1.5 font-headline font-bold rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase"
           >
             <Check className="w-4 h-4" /> Simpan
           </button>
-          <button onClick={onCancel} className="btn-ghost text-sm py-2 px-4 rounded-xl border border-slate-200 dark:border-slate-800">
+          <button
+            onClick={onCancel}
+            className="btn-ghost text-xs py-2 px-4 rounded-none border-2 border-slate-950 dark:border-slate-100 font-headline font-bold uppercase"
+          >
             Batal
           </button>
         </div>
@@ -289,28 +293,30 @@ export function HistoryList({
   }
 
   return (
-    <div className="space-y-3.5">
-      {/* Filter panel */}
-      <div className="neo-card p-4 space-y-3">
+    <div className="space-y-4">
+      {/* Filter panel (Bauhaus V2 Style) */}
+      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 p-4 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] space-y-3">
         {/* Search */}
         <div className="relative">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-950 dark:text-slate-100 font-bold" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari transaksi, kategori, atau jumlah..."
-            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 placeholder:text-slate-400 transition-colors"
+            className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none py-2.5 pl-10 pr-4 text-xs font-headline font-bold text-slate-950 dark:text-slate-100 focus:outline-none placeholder:text-slate-400 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
           />
         </div>
 
         {/* Mode tabs */}
-        <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+        <div className="grid grid-cols-2 gap-1.5 p-1 bg-white dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100">
           <button
             onClick={() => setFilterMode("period")}
             className={cn(
-              "py-1.5 text-xs font-bold rounded-lg transition-all",
-              filterMode === "period" ? "bg-white dark:bg-slate-900 shadow-sm text-brand-600 dark:text-brand-400" : "text-slate-500 dark:text-slate-400",
+              "py-1.5 text-xs font-headline font-bold uppercase tracking-wider transition-all rounded-none",
+              filterMode === "period"
+                ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900"
             )}
           >
             Periode Gajian
@@ -318,8 +324,10 @@ export function HistoryList({
           <button
             onClick={() => setFilterMode("custom")}
             className={cn(
-              "py-1.5 text-xs font-bold rounded-lg transition-all",
-              filterMode === "custom" ? "bg-white dark:bg-slate-900 shadow-sm text-brand-600 dark:text-brand-400" : "text-slate-500 dark:text-slate-400",
+              "py-1.5 text-xs font-headline font-bold uppercase tracking-wider transition-all rounded-none",
+              filterMode === "custom"
+                ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900"
             )}
           >
             Custom Tanggal
@@ -337,7 +345,7 @@ export function HistoryList({
             {labelMonthKey(labelMonth) !== labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods)) && (
               <button
                 onClick={() => setLabelMonth(currentPeriodLabelWithCustom(payDay, customPeriods))}
-                className="mt-1.5 text-xs font-semibold text-brand-600 dark:text-brand-400 w-full text-center hover:underline"
+                className="mt-1.5 text-xs font-mono font-bold text-brand-600 dark:text-brand-400 w-full text-center hover:underline uppercase"
               >
                 Ke periode sekarang
               </button>
@@ -346,21 +354,21 @@ export function HistoryList({
         ) : (
           <div className="grid grid-cols-2 gap-2 pt-1">
             <div>
-              <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Dari</label>
+              <label className="text-[11px] font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider">Dari</label>
               <input
                 type="date"
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100"
+                className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none px-3 py-2 text-xs font-mono font-bold text-slate-950 dark:text-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
               />
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Sampai</label>
+              <label className="text-[11px] font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider">Sampai</label>
               <input
                 type="date"
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100"
+                className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none px-3 py-2 text-xs font-mono font-bold text-slate-950 dark:text-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
               />
             </div>
           </div>
@@ -371,8 +379,10 @@ export function HistoryList({
           <button
             onClick={() => setCatFilter("")}
             className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all",
-              !catFilter ? "bg-brand-600 text-white shadow-sm" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700",
+              "px-3 py-1.5 rounded-none text-xs font-headline font-bold uppercase tracking-wider whitespace-nowrap transition-all border-2 border-slate-950 dark:border-slate-100",
+              !catFilter
+                ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                : "bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:bg-slate-100"
             )}
           >
             Semua
@@ -384,16 +394,18 @@ export function HistoryList({
                 key={c.id}
                 onClick={() => setCatFilter(c.id)}
                 className={cn(
-                  "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-all border",
+                  "px-3 py-1.5 rounded-none text-xs font-headline font-bold uppercase tracking-wider whitespace-nowrap flex items-center gap-1.5 transition-all border-2 border-slate-950 dark:border-slate-100",
                   catFilter === c.id
-                    ? "bg-brand-600 text-white border-brand-600 shadow-sm"
-                    : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700",
+                    ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                    : "bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:bg-slate-100"
                 )}
               >
-                <Icon
-                  className="w-3.5 h-3.5 shrink-0"
-                  style={{ color: catFilter === c.id ? "#ffffff" : c.color ?? "#94a3b8" }}
-                />
+                <div
+                  className="w-4 h-4 rounded-none flex items-center justify-center shrink-0 border border-slate-950"
+                  style={{ backgroundColor: c.color ?? "#16a34a" }}
+                >
+                  <Icon className="w-2.5 h-2.5 text-white" />
+                </div>
                 {c.name}
               </button>
             );
@@ -406,8 +418,10 @@ export function HistoryList({
             <button
               onClick={() => setEvtFilter("")}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all",
-                !evtFilter ? "bg-indigo-600 text-white shadow-sm" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700",
+                "px-3 py-1.5 rounded-none text-xs font-headline font-bold uppercase tracking-wider whitespace-nowrap transition-all border-2 border-slate-950 dark:border-slate-100",
+                !evtFilter
+                  ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  : "bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
               )}
             >
               Semua Event
@@ -415,8 +429,10 @@ export function HistoryList({
             <button
               onClick={() => setEvtFilter("__none__")}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border",
-                evtFilter === "__none__" ? "bg-indigo-600 text-white border-indigo-600 shadow-sm" : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300",
+                "px-3 py-1.5 rounded-none text-xs font-headline font-bold uppercase tracking-wider whitespace-nowrap transition-all border-2 border-slate-950 dark:border-slate-100",
+                evtFilter === "__none__"
+                  ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  : "bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
               )}
             >
               Tanpa Event
@@ -426,14 +442,13 @@ export function HistoryList({
                 key={evt.id}
                 onClick={() => setEvtFilter(evt.id)}
                 className={cn(
-                  "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-all border",
-                  evtFilter === evt.id ? "bg-indigo-600 text-white border-indigo-600 shadow-sm" : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300",
+                  "px-3 py-1.5 rounded-none text-xs font-headline font-bold uppercase tracking-wider whitespace-nowrap flex items-center gap-1.5 transition-all border-2 border-slate-950 dark:border-slate-100",
+                  evtFilter === evt.id
+                    ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    : "bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
                 )}
               >
                 {evt.name}
-                {evt.status === "active" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-                )}
               </button>
             ))}
           </div>
@@ -446,22 +461,25 @@ export function HistoryList({
               setEvtFilter("");
               setSearch("");
             }}
-            className="text-xs font-semibold text-rose-500 dark:text-rose-400 flex items-center gap-1 hover:underline pt-1"
+            className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1 hover:underline pt-1 uppercase"
           >
             <X className="w-3.5 h-3.5" /> Reset filter
           </button>
         )}
       </div>
 
-      {/* Summary card */}
-      <div id="history-list-top" className="neo-card p-4 flex items-center justify-between bg-brand-500/10 border-brand-500/30">
+      {/* Summary card (Bauhaus V2 Highlight) */}
+      <div
+        id="history-list-top"
+        className="bg-brand-500 text-slate-950 border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex items-center justify-between shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]"
+      >
         <div>
-          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <p className="text-[11px] font-headline font-black text-slate-950 uppercase tracking-wider">
             {evtFilter && evtFilter !== "__none__"
-              ? `${events?.find(e => e.id === evtFilter)?.name ?? "Event"} · ${filtered.length} item`
+              ? `${events?.find((e) => e.id === evtFilter)?.name ?? "Event"} · ${filtered.length} item`
               : `Total Pengeluaran (${filtered.length} item)`}
           </p>
-          <p className="font-mono font-bold text-brand-600 dark:text-brand-400 text-xl mt-0.5">{formatIDR(total)}</p>
+          <p className="font-headline font-black text-slate-950 text-2xl mt-0.5">{formatIDR(total)}</p>
         </div>
         <button
           onClick={() => {
@@ -472,36 +490,42 @@ export function HistoryList({
               setChartOpen((v) => !v);
             }
           }}
-          className="text-xs font-bold text-brand-700 dark:text-brand-300 bg-white dark:bg-slate-800 px-3.5 py-2 rounded-xl border border-brand-500/30 shadow-sm flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition active:scale-95"
+          className="text-xs font-headline font-bold text-slate-950 bg-white border-2 border-slate-950 px-3.5 py-2 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all uppercase tracking-wider"
         >
           <PieIcon className="w-4 h-4" />
-          <span>Lihat Chart</span>
+          <span>Chart</span>
         </button>
       </div>
 
       {/* List */}
       {loading ? (
-        <p className="text-center text-sm font-medium text-slate-500 dark:text-slate-400 py-8">Memuat data...</p>
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 p-8 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <p className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">Memuat riwayat transaksi...</p>
+        </div>
       ) : grouped.length === 0 ? (
-        <p className="text-center text-sm font-medium text-slate-500 dark:text-slate-400 py-8">Tidak ada pengeluaran ditemukan.</p>
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 p-8 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <p className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">Tidak ada pengeluaran ditemukan.</p>
+        </div>
       ) : (
         grouped.map(([date, items]) => {
           const dayTotal = items.reduce((s, r) => s + Number(r.amount), 0);
           return (
-            <div key={date} className="space-y-1.5">
-              <div className="flex items-center justify-between px-1 py-1">
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <div key={date} className="space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <span className="font-headline text-xs font-black uppercase tracking-wider bg-brand-400 text-slate-950 border-2 border-slate-950 px-3 py-1 inline-block shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                   {new Date(date).toLocaleDateString("id-ID", {
                     weekday: "short",
                     day: "numeric",
                     month: "short",
                     year: "numeric",
                   })}
-                </p>
-                <p className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">{formatIDR(dayTotal)}</p>
+                </span>
+                <span className="font-mono text-xs font-bold text-slate-950 dark:text-slate-100 bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 px-2.5 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+                  {formatIDR(dayTotal)}
+                </span>
               </div>
-              <div className="neo-card divide-y divide-slate-100 dark:divide-slate-800/80 p-0 overflow-hidden">
-                {items.map((r) =>
+              <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+                {items.map((r, itemIdx) =>
                   editingId === r.id ? (
                     <EditExpenseRow
                       key={r.id}
@@ -512,27 +536,13 @@ export function HistoryList({
                       onCancel={() => setEditingId(null)}
                     />
                   ) : (
-                    <div 
-                      key={r.id} 
-                      className={`flex items-center justify-between p-3.5 group select-none transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 ${selectedIds.has(r.id) ? 'bg-indigo-50/80 dark:bg-indigo-950/40 relative before:absolute before:inset-0 before:border-2 before:border-indigo-400 before:pointer-events-none before:z-10' : ''}`}
-                      onTouchStart={() => {
-                        const t = setTimeout(() => {
-                          if (!isSelectionMode) setIsSelectionMode(true);
-                          toggleSelection(r.id);
-                        }, 500);
-                        (r as any)._timer = t;
-                      }}
-                      onTouchEnd={() => clearTimeout((r as any)._timer)}
-                      onTouchMove={() => clearTimeout((r as any)._timer)}
-                      onMouseDown={() => {
-                        const t = setTimeout(() => {
-                          if (!isSelectionMode) setIsSelectionMode(true);
-                          toggleSelection(r.id);
-                        }, 500);
-                        (r as any)._timer = t;
-                      }}
-                      onMouseUp={() => clearTimeout((r as any)._timer)}
-                      onMouseLeave={() => clearTimeout((r as any)._timer)}
+                    <div
+                      key={r.id}
+                      className={cn(
+                        "flex items-center justify-between p-3.5 group select-none transition-colors hover:bg-slate-950 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-950",
+                        itemIdx !== items.length - 1 && "border-b-4 border-slate-950 dark:border-slate-100",
+                        selectedIds.has(r.id) && "bg-brand-500/20"
+                      )}
                       onClick={() => {
                         if (isSelectionMode) {
                           toggleSelection(r.id);
@@ -541,32 +551,36 @@ export function HistoryList({
                     >
                       <div className="min-w-0 flex-1 flex items-center gap-3">
                         {isSelectionMode && (
-                          <div className={cn("w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-colors", selectedIds.has(r.id) ? "bg-indigo-600 border-indigo-600 text-white" : "border-slate-300 dark:border-slate-700")}>
-                            {selectedIds.has(r.id) && <Check className="w-3.5 h-3.5" />}
+                          <div
+                            className={cn(
+                              "w-6 h-6 rounded-none border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 transition-colors",
+                              selectedIds.has(r.id)
+                                ? "bg-brand-500 text-slate-950"
+                                : "bg-white dark:bg-slate-950"
+                            )}
+                          >
+                            {selectedIds.has(r.id) && <Check className="w-4 h-4 font-bold" />}
                           </div>
                         )}
                         <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm shrink-0"
-                          style={{ backgroundColor: `${r.categories?.color ?? "#94a3b8"}15` }}
+                          className="w-10 h-10 rounded-none flex items-center justify-center border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] shrink-0"
+                          style={{ backgroundColor: r.categories?.color ?? "#16a34a" }}
                         >
                           {(() => {
                             const Icon = getCategoryIcon(r.categories?.name ?? "");
-                            return (
-                              <Icon
-                                className="w-5 h-5 shrink-0"
-                                style={{ color: r.categories?.color ?? "#94a3b8" }}
-                              />
-                            );
+                            return <Icon className="w-5 h-5 text-white" />;
                           })()}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">{r.description}</p>
-                          <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-slate-500 dark:text-slate-400">
-                            <span className="font-medium">{r.categories?.name}</span>
+                          <p className="font-headline font-bold text-sm text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950 uppercase tracking-wider truncate">
+                            {r.description}
+                          </p>
+                          <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-300 dark:group-hover:text-slate-700 font-mono uppercase">
+                            <span>{r.categories?.name}</span>
                             {r.event_id && (() => {
-                              const evt = events?.find(e => e.id === r.event_id);
+                              const evt = events?.find((e) => e.id === r.event_id);
                               return evt ? (
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-none bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 border border-slate-950">
                                   {evt.name}
                                 </span>
                               ) : null;
@@ -574,14 +588,16 @@ export function HistoryList({
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 shrink-0 ml-3">
-                        <p className="font-mono font-bold text-sm text-slate-900 dark:text-slate-100 mr-1">{formatIDR(r.amount)}</p>
+                      <div className="flex items-center gap-2 shrink-0 ml-3">
+                        <p className="font-mono font-black text-sm text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950 mr-1">
+                          {formatIDR(r.amount)}
+                        </p>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             setEditingId(r.id);
                           }}
-                          className="p-1.5 text-slate-400 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white rounded-none border border-transparent hover:border-slate-950 transition-colors"
                           aria-label="Edit"
                         >
                           <Pencil className="w-4 h-4" />
@@ -591,14 +607,14 @@ export function HistoryList({
                             e.stopPropagation();
                             handleDelete(r.id);
                           }}
-                          className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-rose-600 rounded-none border border-transparent hover:border-rose-600 transition-colors"
                           aria-label="Hapus"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
-                  ),
+                  )
                 )}
               </div>
             </div>
@@ -608,19 +624,21 @@ export function HistoryList({
 
       {/* Dynamic Pagination Bar */}
       {filtered.length > 0 && (
-        <div className="neo-card flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-slate-50 dark:bg-slate-900/60">
-          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-            <span>Menampilkan <strong>{totalCount > 0 ? startIndex + 1 : 0}–{endIndex}</strong> dari <strong>{totalCount}</strong> item</span>
-            <span className="text-slate-300 dark:text-slate-700">|</span>
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase text-slate-700 dark:text-slate-300">
+            <span>
+              {totalCount > 0 ? startIndex + 1 : 0}–{endIndex} dari {totalCount} item
+            </span>
+            <span className="text-slate-400">|</span>
             <div className="flex items-center gap-1">
-              <span>Per halaman:</span>
+              <span>Per page:</span>
               <select
                 value={pageSize}
                 onChange={(e) => {
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-800 dark:text-slate-200 font-bold focus:outline-none"
+                className="bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none px-2 py-0.5 text-xs text-slate-950 dark:text-slate-100 font-bold focus:outline-none"
               >
                 <option value={15}>15</option>
                 <option value={30}>30</option>
@@ -630,7 +648,7 @@ export function HistoryList({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => {
@@ -641,14 +659,16 @@ export function HistoryList({
                 }
               }}
               disabled={safePage <= 1}
-              className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="p-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-100 disabled:opacity-40 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
               title="Halaman Sebelumnya"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-1 px-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-              <span>{safePage} / {totalPages}</span>
+            <div className="flex items-center px-2 text-xs font-mono font-bold text-slate-950 dark:text-slate-100">
+              <span>
+                {safePage} / {totalPages}
+              </span>
             </div>
 
             <button
@@ -661,7 +681,7 @@ export function HistoryList({
                 }
               }}
               disabled={safePage >= totalPages}
-              className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="p-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-100 disabled:opacity-40 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
               title="Halaman Selanjutnya"
             >
               <ChevronRight className="w-4 h-4" />
@@ -672,20 +692,20 @@ export function HistoryList({
 
       {/* Chart Section */}
       {chartOpen && filtered.length > 0 && (
-        <div id="category-analysis-chart" className="neo-card p-4 space-y-3 mt-6">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+        <div id="category-analysis-chart" className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3 mt-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
+          <div className="flex items-center justify-between border-b-4 border-slate-950 dark:border-slate-100 pb-3">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-                <PieIcon className="w-4 h-4 text-brand-600 dark:text-brand-400" /> Analisis Visual Kategori
+              <h3 className="text-sm font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+                <PieIcon className="w-4 h-4 text-brand-500" /> Analisis Visual Kategori
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Proporsi pengeluaran per kategori di periode ini</p>
+              <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Proporsi per kategori</p>
             </div>
-            <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-0.5 border border-slate-200 dark:border-slate-700">
+            <div className="flex bg-slate-50 dark:bg-slate-950 rounded-none p-1 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
               <button
                 onClick={() => setChartMode("pie")}
                 className={cn(
-                  "p-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition",
-                  chartMode === "pie" && "bg-white dark:bg-slate-900 shadow-sm text-brand-600 dark:text-brand-400 font-bold",
+                  "p-1.5 rounded-none transition font-bold",
+                  chartMode === "pie" ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950" : "text-slate-500"
                 )}
                 aria-label="Pie chart"
                 title="Diagram Lingkaran"
@@ -695,8 +715,8 @@ export function HistoryList({
               <button
                 onClick={() => setChartMode("bar")}
                 className={cn(
-                  "p-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition",
-                  chartMode === "bar" && "bg-white dark:bg-slate-900 shadow-sm text-brand-600 dark:text-brand-400 font-bold",
+                  "p-1.5 rounded-none transition font-bold",
+                  chartMode === "bar" ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950" : "text-slate-500"
                 )}
                 aria-label="Bar chart"
                 title="Grafik Batang"
@@ -712,30 +732,30 @@ export function HistoryList({
             <CategoryBarChart data={chartData} total={total} />
           )}
 
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+          <div className="pt-2 border-t-2 border-slate-950 dark:border-slate-100 flex justify-end">
             <Link
               href="/analysis"
-              className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
+              className="text-xs font-mono font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 uppercase tracking-wider"
             >
-              Lihat Tren Temporal Berkala <ArrowUpRight className="w-3.5 h-3.5" />
+              Lihat Tren Analisis Lengkap <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
       )}
 
       {isSelectionMode && selectedIds.size > 0 && (
-        <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
-          <div className="neo-card-lg bg-slate-950 text-white dark:bg-slate-900 border-2 border-slate-700 p-4 flex items-center justify-between shadow-2xl">
+        <div className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
+          <div className="bg-slate-950 text-white border-4 border-slate-100 p-4 flex items-center justify-between shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
             <div>
-              <p className="text-xs text-slate-400 font-semibold">Terpilih {selectedIds.size} item</p>
-              <p className="font-mono font-bold text-lg text-brand-400">{formatIDR(selectedSum)}</p>
+              <p className="text-xs font-mono uppercase text-slate-400 font-bold">Terpilih {selectedIds.size} item</p>
+              <p className="font-headline font-black text-xl text-brand-400">{formatIDR(selectedSum)}</p>
             </div>
-            <button 
+            <button
               onClick={() => {
                 setSelectedIds(new Set());
                 setIsSelectionMode(false);
               }}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-white border border-slate-700 transition-colors"
+              className="px-4 py-2 bg-white text-slate-950 font-headline font-bold text-xs uppercase border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,0.5)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
             >
               Tutup
             </button>

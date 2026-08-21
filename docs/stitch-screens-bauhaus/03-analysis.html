@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analisis Pengeluaran - Family CFO</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@500&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary": "#1a1a1a",
+                      "tertiary": "#1a1a1a",
+                      "on-primary-fixed": "#ffffff",
+                      "background": "#ffffff",
+                      "on-background": "#1a1a1a",
+                      "surface-container": "#f3f3f3",
+                      "on-primary": "#ffffff",
+                      "surface-variant": "#e5e5e5",
+                      "on-primary-fixed-variant": "#ffffff",
+                      "tertiary-container": "#1a1a1a",
+                      "on-primary-container": "#ffffff",
+                      "tertiary-fixed": "#1a1a1a",
+                      "on-surface": "#1a1a1a",
+                      "surface-container-low": "#f8f8f8",
+                      "on-tertiary-fixed": "#ffffff",
+                      "primary-fixed": "#1a1a1a",
+                      "surface-light": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "background-light": "#ffffff",
+                      "on-secondary-container": "#ffffff",
+                      "primary-fixed-dim": "#1a1a1a",
+                      "on-secondary-fixed": "#ffffff",
+                      "info": "#3b82f6",
+                      "inverse-surface": "#1a1a1a",
+                      "outline": "#1a1a1a",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed-variant": "#ffffff",
+                      "secondary-container": "#1a1a1a",
+                      "surface-container-highest": "#e5e5e5",
+                      "surface": "#ffffff",
+                      "background-dark": "#ffffff",
+                      "surface-bright": "#ffffff",
+                      "secondary": "#1a1a1a",
+                      "on-surface-variant": "#666666",
+                      "surface-tint": "#1a1a1a",
+                      "warning": "#f59e0b",
+                      "on-error": "#ffffff",
+                      "primary-container": "#1a1a1a",
+                      "on-secondary": "#ffffff",
+                      "surface-container-high": "#ebebeb",
+                      "tertiary-fixed-dim": "#1a1a1a",
+                      "on-tertiary-container": "#ffffff",
+                      "secondary-fixed-dim": "#1a1a1a",
+                      "on-error-container": "#ffffff",
+                      "inverse-on-surface": "#ffffff",
+                      "inverse-primary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#ffffff",
+                      "error": "#ef4444",
+                      "surface-dim": "#d9d9d9",
+                      "danger": "#ef4444",
+                      "error-container": "#ef4444",
+                      "secondary-fixed": "#1a1a1a",
+                      "surface-dark": "#ffffff",
+                      "outline-variant": "#1a1a1a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-padding": "1rem",
+                      "stack-sm": "0.5rem",
+                      "stack-lg": "1.5rem",
+                      "stack-md": "1rem",
+                      "gutter": "1rem"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Space Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ],
+                      "body-md": [
+                              "Space Grotesk"
+                      ],
+                      "data-mono": [
+                              "Space Grotesk"
+                      ],
+                      "currency-display": [
+                              "Space Grotesk"
+                      ],
+                      "label-sm": [
+                              "Space Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-mono": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "currency-display": [
+                              "28px",
+                              {
+                                      "lineHeight": "34px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Neo-Brutalist utility classes */
+        .neo-card {
+            border: 2px solid theme('colors.primary');
+            box-shadow: 4px 4px 0px 0px theme('colors.primary');
+            border-radius: 0;
+            background-color: theme('colors.surface');
+        }
+        .neo-button {
+            border: 2px solid theme('colors.primary');
+            box-shadow: 4px 4px 0px 0px theme('colors.primary');
+            transition: all 0.1s ease;
+            border-radius: 0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .neo-button:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px 0px theme('colors.primary');
+        }
+        
+        /* Chart container placeholder */
+        .chart-placeholder {
+            background: linear-gradient(180deg, rgba(26, 26, 26, 0.1) 0%, rgba(26, 26, 26, 0) 100%);
+            border-bottom: 3px solid theme('colors.primary');
+        }
+        
+        /* Hide scrollbar for time chips */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* Dark mode overrides for custom shadow */
+        .dark .neo-card, .dark .neo-button {
+            box-shadow: 4px 4px 0px 0px theme('colors.background');
+        }
+        .dark .neo-button:active {
+            box-shadow: 0px 0px 0px 0px theme('colors.background');
+        }
+        .dark .shadow-\[4px_4px_0px_0px_rgba\(26\,26\,26\,1\)\] {
+            box-shadow: 4px 4px 0px 0px theme('colors.background');
+        }
+        .dark .shadow-\[2px_2px_0px_0px_rgba\(26\,26\,26\,1\)\] {
+            box-shadow: 2px 2px 0px 0px theme('colors.background');
+        }
+        .dark .shadow-\[0px_-4px_0px_0px_rgba\(26\,26\,26\,1\)\] {
+            box-shadow: 0px -4px 0px 0px theme('colors.background');
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<script>
+    function toggleDarkMode() {
+        document.documentElement.classList.toggle('dark');
+        const isDark = document.documentElement.classList.contains('dark');
+        const icon = document.getElementById('theme-icon');
+        if (isDark) {
+            icon.textContent = 'dark_mode';
+            document.documentElement.style.setProperty('--primary-color-override', '#ffffff');
+            document.documentElement.style.setProperty('--background-color-override', '#1a1a1a');
+        } else {
+            icon.textContent = 'light_mode';
+            document.documentElement.style.removeProperty('--primary-color-override');
+            document.documentElement.style.removeProperty('--background-color-override');
+        }
+    }
+  </script>
+<style>
+    /* Add logic for dark mode variables to affect primary/background text colors properly */
+    .dark .bg-background { background-color: #1a1a1a !important; }
+    .dark .text-on-surface { color: #ffffff !important; }
+    .dark .text-primary { color: #ffffff !important; }
+    .dark .bg-primary { background-color: #ffffff !important; color: #1a1a1a !important; }
+    .dark .border-primary { border-color: #ffffff !important; }
+    .dark .bg-surface-container { background-color: #2a2a2a !important; }
+    .dark .bg-surface-container-high { background-color: #333333 !important; }
+    .dark .bg-surface-container-low { background-color: #222222 !important; }
+    .dark .bg-surface-variant { background-color: #3a3a3a !important; }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-background border-b-4 border-primary shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] flex justify-between items-center px-container-padding py-stack-md z-40">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-none bg-surface-container overflow-hidden border-2 border-primary">
+<img alt="User Profile" class="w-full h-full object-cover grayscale" data-alt="A professional headshot of a user in a clean, studio lighting setting. High contrast, sharp focus, suitable for a dark mode fintech app avatar. The subject is well lit against a dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIvzhftGme4VLtOZh0NmwtWqpUfrpom00X3hLMNJJYud5MoeXzOwERA5r1i73YW8wqDi0aUw4A4h4UqEpFZaC6vom7C9M51Zr6SdTYZrLcyeYh4cCbWPmwNjUaYr49PGeC4COFAuv4dmH8pyWxNviyKLQfRYN41aaN_J2gq1Om4yRHjF_sW9CSoZSYbEVmRS7dESepASoMJry5EO0yN2sT6smn-ZgsSflWfVL6h5BfB0K2bNy4-mEm"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tighter uppercase">Family CFO</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-none border-2 border-primary hover:bg-surface-container-high active:translate-y-1 active:translate-x-1 active:shadow-none shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] transition-all text-primary bg-background" onclick="toggleDarkMode()">
+<span class="material-symbols-outlined" id="theme-icon" style="font-variation-settings: 'FILL' 1;">light_mode</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-1 px-container-padding py-stack-lg mb-20 overflow-y-auto">
+<!-- Header -->
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-stack-md uppercase tracking-tighter">Analisis Pengeluaran</h2>
+<!-- Time Chips -->
+<div class="flex gap-4 overflow-x-auto no-scrollbar mb-stack-lg pb-2">
+<button class="neo-button bg-primary text-background font-label-sm text-label-sm px-6 py-3 whitespace-nowrap">7 Hari</button>
+<button class="neo-button bg-background text-primary font-label-sm text-label-sm px-6 py-3 whitespace-nowrap">30 Hari</button>
+<button class="neo-button bg-background text-primary font-label-sm text-label-sm px-6 py-3 whitespace-nowrap">3 Bulan</button>
+<button class="neo-button bg-background text-primary font-label-sm text-label-sm px-6 py-3 whitespace-nowrap">1 Tahun</button>
+<button class="neo-button bg-background text-primary font-label-sm text-label-sm px-6 py-3 whitespace-nowrap">Kustom</button>
+</div>
+<!-- 2x2 Grid Stats -->
+<div class="grid grid-cols-2 gap-4 mb-stack-lg">
+<!-- Total Spent -->
+<div class="neo-card p-4 flex flex-col justify-between h-32 bg-background border-4">
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-widest border-b-2 border-primary pb-1 inline-block w-fit">Total Spent</span>
+<span class="font-currency-display text-currency-display text-primary mt-2">Rp4.2M</span>
+</div>
+<!-- Daily Burn Rate -->
+<div class="neo-card p-4 flex flex-col justify-between h-32 bg-[#ffb4ab] border-4">
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-widest border-b-2 border-primary pb-1 inline-block w-fit">Daily Burn Rate</span>
+<div class="flex items-end gap-1 mt-2">
+<span class="font-data-mono text-data-mono text-primary font-bold text-xl">Rp600k</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">/day</span>
+</div>
+</div>
+<!-- Top Category -->
+<div class="neo-card p-4 flex flex-col justify-between h-32 bg-[#7ffc97] border-4">
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-widest border-b-2 border-primary pb-1 inline-block w-fit">Top Category</span>
+<div class="flex items-center gap-2 mt-2">
+<div class="w-8 h-8 rounded-none border-2 border-primary bg-background flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]">
+<span class="material-symbols-outlined text-primary text-sm font-bold">restaurant</span>
+</div>
+<span class="font-body-md text-body-md text-primary font-bold uppercase">Makanan</span>
+</div>
+</div>
+<!-- Frequency -->
+<div class="neo-card p-4 flex flex-col justify-between h-32 bg-[#ffd9de] border-4">
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-widest border-b-2 border-primary pb-1 inline-block w-fit">Frequency</span>
+<div class="flex items-end gap-1 mt-2">
+<span class="font-headline-md text-headline-md text-primary text-3xl">24</span>
+<span class="font-label-sm text-label-sm text-primary font-bold mb-1 uppercase">trx</span>
+</div>
+</div>
+</div>
+<!-- Stacked Area Chart Section -->
+<div class="neo-card p-5 mb-stack-lg bg-background border-4">
+<div class="flex justify-between items-center mb-6 border-b-4 border-primary pb-2">
+<h3 class="font-headline-md text-headline-md text-primary text-xl uppercase tracking-tighter">Trend Pengeluaran</h3>
+<button class="text-primary hover:bg-primary hover:text-background transition-colors p-1 border-2 border-transparent hover:border-primary">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<!-- Interactive Chart Area (Visual Representation) -->
+<div class="relative h-56 w-full border-l-4 border-b-4 border-primary flex items-end pt-4 pb-2 pr-2">
+<!-- Y-Axis Labels -->
+<div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs font-bold text-primary -ml-10 py-2">
+<span>1M</span>
+<span>500k</span>
+<span>0</span>
+</div>
+<!-- Chart content placeholder -->
+<div class="w-full h-full relative chart-placeholder flex items-end justify-between px-2 opacity-100 bg-surface-container-low">
+<!-- SVG Path for the area chart effect -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0 100 L0 50 Q 25 30 50 60 T 100 20 L100 100 Z" fill="url(#chart-gradient)" opacity="0.5"></path>
+<path d="M0 50 Q 25 30 50 60 T 100 20" fill="none" stroke="currentColor" stroke-width="4"></path>
+<defs>
+<lineargradient id="chart-gradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="currentColor" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="currentColor" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+</svg>
+<!-- Vertical grid lines -->
+<div class="w-0.5 h-full bg-primary/20"></div>
+<div class="w-0.5 h-full bg-primary/20"></div>
+<div class="w-0.5 h-full bg-primary/20"></div>
+<div class="w-0.5 h-full bg-primary/20"></div>
+<div class="w-0.5 h-full bg-primary/20"></div>
+<!-- Interactive Tooltip Marker -->
+<div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-4 h-4 bg-background border-4 border-primary rounded-none shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] z-10 cursor-pointer group">
+<!-- Tooltip -->
+<div class="hidden group-hover:flex absolute -top-20 left-1/2 -translate-x-1/2 bg-background border-4 border-primary rounded-none p-3 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] flex-col gap-2 w-40 z-20">
+<span class="font-data-mono text-data-mono text-[10px] text-primary font-bold uppercase border-b-2 border-primary pb-1">4 Hari lalu</span>
+<div class="flex justify-between items-center text-xs font-bold">
+<span class="text-primary flex items-center gap-2"><span class="w-3 h-3 border-2 border-primary bg-[#7ffc97] inline-block"></span> Makanan</span>
+<span class="text-primary">Rp150k</span>
+</div>
+<div class="flex justify-between items-center text-xs font-bold">
+<span class="text-primary flex items-center gap-2"><span class="w-3 h-3 border-2 border-primary bg-[#ffb4ab] inline-block"></span> Transport</span>
+<span class="text-primary">Rp50k</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- X-Axis Labels -->
+<div class="flex justify-between mt-3 px-2 text-[10px] text-primary font-data-mono font-bold uppercase">
+<span>Sen</span>
+<span>Sel</span>
+<span>Rab</span>
+<span>Kam</span>
+<span>Jum</span>
+<span>Sab</span>
+<span>Min</span>
+</div>
+</div>
+<!-- Legend -->
+<div class="neo-card p-5 mb-stack-lg bg-background border-4">
+<h4 class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-widest mb-4 border-b-4 border-primary pb-2">Kategori</h4>
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between cursor-pointer group hover:bg-surface-container p-2 border-2 border-transparent hover:border-primary transition-all">
+<div class="flex items-center gap-4">
+<div class="w-4 h-4 border-2 border-primary shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] bg-[#7ffc97]"></div>
+<span class="font-body-md text-body-md text-primary font-bold uppercase">Makanan &amp; Minuman</span>
+</div>
+<span class="material-symbols-outlined text-primary text-lg">visibility</span>
+</div>
+<div class="flex items-center justify-between cursor-pointer group hover:bg-surface-container p-2 border-2 border-transparent hover:border-primary transition-all">
+<div class="flex items-center gap-4">
+<div class="w-4 h-4 border-2 border-primary shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] bg-[#ffb4ab]"></div>
+<span class="font-body-md text-body-md text-primary font-bold uppercase">Transportasi</span>
+</div>
+<span class="material-symbols-outlined text-primary text-lg">visibility</span>
+</div>
+<div class="flex items-center justify-between cursor-pointer group hover:bg-surface-container p-2 border-2 border-transparent hover:border-primary transition-all">
+<div class="flex items-center gap-4">
+<div class="w-4 h-4 border-2 border-primary shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] bg-[#ffd9de]"></div>
+<span class="font-body-md text-body-md text-primary font-bold uppercase">Utilitas</span>
+</div>
+<span class="material-symbols-outlined text-primary text-lg">visibility</span>
+</div>
+<div class="flex items-center justify-between cursor-pointer group opacity-40 p-2">
+<div class="flex items-center gap-4">
+<div class="w-4 h-4 border-2 border-primary bg-surface-variant"></div>
+<span class="font-body-md text-body-md text-primary font-bold uppercase line-through">Hiburan</span>
+</div>
+<span class="material-symbols-outlined text-primary text-lg">visibility_off</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-background border-t-4 border-primary shadow-[0px_-4px_0px_0px_rgba(26,26,26,1)] flex justify-around items-center h-20 px-2 pb-2">
+<button class="flex flex-col items-center justify-center text-primary hover:bg-primary hover:text-background border-2 border-transparent hover:border-primary transition-colors w-16 h-full rounded-none">
+<span class="material-symbols-outlined mb-1 text-2xl" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-sm text-label-sm font-bold uppercase">Home</span>
+</button>
+<!-- Setting History as Active (Closest match to Analysis/Spending history) -->
+<button class="flex flex-col items-center justify-center text-background bg-primary border-2 border-primary w-16 h-full rounded-none shadow-[inset_2px_2px_0px_0px_rgba(255,255,255,0.2)]">
+<span class="material-symbols-outlined mb-1 text-2xl" style="font-variation-settings: 'FILL' 1;">history</span>
+<span class="font-label-sm text-label-sm font-bold uppercase">History</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary w-16 h-full rounded-none -translate-y-6">
+<div class="bg-primary text-background rounded-none w-14 h-14 flex items-center justify-center neo-button border-4">
+<span class="material-symbols-outlined text-3xl font-bold" style="font-variation-settings: 'FILL' 1;">add</span>
+</div>
+<span class="font-label-sm text-label-sm mt-1 sr-only">Add</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary hover:bg-primary hover:text-background border-2 border-transparent hover:border-primary transition-colors w-16 h-full rounded-none">
+<span class="material-symbols-outlined mb-1 text-2xl" style="font-variation-settings: 'FILL' 0;">target</span>
+<span class="font-label-sm text-label-sm font-bold uppercase">Goals</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary hover:bg-primary hover:text-background border-2 border-transparent hover:border-primary transition-colors w-16 h-full rounded-none">
+<span class="material-symbols-outlined mb-1 text-2xl" style="font-variation-settings: 'FILL' 0;">settings</span>
+<span class="font-label-sm text-label-sm font-bold uppercase">Settings</span>
+</button>
+</nav>
+</body></html>

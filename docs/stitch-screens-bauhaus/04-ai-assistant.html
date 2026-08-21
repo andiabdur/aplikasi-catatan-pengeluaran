@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Family CFO - AI Assistant</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "background": "#0e150f",
+                "tertiary-fixed": "#ffd9de",
+                "surface-container-high": "#252c24",
+                "on-secondary-fixed-variant": "#005321",
+                "on-error": "#690005",
+                "on-primary-fixed": "#002109",
+                "tertiary-container": "#ec6284",
+                "secondary-fixed-dim": "#4ae176",
+                "outline": "#879485",
+                "danger": "#ef4444",
+                "on-tertiary-container": "#5a0022",
+                "secondary-fixed": "#6bff8f",
+                "on-primary": "#003914",
+                "surface-bright": "#343b33",
+                "primary-container": "#1ca64d",
+                "on-surface": "#dde5d9",
+                "on-tertiary-fixed": "#3f0016",
+                "secondary": "#4ae176",
+                "on-background": "#dde5d9",
+                "surface": "#0e150f",
+                "tertiary-fixed-dim": "#ffb2bf",
+                "surface-container-lowest": "#09100a",
+                "on-primary-container": "#003111",
+                "surface-container-highest": "#30372f",
+                "on-error-container": "#ffdad6",
+                "outline-variant": "#3e4a3d",
+                "error": "#ffb4ab",
+                "on-tertiary": "#660027",
+                "surface-container-low": "#171d16",
+                "primary": "#62df7d",
+                "surface-dark": "#0f172a",
+                "tertiary": "#ffb2bf",
+                "background-dark": "#020617",
+                "warning": "#f59e0b",
+                "on-secondary-container": "#004119",
+                "on-secondary-fixed": "#002109",
+                "on-tertiary-fixed-variant": "#8a143c",
+                "error-container": "#93000a",
+                "surface-container": "#1b211a",
+                "surface-light": "#ffffff",
+                "surface-dim": "#0e150f",
+                "inverse-surface": "#dde5d9",
+                "primary-fixed": "#7ffc97",
+                "surface-variant": "#30372f",
+                "info": "#6366f1",
+                "secondary-container": "#00b954",
+                "background-light": "#f8fafc",
+                "on-secondary": "#003915",
+                "on-surface-variant": "#bdcaba",
+                "inverse-primary": "#006e2d",
+                "surface-tint": "#62df7d",
+                "inverse-on-surface": "#2b322b",
+                "on-primary-fixed-variant": "#005320",
+                "primary-fixed-dim": "#62df7d"
+        },
+        "borderRadius": {
+                "DEFAULT": "4px",
+                "lg": "4px",
+                "xl": "4px",
+                "full": "4px"
+        },
+        "spacing": {
+                "gutter": "1rem",
+                "stack-md": "1rem",
+                "stack-lg": "1.5rem",
+                "container-padding": "1rem",
+                "stack-sm": "0.5rem"
+        },
+        "fontFamily": {
+                "data-mono": [
+                        "Space Grotesk"
+                ],
+                "body-lg": [
+                        "Space Grotesk"
+                ],
+                "headline-md": [
+                        "Space Grotesk"
+                ],
+                "label-sm": [
+                        "Space Grotesk"
+                ],
+                "headline-lg": [
+                        "Space Grotesk"
+                ],
+                "body-md": [
+                        "Space Grotesk"
+                ],
+                "currency-display": [
+                        "Space Grotesk"
+                ]
+        },
+        "fontSize": {
+                "data-mono": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "500"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "currency-display": [
+                        "28px",
+                        {
+                                "lineHeight": "34px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        /* Bauhaus Neo-brutalist custom utilities */
+        .brutal-border {
+            border: 3px solid #1a1a1a;
+        }
+        .dark .brutal-border {
+            border: 3px solid #ffffff;
+        }
+        .brutal-shadow {
+            box-shadow: 6px 6px 0px 0px #1a1a1a;
+        }
+        .dark .brutal-shadow {
+            box-shadow: 6px 6px 0px 0px #ffffff;
+        }
+        .brutal-shadow-primary {
+            box-shadow: 6px 6px 0px 0px var(--tw-colors-primary);
+        }
+        
+        /* Hide scrollbar for clean chat view */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-on-surface-variant dark:text-on-surface font-body-md text-body-md h-screen flex flex-col overflow-hidden transition-colors">
+<!-- TopAppBar Component -->
+<header class="w-full top-0 sticky bg-surface-light dark:bg-background-dark border-b-4 border-black dark:border-white z-50 transition-colors">
+<div class="flex justify-between items-center px-container-padding py-stack-md w-full">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 brutal-border overflow-hidden">
+<img class="w-full h-full object-cover grayscale" data-alt="A striking digital portrait of a professional avatar, minimalist flat design, deep slate background with vibrant emerald accents, Bauhaus geometric style, high contrast, studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWLpgx-cvvDkaOgIhlJ64AUjidEJQKVUS8Xj6UkQxZQonOou3Rgo5bu__FRKGmSpfcQyGWpW5fldCJd2_1fOF5IHokz4Lk1HJcXCASmnZvxF9DDon5seq8t3vgaa74Ml2v1vnpfJa1b2PaY6QMmUM0JDbVdO331JHAo8OpD67g7m9DRcVNFeEBtGMt8DmagBjhQ-lSSaNabMO3CsnCnlFb9fyHTBu-0UQw4wCSLsCUb0g_UHZv8tpn"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-black dark:text-white uppercase tracking-wider">Family CFO</h1>
+</div>
+<button class="text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black active:translate-y-1 transition-all p-2 brutal-border brutal-shadow bg-surface-light dark:bg-surface-dark" id="theme-toggle" onclick="toggleTheme()">
+<span class="material-symbols-outlined dark:hidden" data-icon="dark_mode">dark_mode</span>
+<span class="material-symbols-outlined hidden dark:block" data-icon="light_mode">light_mode</span>
+</button>
+</div>
+</header>
+<!-- Tab Navigation -->
+<div class="w-full px-container-padding pt-stack-md pb-stack-sm bg-surface-light dark:bg-background-dark z-40 border-b-4 border-black dark:border-white transition-colors">
+<div class="flex p-1 bg-surface-light dark:bg-surface-dark brutal-border brutal-shadow gap-2">
+<button class="flex-1 py-3 text-center font-label-sm text-label-sm bg-primary text-black font-bold border-2 border-black transition-all uppercase tracking-widest" id="tab-audit" onclick="switchTab('audit')">
+                Audit CFO
+            </button>
+<button class="flex-1 py-3 text-center font-label-sm text-label-sm text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-transparent transition-all uppercase tracking-widest" id="tab-chat" onclick="switchTab('chat')">
+                Chat Interaktif
+            </button>
+</div>
+</div>
+<!-- Main Content Area -->
+<main class="flex-1 relative overflow-y-auto no-scrollbar pb-[140px]"> <!-- Extra padding for bottom nav and input -->
+<!-- ==================== AUDIT TAB CONTENT ==================== -->
+<div class="px-container-padding py-stack-md space-y-stack-lg flex flex-col" id="view-audit">
+<!-- Diagnostic Card -->
+<section class="bg-surface-light dark:bg-surface-dark brutal-border brutal-shadow p-stack-md relative overflow-hidden transition-colors">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-primary opacity-30 rotate-45 border-4 border-black dark:border-white"></div>
+<div class="flex justify-between items-start mb-stack-sm relative z-10">
+<h2 class="font-label-sm text-label-sm text-black dark:text-white uppercase tracking-widest font-bold">Health Status</h2>
+<span class="inline-flex items-center gap-1 bg-primary text-black px-3 py-1 border-2 border-black font-label-sm text-label-sm font-bold brutal-shadow">
+<span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span> Sehat
+                    </span>
+</div>
+<div class="mt-4 relative z-10">
+<div class="text-black dark:text-white font-body-md text-body-md uppercase font-bold tracking-wide">Savings Rate</div>
+<div class="font-currency-display text-[56px] leading-tight text-black dark:text-primary mt-1 font-bold">42.5%</div>
+</div>
+<div class="mt-stack-md w-full h-6 bg-white dark:bg-background-dark brutal-border relative z-10">
+<div class="h-full bg-primary w-[42.5%] border-r-4 border-black dark:border-white"></div>
+</div>
+</section>
+<!-- Anomaly Findings -->
+<section class="space-y-stack-md">
+<h3 class="font-headline-md text-headline-md text-black dark:text-white flex items-center gap-2 uppercase tracking-wide font-bold">
+<span class="material-symbols-outlined text-warning" data-icon="warning">warning</span> Anomalies Detected
+                </h3>
+<div class="bg-surface-light dark:bg-surface-dark brutal-border brutal-shadow p-stack-md border-l-8 border-l-warning flex gap-4 items-start transition-colors">
+<span class="material-symbols-outlined text-warning mt-0.5 text-3xl" data-icon="shopping_cart">shopping_cart</span>
+<div>
+<h4 class="font-body-md text-body-md font-bold text-black dark:text-white uppercase tracking-wide">Groceries Exceeding Trend</h4>
+<p class="font-body-md text-body-md text-black dark:text-on-surface-variant mt-2 border-t-2 border-black dark:border-white pt-2">Spending is 15% higher than the 3-month average.</p>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark brutal-border brutal-shadow p-stack-md border-l-8 border-l-info flex gap-4 items-start transition-colors">
+<span class="material-symbols-outlined text-info mt-0.5 text-3xl" data-icon="subscriptions">subscriptions</span>
+<div>
+<h4 class="font-body-md text-body-md font-bold text-black dark:text-white uppercase tracking-wide">New Subscription Found</h4>
+<p class="font-body-md text-body-md text-black dark:text-on-surface-variant mt-2 border-t-2 border-black dark:border-white pt-2">$14.99 charged by 'StreamFlix' on 12th Oct.</p>
+</div>
+</div>
+</section>
+<!-- Action Steps & Budget Recs -->
+<section class="space-y-stack-md">
+<h3 class="font-headline-md text-headline-md text-black dark:text-white flex items-center gap-2 uppercase tracking-wide font-bold">
+<span class="material-symbols-outlined text-secondary" data-icon="rocket_launch">rocket_launch</span> Action Plan
+                </h3>
+<div class="grid grid-cols-2 gap-6">
+<button class="bg-surface-light dark:bg-surface-dark hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors brutal-border brutal-shadow p-5 text-left flex flex-col gap-4 active:translate-y-1 active:translate-x-1 active:shadow-none">
+<span class="material-symbols-outlined text-2xl" data-icon="edit_document">edit_document</span>
+<span class="font-label-sm text-label-sm uppercase font-bold tracking-wide">Adjust Grocery Budget</span>
+</button>
+<button class="bg-surface-light dark:bg-surface-dark hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors brutal-border brutal-shadow p-5 text-left flex flex-col gap-4 active:translate-y-1 active:translate-x-1 active:shadow-none">
+<span class="material-symbols-outlined text-2xl" data-icon="cancel">cancel</span>
+<span class="font-label-sm text-label-sm uppercase font-bold tracking-wide">Review Subscriptions</span>
+</button>
+</div>
+</section>
+</div>
+<!-- ==================== CHAT TAB CONTENT ==================== -->
+<div class="hidden flex flex-col h-full relative" id="view-chat">
+<!-- Chat Memory Modal Button (Sticky top of chat area) -->
+<div class="px-container-padding py-2 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm sticky top-0 z-10 flex justify-end">
+<button class="flex items-center gap-2 bg-surface-light dark:bg-surface-dark brutal-border brutal-shadow px-4 py-3 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-label-sm font-label-sm font-bold uppercase tracking-widest active:translate-y-1 active:translate-x-1 active:shadow-none">
+<span class="material-symbols-outlined text-[16px]" data-icon="psychology">psychology</span> AI Memory
+                </button>
+</div>
+<!-- Messages Stream -->
+<div class="flex-1 px-container-padding space-y-stack-md pb-stack-lg pt-4">
+<!-- System Message -->
+<div class="flex justify-center my-4">
+<span class="bg-surface-light dark:bg-surface-dark text-black dark:text-white font-data-mono text-data-mono px-4 py-2 brutal-border brutal-shadow uppercase tracking-widest text-xs font-bold">Session Started: Today 09:41 AM</span>
+</div>
+<!-- User Bubble -->
+<div class="flex justify-end">
+<div class="bg-primary text-black font-body-md text-body-md p-4 max-w-[85%] brutal-shadow brutal-border font-bold">
+                        We spent $45 at Whole Foods for weekend dinners.
+                    </div>
+</div>
+<!-- AI Bubble -->
+<div class="flex justify-start items-start gap-4">
+<div class="w-12 h-12 bg-surface-light dark:bg-surface-dark brutal-border brutal-shadow flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[24px] text-primary" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark text-black dark:text-white font-body-md text-body-md p-4 max-w-[85%] brutal-border brutal-shadow">
+                        Got it. I've logged $45 under Groceries. This puts you at 85% of your grocery budget for this month.
+                    </div>
+</div>
+<!-- Inline Expense Widget (AI generated UI) -->
+<div class="flex justify-start pl-[64px]">
+<div class="bg-surface-light dark:bg-surface-dark border-4 border-primary p-4 max-w-[85%] w-full brutal-shadow">
+<div class="flex justify-between items-center border-b-4 border-primary pb-3 mb-3">
+<span class="font-label-sm text-label-sm text-black dark:text-white uppercase font-bold tracking-widest">Expense Recorded</span>
+<span class="material-symbols-outlined text-primary text-[24px]" data-icon="check_circle">check_circle</span>
+</div>
+<div class="flex justify-between items-baseline mb-4">
+<span class="font-headline-md text-headline-md text-black dark:text-white font-bold">Whole Foods</span>
+<span class="font-data-mono text-data-mono text-danger font-bold text-xl">-$45.00</span>
+</div>
+<div class="flex gap-4 mt-4">
+<button class="flex-1 bg-surface-light dark:bg-surface-dark text-black dark:text-white font-label-sm text-label-sm py-3 brutal-border hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors uppercase tracking-widest font-bold">Edit</button>
+<button class="flex-1 bg-primary text-black font-label-sm text-label-sm py-3 brutal-border brutal-shadow-primary hover:bg-primary-fixed transition-colors uppercase tracking-widest font-bold active:translate-y-1 active:translate-x-1 active:shadow-none">Confirm</button>
+</div>
+</div>
+</div>
+<!-- User Bubble -->
+<div class="flex justify-end">
+<div class="bg-primary text-black font-body-md text-body-md p-4 max-w-[85%] brutal-shadow brutal-border font-bold">
+                        Can you review my subscriptions?
+                    </div>
+</div>
+<!-- AI Bubble -->
+<div class="flex justify-start items-start gap-4">
+<div class="w-12 h-12 bg-surface-light dark:bg-surface-dark brutal-border brutal-shadow flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[24px] text-primary" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark text-black dark:text-white font-body-md text-body-md p-4 max-w-[85%] brutal-border brutal-shadow flex flex-col gap-4">
+<span>I noticed a new charge from 'StreamFlix' for $14.99. Your total monthly subscriptions are now $85.50.</span>
+<button class="text-left w-full mt-2 bg-white dark:bg-background-dark brutal-border p-4 text-primary font-label-sm text-label-sm flex items-center justify-between hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors font-bold uppercase tracking-widest">
+                            View all subscriptions <span class="material-symbols-outlined text-[24px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Sticky Chat Input (sits above bottom nav) -->
+<div class="fixed bottom-[64px] left-0 w-full bg-surface-light dark:bg-background-dark border-t-4 border-black dark:border-white p-container-padding z-40 transition-colors">
+<div class="flex items-end gap-3 bg-surface-light dark:bg-surface-dark brutal-border p-3 focus-within:border-primary transition-colors brutal-shadow">
+<textarea class="flex-1 bg-transparent border-none text-black dark:text-white font-data-mono text-data-mono focus:ring-0 resize-none max-h-32 min-h-[24px] p-2 placeholder-black dark:placeholder-white no-scrollbar font-bold" placeholder="ASK YOUR CFO..." rows="1"></textarea>
+<button class="w-12 h-12 bg-primary flex items-center justify-center text-black flex-shrink-0 hover:bg-primary-fixed transition-colors brutal-border brutal-shadow-primary active:translate-y-1 active:translate-x-1 active:shadow-none">
+<span class="material-symbols-outlined text-[24px]" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Component -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface-light dark:bg-background-dark border-t-4 border-black dark:border-white shadow-[0px_-6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[0px_-6px_0px_0px_rgba(255,255,255,1)] flex justify-around items-center h-16 px-2 transition-colors">
+<!-- Home (Active Fallback for this context) -->
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed font-bold hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black active:translate-y-1 transition-all w-16 h-full">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm mt-1 uppercase tracking-widest text-[10px] font-bold">Home</span>
+</button>
+<!-- History -->
+<button class="flex flex-col items-center justify-center text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black active:translate-y-1 transition-all w-16 h-full">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-sm text-label-sm mt-1 uppercase tracking-widest text-[10px] font-bold">History</span>
+</button>
+<!-- Add -->
+<button class="flex flex-col items-center justify-center text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black active:translate-y-1 transition-all w-16 h-full">
+<span class="material-symbols-outlined text-[32px] text-primary" data-icon="add_circle">add_circle</span>
+<span class="font-label-sm text-label-sm mt-0.5 uppercase tracking-widest text-[10px] font-bold">Add</span>
+</button>
+<!-- Goals -->
+<button class="flex flex-col items-center justify-center text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black active:translate-y-1 transition-all w-16 h-full">
+<span class="material-symbols-outlined" data-icon="target">target</span>
+<span class="font-label-sm text-label-sm mt-1 uppercase tracking-widest text-[10px] font-bold">Goals</span>
+</button>
+<!-- Settings -->
+<button class="flex flex-col items-center justify-center text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black active:translate-y-1 transition-all w-16 h-full">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-sm text-label-sm mt-1 uppercase tracking-widest text-[10px] font-bold">Settings</span>
+</button>
+</nav>
+<script>
+        // Simple Tab Switching Logic
+        function switchTab(tabName) {
+            const auditBtn = document.getElementById('tab-audit');
+            const chatBtn = document.getElementById('tab-chat');
+            const auditView = document.getElementById('view-audit');
+            const chatView = document.getElementById('view-chat');
+
+            if (tabName === 'audit') {
+                // Style buttons
+                auditBtn.className = "flex-1 py-3 text-center font-label-sm text-label-sm bg-primary text-black font-bold border-2 border-black transition-all uppercase tracking-widest";
+                chatBtn.className = "flex-1 py-3 text-center font-label-sm text-label-sm text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-transparent transition-all uppercase tracking-widest";
+                
+                // Toggle Views
+                auditView.classList.remove('hidden');
+                auditView.classList.add('flex');
+                chatView.classList.add('hidden');
+                chatView.classList.remove('flex');
+            } else {
+                // Style buttons
+                chatBtn.className = "flex-1 py-3 text-center font-label-sm text-label-sm bg-primary text-black font-bold border-2 border-black transition-all uppercase tracking-widest";
+                auditBtn.className = "flex-1 py-3 text-center font-label-sm text-label-sm text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-transparent transition-all uppercase tracking-widest";
+                
+                // Toggle Views
+                chatView.classList.remove('hidden');
+                chatView.classList.add('flex');
+                auditView.classList.add('hidden');
+                auditView.classList.remove('flex');
+            }
+        }
+
+        // Auto-resize textarea
+        const textarea = document.querySelector('textarea');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Light/Dark Mode Toggle
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            document.documentElement.classList.toggle('light');
+        }
+    </script>
+</body></html>

@@ -16,8 +16,8 @@ const items = [
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur shadow-[0px_-2px_0px_0px_rgba(0,0,0,0.03)] dark:shadow-[0px_-2px_0px_0px_rgba(0,0,0,0.5)]">
-      <div className="mx-auto max-w-md grid grid-cols-5 h-16 px-1">
+    <nav className="fixed bottom-0 inset-x-0 z-40 border-t-4 border-slate-950 dark:border-slate-100 bg-white dark:bg-surface-dark shadow-[0px_-4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[0px_-4px_0px_0px_rgba(255,255,255,1)] transition-colors">
+      <div className="mx-auto max-w-md flex justify-around items-center h-20 px-2">
         {items.map(({ href, label, icon: Icon, primary }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
@@ -26,26 +26,16 @@ export function BottomNav() {
               href={href}
               prefetch={false}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-all",
+                "flex flex-col items-center justify-center rounded-none transition-all w-16 h-14",
                 active
-                  ? "text-brand-600 dark:text-brand-400 font-bold"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300",
+                  ? "bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                  : "text-slate-700 dark:text-slate-300 border-2 border-transparent hover:border-slate-950 dark:hover:border-slate-100 hover:bg-slate-950 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-950 active:scale-95"
               )}
             >
-              {active && (
-                <div className="absolute top-0 w-8 h-1 bg-brand-500 rounded-b-full shadow-sm" />
-              )}
-              <span
-                className={cn(
-                  "flex items-center justify-center rounded-xl transition-all",
-                  primary
-                    ? "bg-brand-600 dark:bg-brand-500 text-white w-10 h-10 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] active:scale-95"
-                    : "w-6 h-6",
-                )}
-              >
-                <Icon className={cn(primary ? "w-5 h-5" : "w-5 h-5")} />
+              <Icon className="w-5 h-5" />
+              <span className="text-[10px] font-headline font-bold uppercase tracking-wider mt-0.5">
+                {label}
               </span>
-              <span className={cn("leading-none", primary && "text-brand-600 dark:text-brand-400")}>{label}</span>
             </Link>
           );
         })}

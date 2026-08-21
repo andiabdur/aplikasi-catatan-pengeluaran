@@ -87,7 +87,7 @@ export default function InstallPWA() {
       <button
         type="button"
         onClick={handleClick}
-        className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm shadow-sm flex items-center justify-center gap-2"
+        className="w-full py-3.5 bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black uppercase tracking-wider text-xs rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-2 transition-all"
       >
         <Download className="w-4 h-4" />
         Install Aplikasi di HP
@@ -95,47 +95,47 @@ export default function InstallPWA() {
 
       {showIOS && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4"
           onClick={() => setShowIOS(false)}
         >
           <div
-            className="w-full max-w-sm neo-card-lg bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-2xl space-y-3"
+            className="w-full max-w-sm bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-              <h2 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Install di iPhone / iPad</h2>
+            <div className="flex items-center justify-between pb-2 border-b-2 border-slate-950 dark:border-slate-100">
+              <h2 className="font-headline font-bold text-slate-950 dark:text-slate-100 text-xs uppercase tracking-wider">Install di iPhone / iPad</h2>
               <button
                 type="button"
                 onClick={() => setShowIOS(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                className="p-1 rounded-none border border-slate-950 text-slate-950 dark:text-slate-100 hover:bg-slate-950 hover:text-white"
                 aria-label="Tutup"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <ol className="space-y-3 text-xs text-slate-700 dark:text-slate-200">
+            <ol className="space-y-3 text-xs text-slate-900 dark:text-slate-100">
               <li className="flex items-start gap-2.5">
-                <span className="font-mono font-bold text-brand-600 dark:text-brand-400 bg-brand-500/10 w-5 h-5 rounded-full flex items-center justify-center shrink-0">1</span>
-                <span className="flex items-center gap-1 flex-wrap pt-0.5">
+                <span className="font-mono font-black text-slate-950 bg-brand-400 border border-slate-950 w-5 h-5 rounded-none flex items-center justify-center shrink-0">1</span>
+                <span className="flex items-center gap-1 flex-wrap pt-0.5 font-mono">
                   Tap tombol <Share className="inline w-3.5 h-3.5 text-blue-500" />{" "}
-                  <b>Share</b> di menu bawah Safari.
+                  <b className="font-bold uppercase">Share</b> di menu bawah Safari.
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="font-mono font-bold text-brand-600 dark:text-brand-400 bg-brand-500/10 w-5 h-5 rounded-full flex items-center justify-center shrink-0">2</span>
-                <span className="flex items-center gap-1 flex-wrap pt-0.5">
-                  Pilih <b>Add to Home Screen</b>{" "}
+                <span className="font-mono font-black text-slate-950 bg-brand-400 border border-slate-950 w-5 h-5 rounded-none flex items-center justify-center shrink-0">2</span>
+                <span className="flex items-center gap-1 flex-wrap pt-0.5 font-mono">
+                  Pilih <b className="font-bold uppercase">Add to Home Screen</b>{" "}
                   <Plus className="inline w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />.
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="font-mono font-bold text-brand-600 dark:text-brand-400 bg-brand-500/10 w-5 h-5 rounded-full flex items-center justify-center shrink-0">3</span>
-                <span className="pt-0.5">
-                  Tap <b>Add</b>. Aplikasi siap dibuka seperti app native.
+                <span className="font-mono font-black text-slate-950 bg-brand-400 border border-slate-950 w-5 h-5 rounded-none flex items-center justify-center shrink-0">3</span>
+                <span className="pt-0.5 font-mono">
+                  Tap <b className="font-bold uppercase">Add</b>. Aplikasi siap dibuka seperti app native.
                 </span>
               </li>
             </ol>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <p className="text-[11px] font-mono text-slate-500 uppercase pt-2 border-t-2 border-slate-950 dark:border-slate-100">
               Wajib dibuka di browser <b>Safari</b> di iOS.
             </p>
           </div>

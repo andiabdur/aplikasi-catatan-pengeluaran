@@ -270,33 +270,33 @@ export function SettingsClient({
 
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-20">
       <section>
-        <Link href="/events" className="neo-card p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/80 transition-colors">
+        <Link href="/events" className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex items-center justify-between shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 group transition-all">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-none bg-indigo-200 text-indigo-950 border-2 border-slate-950 flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
               <Tent className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Kelola Event / Perjalanan</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950">Kelola Event &amp; Perjalanan</p>
+              <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 group-hover:text-slate-300 dark:group-hover:text-slate-700">
                 Grup pengeluaran untuk liburan, renovasi, dsb.
               </p>
             </div>
           </div>
-          <p className="text-slate-400 font-bold text-lg">›</p>
+          <p className="font-headline font-black text-xl">›</p>
         </Link>
       </section>
 
       {/* Pay day setting */}
       <section>
-        <div className="neo-card p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 flex items-center justify-center">
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex items-center gap-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+          <div className="w-10 h-10 rounded-none bg-brand-400 text-slate-950 border-2 border-slate-950 flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
             <CalendarCog className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Pay Day (Tanggal Gajian)</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">Pay Day (Tanggal Gajian)</p>
+            <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
               Periode dihitung dari tanggal ini setiap bulan
             </p>
           </div>
@@ -310,7 +310,7 @@ export function SettingsClient({
                 const v = Number(e.target.value);
                 if (v !== payDay) savePayDay(v);
               }}
-              className="w-16 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl px-2 py-2 text-center text-sm font-mono font-bold focus:outline-none focus:border-brand-500"
+              className="w-16 border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-2 py-1.5 text-center text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
             />
             {savingKey === "pd" && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
           </div>
@@ -318,7 +318,7 @@ export function SettingsClient({
       </section>
 
       {/* Period selector */}
-      <div className="neo-card p-4 space-y-4">
+      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
         <PeriodSelector
           labelMonth={labelMonth}
           payDay={payDay}
@@ -328,7 +328,7 @@ export function SettingsClient({
         {labelMonthKey(labelMonth) !== labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods)) && (
           <button
             onClick={() => setLabelMonth(currentPeriodLabelWithCustom(payDay, customPeriods))}
-            className="mt-2 text-xs font-semibold text-brand-600 dark:text-brand-400 w-full text-center hover:underline"
+            className="mt-2 text-xs font-mono font-bold uppercase text-brand-600 dark:text-brand-400 w-full text-center hover:underline"
           >
             Ke periode sekarang
           </button>
@@ -346,14 +346,14 @@ export function SettingsClient({
       {/* Income */}
       <section>
         <div className="flex items-center justify-between mb-2 px-1">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Income / Pemasukan</h2>
-          <button onClick={addIncome} className="text-xs font-bold text-brand-600 dark:text-brand-400 flex items-center gap-1 hover:underline">
+          <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">Income / Pemasukan</h2>
+          <button onClick={addIncome} className="text-xs font-headline font-bold uppercase text-brand-600 dark:text-brand-400 flex items-center gap-1 hover:underline">
             <Plus className="w-3.5 h-3.5" /> Tambah
           </button>
         </div>
-        <div className="neo-card divide-y divide-slate-100 dark:divide-slate-800/80 p-0 overflow-hidden">
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none divide-y-2 divide-slate-100 dark:divide-slate-800 p-0 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
           {incomes.length === 0 && (
-            <p className="p-4 text-xs font-medium text-slate-500 dark:text-slate-400">Belum ada income di periode ini.</p>
+            <p className="p-4 text-xs font-mono uppercase text-slate-500 dark:text-slate-400">Belum ada income di periode ini.</p>
           )}
           {incomes.map((inc) => (
             <IncomeRow
@@ -365,9 +365,9 @@ export function SettingsClient({
             />
           ))}
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 px-1">
+        <p className="text-xs font-mono font-bold uppercase text-slate-600 dark:text-slate-400 mt-2 px-1">
           Total income:{" "}
-          <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
+          <span className="text-slate-950 dark:text-slate-100">
             {formatIDR(incomes.reduce((s, i) => s + Number(i.amount), 0))}
           </span>
         </p>
@@ -376,16 +376,16 @@ export function SettingsClient({
       {/* Categories & budgets */}
       <section>
         <div className="flex items-center justify-between mb-2 px-1">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Kategori &amp; Budget</h2>
+          <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">Kategori &amp; Budget</h2>
           <div className="flex items-center gap-3">
             <button
               onClick={copyBudgetsFromPrevPeriod}
-              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
+              className="text-xs font-mono font-bold uppercase text-slate-500 hover:text-slate-950 dark:hover:text-white"
               title="Copy budget dari periode sebelumnya"
             >
               Copy prev
             </button>
-            <button onClick={addCategory} className="text-xs font-bold text-brand-600 dark:text-brand-400 flex items-center gap-1 hover:underline">
+            <button onClick={addCategory} className="text-xs font-headline font-bold uppercase text-brand-600 dark:text-brand-400 flex items-center gap-1 hover:underline">
               <Plus className="w-3.5 h-3.5" /> Tambah
             </button>
           </div>
@@ -400,26 +400,26 @@ export function SettingsClient({
           const vsIncome = totalIncome - totalBudget;
           return (
             <>
-              <div className="grid grid-cols-3 gap-2 mb-2">
-                <div className="neo-card p-2.5 bg-rose-500/10 border-rose-500/20">
-                  <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5">Terpakai</p>
-                  <p className="text-xs sm:text-sm font-mono font-bold text-rose-600 dark:text-rose-400 truncate">{formatIDR(totalSpent)}</p>
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                <div className="bg-rose-100 dark:bg-rose-950/60 border-2 border-slate-950 dark:border-slate-100 rounded-none p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  <p className="text-[10px] font-headline font-bold uppercase text-rose-800 dark:text-rose-300 tracking-wider mb-0.5">Terpakai</p>
+                  <p className="text-xs sm:text-sm font-mono font-black text-rose-900 dark:text-rose-200 truncate">{formatIDR(totalSpent)}</p>
                 </div>
-                <div className={`neo-card p-2.5 ${sisa >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"}`}>
-                  <p className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${sisa >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>Sisa Budget</p>
-                  <p className={`text-xs sm:text-sm font-mono font-bold truncate ${sisa >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>{formatIDR(sisa)}</p>
+                <div className={`border-2 border-slate-950 dark:border-slate-100 rounded-none p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${sisa >= 0 ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900" : "bg-rose-100 dark:bg-rose-950/60 text-rose-900"}`}>
+                  <p className="text-[10px] font-headline font-bold uppercase tracking-wider mb-0.5">Sisa</p>
+                  <p className="text-xs sm:text-sm font-mono font-black truncate">{formatIDR(sisa)}</p>
                 </div>
-                <div className="neo-card p-2.5 bg-blue-500/10 border-blue-500/20">
-                  <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-0.5">Total Budget</p>
-                  <p className="text-xs sm:text-sm font-mono font-bold text-blue-600 dark:text-blue-400 truncate">{formatIDR(totalBudget)}</p>
+                <div className="bg-blue-100 dark:bg-blue-950/60 border-2 border-slate-950 dark:border-slate-100 rounded-none p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  <p className="text-[10px] font-headline font-bold uppercase text-blue-800 dark:text-blue-300 tracking-wider mb-0.5">Budget</p>
+                  <p className="text-xs sm:text-sm font-mono font-black text-blue-900 dark:text-blue-200 truncate">{formatIDR(totalBudget)}</p>
                 </div>
               </div>
               {totalIncome > 0 && (
-                <div className={`neo-card p-2.5 mb-3 flex items-center justify-between text-xs ${vsIncome >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"}`}>
-                  <span className="text-slate-600 dark:text-slate-400 font-medium">
+                <div className={`border-2 border-slate-950 dark:border-slate-100 rounded-none p-2.5 mb-3 flex items-center justify-between text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${vsIncome >= 0 ? "bg-emerald-100 dark:bg-emerald-950/60" : "bg-rose-100 dark:bg-rose-950/60"}`}>
+                  <span className="font-headline font-bold uppercase text-slate-950 dark:text-slate-100">
                     Budget vs Income <span className="font-mono font-bold">({formatIDR(totalIncome)})</span>
                   </span>
-                  <span className={`font-mono font-bold ${vsIncome >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
+                  <span className={`font-mono font-black ${vsIncome >= 0 ? "text-emerald-800 dark:text-emerald-300" : "text-rose-800 dark:text-rose-300"}`}>
                     {vsIncome >= 0 ? `Surplus ${formatIDR(vsIncome)}` : `Defisit ${formatIDR(Math.abs(vsIncome))}`}
                   </span>
                 </div>
@@ -428,7 +428,7 @@ export function SettingsClient({
           );
         })()}
 
-        <div className="neo-card divide-y divide-slate-100 dark:divide-slate-800/80 p-0 overflow-hidden">
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none divide-y-2 divide-slate-100 dark:divide-slate-800 p-0 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
           {cats.map((c) => (
             <CategoryRow
               key={c.id + labelKey}
@@ -444,12 +444,12 @@ export function SettingsClient({
 
       {/* Account */}
       <section>
-        <div className="neo-card p-4 flex items-center justify-between">
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex items-center justify-between shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
           <div className="min-w-0">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Masuk Sebagai</p>
-            <p className="font-semibold truncate text-sm text-slate-900 dark:text-slate-100 mt-0.5">{email}</p>
+            <p className="text-xs font-headline font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Masuk Sebagai</p>
+            <p className="font-mono font-bold truncate text-xs text-slate-950 dark:text-slate-100 mt-0.5">{email}</p>
           </div>
-          <button onClick={logout} className="btn-ghost text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+          <button onClick={logout} className="text-xs font-headline font-bold uppercase px-3 py-2 rounded-none border-2 border-rose-600 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1.5 transition-all">
             <LogOut className="w-4 h-4" /> Keluar
           </button>
         </div>
@@ -479,10 +479,10 @@ function IncomeRow({
     }
   }, [income.amount]);
   return (
-    <div className="flex items-center gap-3 p-3.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex-1 truncate">{income.source}</span>
+    <div className="flex items-center gap-3 p-3.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+      <span className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 flex-1 truncate">{income.source}</span>
       <div className="relative w-36">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-brand-600 dark:text-brand-400">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-headline font-black text-slate-950 dark:text-slate-100">
           Rp
         </span>
         <input
@@ -495,12 +495,12 @@ function IncomeRow({
             isFocused.current = false;
             onChange(parseIDRInput(text));
           }}
-          className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl pl-8 pr-2.5 py-1.5 text-xs font-mono font-bold text-right focus:outline-none focus:border-brand-500"
+          className="w-full border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none pl-8 pr-2.5 py-1.5 text-xs font-mono font-bold text-right focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
           placeholder="0"
         />
       </div>
       {saving && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
-      <button onClick={onDelete} className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+      <button onClick={onDelete} className="p-1.5 text-slate-600 hover:text-rose-600 rounded-none border border-transparent hover:border-rose-600 transition-colors">
         <Trash2 className="w-4 h-4" />
       </button>
     </div>
@@ -529,19 +529,16 @@ function CategoryRow({
   }, [budget]);
   const Icon = getCategoryIcon(category.name);
   return (
-    <div className="flex items-center gap-3 p-3.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+    <div className="flex items-center gap-3 p-3.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
       <div
-        className="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-800 shrink-0"
-        style={{ backgroundColor: `${category.color ?? "#94a3b8"}15` }}
+        className="w-8 h-8 rounded-none flex items-center justify-center border-2 border-slate-950 dark:border-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] shrink-0"
+        style={{ backgroundColor: category.color ?? "#16a34a" }}
       >
-        <Icon
-          className="w-4 h-4 shrink-0"
-          style={{ color: category.color ?? "#94a3b8" }}
-        />
+        <Icon className="w-4 h-4 text-white shrink-0" />
       </div>
-      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex-1 truncate">{category.name}</span>
+      <span className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 flex-1 truncate">{category.name}</span>
       <div className="relative w-36">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-brand-600 dark:text-brand-400">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-headline font-black text-slate-950 dark:text-slate-100">
           Rp
         </span>
         <input
@@ -554,12 +551,12 @@ function CategoryRow({
             isFocused.current = false;
             onBudgetChange(parseIDRInput(text));
           }}
-          className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl pl-8 pr-2.5 py-1.5 text-xs font-mono font-bold text-right focus:outline-none focus:border-brand-500"
+          className="w-full border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none pl-8 pr-2.5 py-1.5 text-xs font-mono font-bold text-right focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
           placeholder="0"
         />
       </div>
       {saving && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
-      <button onClick={onDelete} className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+      <button onClick={onDelete} className="p-1.5 text-slate-600 hover:text-rose-600 rounded-none border border-transparent hover:border-rose-600 transition-colors">
         <Trash2 className="w-4 h-4" />
       </button>
     </div>
@@ -593,21 +590,21 @@ function CustomPeriodEditor({
 
   if (!isEditing) {
     return (
-      <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3">
+      <div className="flex items-center justify-between border-t-2 border-slate-950 dark:border-slate-100 pt-3">
         <span className="text-xs text-slate-500 dark:text-slate-400">
           {range.isCustom ? (
-            <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-lg">
+            <span className="inline-flex items-center gap-1 text-amber-900 bg-amber-300 border-2 border-slate-950 px-2 py-0.5 rounded-none font-headline font-bold uppercase text-[10px]">
               Custom Range
             </span>
           ) : (
-            <span className="text-slate-400 font-mono">Rentang default</span>
+            <span className="text-slate-500 font-mono text-xs uppercase">Rentang default</span>
           )}
         </span>
         <div className="flex items-center gap-2">
           {range.isCustom && (
             <button
               onClick={onReset}
-              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="text-xs font-headline font-bold uppercase text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 px-2 py-1 rounded-none border border-slate-950 transition"
               disabled={saving}
             >
               <RotateCcw className="w-3 h-3" /> Reset
@@ -615,7 +612,7 @@ function CustomPeriodEditor({
           )}
           <button
             onClick={() => setIsEditing(true)}
-            className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-brand-500/10 border border-brand-500/20 transition"
+            className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 bg-brand-400 border-2 border-slate-950 px-2.5 py-1.5 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition flex items-center gap-1.5"
             disabled={saving}
           >
             <Edit3 className="w-3 h-3" /> Ubah Range
@@ -626,32 +623,32 @@ function CustomPeriodEditor({
   }
 
   return (
-    <div className="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-3">
-      <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Custom Rentang Tanggal</p>
+    <div className="border-t-2 border-slate-950 dark:border-slate-100 pt-3 space-y-3">
+      <p className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">Custom Rentang Tanggal</p>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1 uppercase">Mulai</label>
+          <label className="text-[10px] font-headline font-bold text-slate-950 dark:text-slate-100 block mb-1 uppercase">Mulai</label>
           <input
             type="date"
             value={start}
             onChange={(e) => setStart(e.target.value)}
-            className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl px-2.5 py-2 text-xs font-mono font-bold focus:outline-none focus:border-brand-500"
+            className="w-full border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-2.5 py-2 text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
           />
         </div>
         <div>
-          <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1 uppercase">Selesai</label>
+          <label className="text-[10px] font-headline font-bold text-slate-950 dark:text-slate-100 block mb-1 uppercase">Selesai</label>
           <input
             type="date"
             value={end}
             onChange={(e) => setEnd(e.target.value)}
-            className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl px-2.5 py-2 text-xs font-mono font-bold focus:outline-none focus:border-brand-500"
+            className="w-full border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-2.5 py-2 text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
           />
         </div>
       </div>
       <div className="flex gap-2 justify-end pt-1">
         <button
           onClick={() => setIsEditing(false)}
-          className="text-xs font-bold text-slate-500 dark:text-slate-400 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+          className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 px-3 py-1.5 rounded-none border-2 border-slate-950 hover:bg-slate-100 transition"
           disabled={saving}
         >
           Batal
@@ -661,7 +658,7 @@ function CustomPeriodEditor({
             await onSave(start, end);
             setIsEditing(false);
           }}
-          className="btn-primary text-xs font-bold px-4 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm"
+          className="text-xs font-headline font-bold uppercase px-4 py-1.5 rounded-none bg-brand-500 text-slate-950 border-2 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1.5"
           disabled={saving}
         >
           {saving ? "Menyimpan..." : "Simpan"}

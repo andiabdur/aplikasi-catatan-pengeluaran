@@ -29,15 +29,15 @@ export function AsistenClient({ householdId }: { householdId: string }) {
   }, [householdId, setHouseholdId]);
 
   const tabBar = (
-    <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800">
+    <div className="flex p-1 bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] gap-2">
       <button
         type="button"
         onClick={() => setTab("analisa")}
         className={cn(
-          "flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-bold transition-all",
+          "flex-1 py-2.5 text-center font-headline text-xs font-bold uppercase tracking-widest rounded-none border-2 transition-all flex items-center justify-center gap-1.5",
           tab === "analisa"
-            ? "bg-brand-500 text-slate-950 shadow-sm"
-            : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200",
+            ? "bg-brand-500 text-slate-950 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            : "text-slate-700 dark:text-slate-300 border-transparent hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950"
         )}
       >
         <BarChart3 className="w-4 h-4" />
@@ -47,10 +47,10 @@ export function AsistenClient({ householdId }: { householdId: string }) {
         type="button"
         onClick={() => setTab("chat")}
         className={cn(
-          "flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-bold transition-all",
+          "flex-1 py-2.5 text-center font-headline text-xs font-bold uppercase tracking-widest rounded-none border-2 transition-all flex items-center justify-center gap-1.5",
           tab === "chat"
-            ? "bg-brand-500 text-slate-950 shadow-sm"
-            : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200",
+            ? "bg-brand-500 text-slate-950 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            : "text-slate-700 dark:text-slate-300 border-transparent hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950"
         )}
       >
         <MessageCircle className="w-4 h-4" /> Chat Interaktif
@@ -69,13 +69,13 @@ export function AsistenClient({ householdId }: { householdId: string }) {
 
   // Loading indicator banner when analysis is processing in background
   const loadingBanner = loading && (
-    <div className="neo-card bg-brand-500/10 border-brand-500/30 p-4 space-y-2 text-center animate-pulse">
-      <div className="flex items-center justify-center gap-2 text-brand-700 dark:text-brand-300 font-bold text-sm">
-        <Loader2 className="w-5 h-5 animate-spin text-brand-600 dark:text-brand-400" />
-        <span>Sedang Menganalisis Keuangan Keluarga...</span>
+    <div className="bg-brand-500/10 border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-2 text-center animate-pulse shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+      <div className="flex items-center justify-center gap-2 text-slate-950 dark:text-slate-100 font-headline font-bold text-sm uppercase tracking-wider">
+        <Loader2 className="w-5 h-5 animate-spin text-brand-500" />
+        <span>Menganalisis Keuangan Keluarga...</span>
       </div>
-      <p className="text-xs text-brand-600 dark:text-brand-400 leading-relaxed">
-        AI sedang membaca indikator cashflow, varians pengeluaran, dan memori keluarga Anda. Anda bisa bebas berpindah halaman, proses akan terus berjalan di background!
+      <p className="text-xs font-mono text-slate-700 dark:text-slate-300 leading-relaxed uppercase">
+        AI membaca cashflow & memori keluarga di background. Anda bebas berpindah halaman!
       </p>
     </div>
   );
@@ -86,20 +86,20 @@ export function AsistenClient({ householdId }: { householdId: string }) {
         {tabBar}
         {loadingBanner}
         {!loading && (
-          <div className="neo-card text-center py-10 px-6 space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-brand-500/15 text-brand-600 dark:text-brand-400 border border-brand-500/30 flex items-center justify-center mx-auto shadow-sm">
+          <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none text-center py-10 px-6 space-y-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
+            <div className="w-16 h-16 rounded-none bg-brand-500 text-slate-950 border-4 border-slate-950 dark:border-slate-100 flex items-center justify-center mx-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
               <Sparkles className="w-8 h-8" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Audit CFO &amp; Diagnosa Keuangan AI</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed max-w-sm mx-auto">
-                AI CFO akan melakukan audit teknis mendalam atas indikator cashflow, Savings Rate %, Burn Rate, serta mengevaluasi kesesuaian dengan memori &amp; target keluarga Anda.
+              <h2 className="text-lg font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-tight">Audit CFO &amp; Diagnosa Keuangan AI</h2>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed max-w-sm mx-auto">
+                AI CFO akan melakukan audit teknis mendalam atas indikator cashflow, Savings Rate %, Burn Rate, serta memori keuangan keluarga Anda.
               </p>
             </div>
             <button
               onClick={() => analyze()}
               disabled={loading}
-              className="btn-primary w-full py-4 text-sm font-bold rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)] dark:shadow-[3px_3px_0px_0px_rgba(0,0,0,0.6)]"
+              className="w-full py-4 text-sm bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black uppercase tracking-wider rounded-none border-4 border-slate-950 dark:border-slate-100 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all flex items-center justify-center gap-2"
             >
               {loading ? (
                 <><Loader2 className="w-5 h-5 animate-spin" /> Menganalisa di background...</>
@@ -107,7 +107,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
                 <><Sparkles className="w-5 h-5" /> Mulai Audit Keuangan Keluarga</>
               )}
             </button>
-            {error && <p className="text-sm font-semibold text-rose-600 dark:text-rose-400">{error}</p>}
+            {error && <p className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400 uppercase">{error}</p>}
           </div>
         )}
       </div>
@@ -119,93 +119,93 @@ export function AsistenClient({ householdId }: { householdId: string }) {
       {tabBar}
       {loadingBanner}
 
-      {/* Summary + health (Stitch Style) */}
-      <div className="neo-card p-5 space-y-3 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-28 h-28 bg-brand-500/5 rounded-bl-full pointer-events-none" />
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Diagnosa Eksekutif CFO
+      {/* Summary + health (Bauhaus V2 Diagnostic Card) */}
+      <section className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-5 space-y-3 relative overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-500 opacity-20 rotate-45 border-4 border-slate-950 pointer-events-none" />
+        <div className="flex items-center justify-between relative z-10">
+          <span className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-widest">
+            Health Status
           </span>
           <HealthBadge health={data.health} />
         </div>
-        <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">{data.summary}</p>
+        <p className="text-sm font-headline font-bold text-slate-950 dark:text-slate-100 leading-relaxed relative z-10">{data.summary}</p>
         {data.periods_analyzed.length > 0 && (
-          <p className="text-[11px] font-mono text-slate-400">
+          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 relative z-10">
             Audit berbasis {data.periods_analyzed.length} periode: {data.periods_analyzed.join(", ")}
           </p>
         )}
-      </div>
+      </section>
 
-      {/* Insights */}
+      {/* Insights / Anomalies */}
       {data.insights.length > 0 && (
-        <div className="neo-card p-5 space-y-3">
-          <SectionTitle icon={TrendingUp}>Temuan Analitis Mendalam</SectionTitle>
-          <div className="space-y-2.5">
+        <section className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-5 space-y-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
+          <SectionTitle icon={TrendingUp}>Temuan &amp; Anomali Finansial</SectionTitle>
+          <div className="space-y-3">
             {data.insights.map((ins, i) => (
               <div
                 key={i}
                 className={cn(
-                  "p-3.5 rounded-xl border flex gap-3 items-start bg-slate-50/50 dark:bg-slate-900/60",
-                  ins.severity === "danger" ? "border-l-4 border-l-rose-500 border-rose-200 dark:border-rose-900/40" :
-                  ins.severity === "good" ? "border-l-4 border-l-emerald-500 border-emerald-200 dark:border-emerald-900/40" :
-                  "border-l-4 border-l-amber-500 border-amber-200 dark:border-amber-900/40"
+                  "p-3.5 rounded-none border-2 border-slate-950 dark:border-slate-100 flex gap-3 items-start bg-slate-50 dark:bg-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]",
+                  ins.severity === "danger" ? "border-l-8 border-l-rose-500" :
+                  ins.severity === "good" ? "border-l-8 border-l-emerald-500" :
+                  "border-l-8 border-l-amber-400"
                 )}
               >
                 <SeverityIcon severity={ins.severity} />
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{ins.title}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mt-0.5">{ins.detail}</p>
+                  <p className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">{ins.title}</p>
+                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed mt-1 border-t border-slate-200 dark:border-slate-800 pt-1">{ins.detail}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Action now */}
       {data.action_now.length > 0 && (
-        <div className="neo-card p-5 space-y-3">
-          <SectionTitle icon={ListChecks}>Langkah Aksi Taktis Berprioritas</SectionTitle>
+        <section className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-5 space-y-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
+          <SectionTitle icon={ListChecks}>Action Plan Taktis</SectionTitle>
           <ul className="space-y-2">
             {data.action_now.map((a, i) => (
-              <li key={i} className="flex gap-2.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                <span className="text-brand-600 dark:text-brand-400 font-mono font-bold shrink-0">{i + 1}.</span>
-                <span className="leading-relaxed">{a}</span>
+              <li key={i} className="flex gap-2.5 text-xs font-bold text-slate-950 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 p-3 rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <span className="text-brand-600 dark:text-brand-400 font-mono font-black shrink-0">{i + 1}.</span>
+                <span className="leading-relaxed font-headline uppercase">{a}</span>
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
 
       {/* Goal advice */}
       {data.goal_advice.length > 0 && (
-        <div className="neo-card p-5 space-y-3">
-          <SectionTitle icon={Target}>Analisis Kecepatan &amp; Kelayakan Goal</SectionTitle>
-          <div className="space-y-2.5 divide-y divide-slate-100 dark:divide-slate-800/80">
+        <section className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-5 space-y-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
+          <SectionTitle icon={Target}>Analisis Kelayakan Goal</SectionTitle>
+          <div className="space-y-2.5 divide-y-2 divide-slate-100 dark:divide-slate-800">
             {data.goal_advice.map((g, i) => (
               <div key={i} className={cn(i > 0 && "pt-2.5")}>
-                <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{g.goal_name}</p>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mt-0.5">{g.advice}</p>
+                <p className="text-sm font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">{g.goal_name}</p>
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed mt-0.5">{g.advice}</p>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Suggested budgets */}
       {data.suggested_budgets.length > 0 && (
-        <div className="neo-card p-5 space-y-3">
+        <section className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-5 space-y-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
           <SectionTitle icon={Wallet}>
-            Usulan Budget Terukur — {data.next_period_title}
+            Usulan Budget — {data.next_period_title}
           </SectionTitle>
-          <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+          <div className="divide-y-2 divide-slate-100 dark:divide-slate-800">
             {data.suggested_budgets.map((s) => (
               <div key={s.category_id} className="py-2.5 flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{s.category_name}</p>
+                  <p className="text-sm font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">{s.category_name}</p>
                   {s.reason && <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug mt-0.5">{s.reason}</p>}
                 </div>
-                <span className="text-sm font-mono font-bold text-brand-600 dark:text-brand-400 shrink-0">
+                <span className="text-sm font-mono font-black text-slate-950 dark:text-slate-100 shrink-0">
                   {formatIDR(s.amount)}
                 </span>
               </div>
@@ -213,14 +213,14 @@ export function AsistenClient({ householdId }: { householdId: string }) {
           </div>
 
           {applied ? (
-            <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3">
+            <div className="flex items-center gap-2 text-xs font-headline font-bold uppercase text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border-2 border-emerald-500 rounded-none p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
               <Check className="w-4 h-4" /> Budget {data.next_period_title} berhasil diterapkan!
             </div>
           ) : (
             <button
               onClick={() => applyBudgets()}
               disabled={applying}
-              className="btn-primary w-full py-3.5 rounded-xl font-bold text-sm shadow-sm"
+              className="w-full py-3.5 bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black uppercase tracking-wider rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2"
             >
               {applying ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -229,18 +229,18 @@ export function AsistenClient({ householdId }: { householdId: string }) {
               )}
             </button>
           )}
-          <p className="text-[11px] text-slate-400 text-center">
-            Tetap dapat Anda sesuaikan manual di menu Pengaturan setelah diterapkan.
+          <p className="text-[10px] font-mono uppercase tracking-wider text-slate-500 text-center">
+            Dapat disesuaikan manual di Pengaturan setelah diterapkan.
           </p>
-        </div>
+        </section>
       )}
 
-      {error && <p className="text-sm font-semibold text-rose-600 dark:text-rose-400 px-1">{error}</p>}
+      {error && <p className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400 px-1 uppercase">{error}</p>}
 
       <button
         onClick={() => analyze()}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold py-3 text-xs hover:bg-slate-50 dark:hover:bg-slate-800/80 transition disabled:opacity-60 shadow-sm active:scale-[0.99]"
+        className="w-full flex items-center justify-center gap-2 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-900 text-slate-950 dark:text-slate-100 font-headline font-bold uppercase py-3 text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition disabled:opacity-60"
       >
         {loading ? (
           <><Loader2 className="w-4 h-4 animate-spin text-brand-600" /> Menganalisa ulang di background...</>
@@ -254,8 +254,8 @@ export function AsistenClient({ householdId }: { householdId: string }) {
 
 function SectionTitle({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <h3 className="flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-      <Icon className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+    <h3 className="flex items-center gap-1.5 text-sm font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider">
+      <Icon className="w-4 h-4 text-brand-500" />
       {children}
     </h3>
   );
@@ -263,12 +263,17 @@ function SectionTitle({ icon: Icon, children }: { icon: React.ElementType; child
 
 function HealthBadge({ health }: { health: string }) {
   const map: Record<string, { label: string; cls: string }> = {
-    sehat: { label: "Sehat", cls: "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800" },
-    waspada: { label: "Waspada", cls: "bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800" },
-    boncos: { label: "Boncos", cls: "bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800" },
+    sehat: { label: "Sehat", cls: "bg-emerald-400 text-slate-950 border-slate-950" },
+    waspada: { label: "Waspada", cls: "bg-amber-400 text-slate-950 border-slate-950" },
+    boncos: { label: "Boncos", cls: "bg-rose-500 text-white border-slate-950" },
   };
-  const m = map[health] ?? { label: health || "—", cls: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700" };
-  return <span className={cn("text-xs font-bold px-3 py-1 rounded-full border", m.cls)}>{m.label}</span>;
+  const m = map[health] ?? { label: health || "—", cls: "bg-slate-200 text-slate-950 border-slate-950" };
+  return (
+    <span className={cn("text-xs font-headline font-black uppercase px-3 py-1 rounded-none border-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-wider inline-flex items-center gap-1", m.cls)}>
+      <CheckCircle2 className="w-3.5 h-3.5" />
+      {m.label}
+    </span>
+  );
 }
 
 function SeverityIcon({ severity }: { severity: string }) {

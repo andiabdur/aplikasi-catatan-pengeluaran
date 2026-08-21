@@ -19,6 +19,13 @@ const config: Config = {
   				'900': '#14532d',
   				DEFAULT: '#16a34a'
   			},
+  			bauhaus: {
+  				black: '#1a1a1a',
+  				yellow: '#ffcc00',
+  				red: '#e63b2e',
+  				blue: '#0055ff',
+  				paper: '#f5f0e8'
+  			},
   			"background-dark": "#020617",
   			"surface-dark": "#0f172a",
   			"surface-container-high": "#1e293b",
@@ -73,8 +80,9 @@ const config: Config = {
   			}
   		},
   		fontFamily: {
-  			sans: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
-  			mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"]
+  			headline: ["Space Grotesk", "sans-serif"],
+  			sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+  			mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"]
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

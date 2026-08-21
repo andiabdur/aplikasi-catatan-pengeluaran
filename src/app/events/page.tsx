@@ -41,27 +41,30 @@ export default async function EventsPage() {
   return (
     <div className="container max-w-lg mx-auto p-4 pb-32 space-y-4">
       <div className="flex items-center gap-3">
-        <Link href="/settings" className="p-2 neo-card hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-700 dark:text-slate-200" />
+        <Link
+          href="/settings"
+          className="p-2.5 bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+        >
+          <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Event &amp; Perjalanan</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Kelola anggaran khusus liburan, renovasi, atau acara keluarga</p>
+          <h1 className="text-xl font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-tight">Event &amp; Perjalanan</h1>
+          <p className="text-xs font-mono uppercase text-slate-500 dark:text-slate-400 mt-0.5">Kelola anggaran khusus liburan & acara</p>
         </div>
       </div>
 
-      <form action={async (formData) => { "use server"; await createEvent(formData); }} className="neo-card p-4 space-y-3">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Buat Event Baru</h2>
+      <form action={async (formData) => { "use server"; await createEvent(formData); }} className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+        <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">Buat Event Baru</h2>
         <div className="space-y-3">
           <div>
-            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Nama Event</label>
-            <input required name="name" type="text" placeholder="Misal: Liburan Bali, Renovasi Dapur" className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3.5 py-2.5 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-500" />
+            <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1">Nama Event</label>
+            <input required name="name" type="text" placeholder="Misal: Liburan Bali, Renovasi Dapur" className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 px-3.5 py-2.5 rounded-none text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" />
           </div>
           <div>
-            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Tanggal Mulai</label>
-            <input required name="start_date" type="date" defaultValue={new Date().toISOString().split("T")[0]} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3.5 py-2.5 rounded-xl text-xs font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-500" />
+            <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1">Tanggal Mulai</label>
+            <input required name="start_date" type="date" defaultValue={new Date().toISOString().split("T")[0]} className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 px-3.5 py-2.5 rounded-none text-xs font-mono font-bold text-slate-950 dark:text-slate-100 focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" />
           </div>
-          <button type="submit" className="btn-primary w-full py-3 rounded-xl font-bold text-sm shadow-sm">Tambah Event</button>
+          <button type="submit" className="w-full py-3.5 bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black uppercase tracking-wider text-xs rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all">Tambah Event</button>
         </div>
       </form>
 

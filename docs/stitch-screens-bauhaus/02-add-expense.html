@@ -1,0 +1,333 @@
+<!DOCTYPE html><html class="light" lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Catat Pengeluaran - Family CFO</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&amp;family=Space+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "background": "#0e150f",
+                "tertiary-fixed": "#ffd9de",
+                "surface-container-high": "#252c24",
+                "on-secondary-fixed-variant": "#005321",
+                "on-error": "#690005",
+                "on-primary-fixed": "#002109",
+                "tertiary-container": "#ec6284",
+                "secondary-fixed-dim": "#4ae176",
+                "outline": "#879485",
+                "danger": "#ef4444",
+                "on-tertiary-container": "#5a0022",
+                "secondary-fixed": "#6bff8f",
+                "on-primary": "#003914",
+                "surface-bright": "#343b33",
+                "primary-container": "#1ca64d",
+                "on-surface": "#dde5d9",
+                "on-tertiary-fixed": "#3f0016",
+                "secondary": "#4ae176",
+                "on-background": "#dde5d9",
+                "surface": "#0e150f",
+                "tertiary-fixed-dim": "#ffb2bf",
+                "surface-container-lowest": "#09100a",
+                "on-primary-container": "#003111",
+                "surface-container-highest": "#30372f",
+                "on-error-container": "#ffdad6",
+                "outline-variant": "#3e4a3d",
+                "error": "#ffb4ab",
+                "on-tertiary": "#660027",
+                "surface-container-low": "#171d16",
+                "primary": "#62df7d",
+                "surface-dark": "#0f172a",
+                "tertiary": "#ffb2bf",
+                "background-dark": "#020617",
+                "warning": "#f59e0b",
+                "on-secondary-container": "#004119",
+                "on-secondary-fixed": "#002109",
+                "on-tertiary-fixed-variant": "#8a143c",
+                "error-container": "#93000a",
+                "surface-container": "#1b211a",
+                "surface-light": "#ffffff",
+                "surface-dim": "#0e150f",
+                "inverse-surface": "#dde5d9",
+                "primary-fixed": "#7ffc97",
+                "surface-variant": "#30372f",
+                "info": "#6366f1",
+                "secondary-container": "#00b954",
+                "background-light": "#f8fafc",
+                "on-secondary": "#003915",
+                "on-surface-variant": "#bdcaba",
+                "inverse-primary": "#006e2d",
+                "surface-tint": "#62df7d",
+                "inverse-on-surface": "#2b322b",
+                "on-primary-fixed-variant": "#005320",
+                "primary-fixed-dim": "#62df7d"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "gutter": "1rem",
+                "stack-md": "1rem",
+                "stack-lg": "1.5rem",
+                "container-padding": "1rem",
+                "stack-sm": "0.5rem"
+        },
+        "fontFamily": {
+                "data-mono": [
+                        "JetBrains Mono"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Space Grotesk"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Space Grotesk"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "currency-display": [
+                        "Space Grotesk"
+                ]
+        },
+        "fontSize": {
+                "data-mono": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "500"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "currency-display": [
+                        "28px",
+                        {
+                                "lineHeight": "34px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<script>
+    function toggleTheme() {
+        if (document.documentElement.classList.contains('dark')) {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+        }
+    }
+</script>
+<style>
+        /* Hide scrollbar for clean chip row */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface-light dark:bg-background text-on-surface font-body-md antialiased min-h-screen pb-20 flex flex-col items-center">
+<!-- Mobile Container Constraint -->
+<div class="w-full max-w-[390px] min-h-screen relative shadow-2xl bg-surface-light dark:bg-background flex flex-col">
+<!-- Top Header -->
+<header class="flex justify-between items-center px-container-padding py-stack-md w-full bg-surface-light dark:bg-background top-0 sticky z-40 border-b-2 border-on-surface dark:border-surface-light shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)]">
+<button class="text-on-surface dark:text-surface-light p-2 -ml-2 active:bg-surface-container rounded-none transition-colors flex items-center justify-center border-2 border-transparent active:border-on-surface dark:active:border-surface-light">
+<span class="material-symbols-outlined text-[28px]">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface dark:text-surface-light tracking-tight uppercase">Catat Pengeluaran</h1>
+<button class="text-on-surface dark:text-surface-light p-2 -mr-2 active:bg-surface-container rounded-none transition-colors flex items-center justify-center border-2 border-transparent active:border-on-surface dark:active:border-surface-light" onclick="toggleTheme()">
+<span class="material-symbols-outlined text-[28px] dark:hidden">dark_mode</span>
+<span class="material-symbols-outlined text-[28px] hidden dark:block">light_mode</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-1 px-container-padding py-stack-lg space-y-stack-lg overflow-y-auto">
+<!-- Nominal Input (Neo-Brutalist) -->
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-sm text-label-sm dark:text-surface-light uppercase tracking-wider font-bold text-background dark:text-primary">Nominal</label>
+<div class="flex items-center bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none p-4 shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] focus-within:bg-primary-fixed dark:focus-within:bg-primary-container focus-within:shadow-[6px_6px_0px_0px_rgba(14,21,15,1)] dark:focus-within:shadow-[6px_6px_0px_0px_rgba(221,229,217,1)] transition-all">
+<span class="font-currency-display text-currency-display text-on-surface dark:text-surface-light mr-3">Rp</span>
+<input class="bg-transparent w-full font-currency-display text-currency-display dark:text-surface-light focus:outline-none dark:placeholder-outline text-background placeholder-on-surface-variant" placeholder="0" type="number">
+<button class="text-on-surface dark:text-surface-light hover:text-on-surface active:scale-95 transition-all p-1 bg-secondary-fixed dark:bg-secondary-container rounded-none border-2 border-on-surface dark:border-surface-light shadow-[2px_2px_0px_0px_rgba(14,21,15,1)] dark:shadow-[2px_2px_0px_0px_rgba(221,229,217,1)]">
+<span class="material-symbols-outlined text-[28px]">calculate</span>
+</button>
+</div>
+</div>
+<!-- Voice Recording Card -->
+<div class="bg-tertiary-container dark:bg-tertiary-fixed border-2 border-on-surface dark:border-surface-light rounded-none p-stack-lg shadow-[6px_6px_0px_0px_rgba(14,21,15,1)] dark:shadow-[6px_6px_0px_0px_rgba(221,229,217,1)] flex flex-col items-center justify-center text-center gap-stack-md relative overflow-hidden group">
+<button class="w-20 h-20 rounded-none bg-primary dark:bg-primary-container flex items-center justify-center border-2 border-on-surface dark:border-surface-light shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] active:translate-y-1 active:translate-x-1 active:shadow-[0px_0px_0px_0px_rgba(14,21,15,1)] transition-all z-10">
+<span class="material-symbols-outlined text-on-primary dark:text-on-primary-container font-bold text-4xl" style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+<div class="z-10 mt-2 space-y-1">
+<p class="font-data-mono text-data-mono dark:text-surface-light bg-surface-light dark:bg-background px-3 py-1 rounded-none border-2 border-on-surface dark:border-surface-light inline-block shadow-[2px_2px_0px_0px_rgba(14,21,15,1)] dark:shadow-[2px_2px_0px_0px_rgba(221,229,217,1)] font-bold">00:00</p>
+<p class="font-label-sm text-label-sm dark:text-on-tertiary-container max-w-[250px] mx-auto mt-2 leading-relaxed font-bold text-on-tertiary-container">Sebutkan belanjaan sekaligus, AI akan memisahkan otomatis</p>
+</div>
+</div>
+<!-- Frequent Categories (Chips) -->
+<div class="flex gap-stack-sm overflow-x-auto pb-2 scrollbar-hide -mx-container-padding px-container-padding">
+<button class="whitespace-nowrap px-5 py-2.5 bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none font-label-sm text-label-sm text-on-surface dark:text-surface-light font-bold uppercase active:bg-on-surface active:text-surface-light dark:active:bg-surface-light dark:active:text-background shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] active:shadow-none active:translate-y-[4px] active:translate-x-[4px] transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">restaurant</span>
+                    Makan
+                </button>
+<button class="whitespace-nowrap px-5 py-2.5 bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none font-label-sm text-label-sm text-on-surface dark:text-surface-light font-bold uppercase active:bg-on-surface active:text-surface-light dark:active:bg-surface-light dark:active:text-background shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] active:shadow-none active:translate-y-[4px] active:translate-x-[4px] transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                    Groceries
+                </button>
+<button class="whitespace-nowrap px-5 py-2.5 bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none font-label-sm text-label-sm text-on-surface dark:text-surface-light font-bold uppercase active:bg-on-surface active:text-surface-light dark:active:bg-surface-light dark:active:text-background shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] active:shadow-none active:translate-y-[4px] active:translate-x-[4px] transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">local_gas_station</span>
+                    Bensin
+                </button>
+<button class="whitespace-nowrap px-5 py-2.5 bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none font-label-sm text-label-sm text-on-surface dark:text-surface-light font-bold uppercase active:bg-on-surface active:text-surface-light dark:active:bg-surface-light dark:active:text-background shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] active:shadow-none active:translate-y-[4px] active:translate-x-[4px] transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<!-- Form Details -->
+<div class="space-y-stack-lg">
+<!-- Description Input -->
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-sm text-label-sm dark:text-surface-light uppercase tracking-wider font-bold text-background dark:text-primary">Nama Kebutuhan</label>
+<input class="bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none p-4 font-body-md text-body-md dark:text-surface-light focus:outline-none focus:bg-primary-fixed dark:focus:bg-primary-container shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] focus:shadow-[6px_6px_0px_0px_rgba(14,21,15,1)] dark:focus:shadow-[6px_6px_0px_0px_rgba(221,229,217,1)] transition-all dark:placeholder-outline font-bold text-background placeholder-on-surface-variant" placeholder="Contoh: Makan siang Nasi Padang" type="text">
+</div>
+<!-- Category Grid (3 Columns) -->
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-sm text-label-sm dark:text-surface-light uppercase tracking-wider font-bold text-background dark:text-primary">Kategori Utama</label>
+<div class="grid grid-cols-3 gap-stack-sm">
+<button class="flex flex-col items-center justify-center p-3 bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none gap-2 active:bg-on-surface dark:active:bg-surface-light transition-all group shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] active:shadow-none active:translate-y-[4px] active:translate-x-[4px]">
+<div class="w-10 h-10 rounded-none bg-secondary-fixed dark:bg-secondary-container border-2 border-on-surface dark:border-surface-light flex items-center justify-center text-on-surface dark:text-surface-light group-active:text-on-surface group-active:bg-surface-light dark:group-active:text-background dark:group-active:bg-background">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface dark:text-surface-light font-bold uppercase group-active:text-surface-light dark:group-active:text-background">Makan</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none gap-2 active:bg-on-surface dark:active:bg-surface-light transition-all group shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] active:shadow-none active:translate-y-[4px] active:translate-x-[4px]">
+<div class="w-10 h-10 rounded-none bg-secondary-fixed dark:bg-secondary-container border-2 border-on-surface dark:border-surface-light flex items-center justify-center text-on-surface dark:text-surface-light group-active:text-on-surface group-active:bg-surface-light dark:group-active:text-background dark:group-active:bg-background">
+<span class="material-symbols-outlined">directions_car</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface dark:text-surface-light font-bold uppercase group-active:text-surface-light dark:group-active:text-background">Transport</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none gap-2 active:bg-on-surface dark:active:bg-surface-light transition-all group shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] active:shadow-none active:translate-y-[4px] active:translate-x-[4px]">
+<div class="w-10 h-10 rounded-none bg-secondary-fixed dark:bg-secondary-container border-2 border-on-surface dark:border-surface-light flex items-center justify-center text-on-surface dark:text-surface-light group-active:text-on-surface group-active:bg-surface-light dark:group-active:text-background dark:group-active:bg-background">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface dark:text-surface-light font-bold uppercase group-active:text-surface-light dark:group-active:text-background">Belanja</span>
+</button>
+</div>
+</div>
+<!-- Date & Goal Dropdowns -->
+<div class="grid grid-cols-2 gap-stack-md">
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-sm text-label-sm dark:text-surface-light uppercase tracking-wider font-bold text-background dark:text-primary">Tanggal</label>
+<button class="flex items-center bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none p-3 shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all">
+<span class="material-symbols-outlined text-on-surface dark:text-surface-light mr-2 text-[20px]">calendar_today</span>
+<span class="font-data-mono text-data-mono text-on-surface dark:text-surface-light flex-1 text-left font-bold">Hari Ini</span>
+</button>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-sm text-label-sm dark:text-surface-light uppercase tracking-wider font-bold text-background dark:text-primary">Event/Goal</label>
+<button class="flex items-center bg-surface-light dark:bg-background border-2 border-on-surface dark:border-surface-light rounded-none p-3 shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all">
+<span class="font-body-md text-body-md text-on-surface dark:text-surface-light flex-1 truncate text-left font-bold">Opsional</span>
+<span class="material-symbols-outlined text-on-surface dark:text-surface-light">unfold_more</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-primary dark:bg-primary-container dark:text-on-primary-container font-headline-md text-headline-md py-4 rounded-none shadow-[6px_6px_0px_0px_rgba(14,21,15,1)] dark:shadow-[6px_6px_0px_0px_rgba(221,229,217,1)] active:translate-y-[6px] active:translate-x-[6px] active:shadow-[0px_0px_0px_0px_rgba(14,21,15,1)] transition-all font-bold mt-stack-lg border-2 border-on-surface dark:border-surface-light uppercase tracking-widest hover:bg-on-surface hover:text-surface-light dark:hover:bg-surface-light dark:hover:text-background text-background">
+                Simpan Pengeluaran
+            </button>
+<div class="h-6"></div> <!-- Extra bottom padding above nav -->
+</main>
+<!-- BottomNavBar (from JSON, 'Add' is active) -->
+<nav class="fixed bottom-0 w-full max-w-[390px] z-50 bg-surface-light dark:bg-background border-t-4 border-on-surface dark:border-surface-light flex justify-around items-center h-20 px-2 pb-2">
+<button class="flex flex-col items-center justify-center text-on-surface dark:text-surface-light hover:bg-primary-fixed dark:hover:bg-primary-container active:scale-95 transition-transform w-16 h-full rounded-none border-2 border-transparent hover:border-on-surface dark:hover:border-surface-light">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-sm text-label-sm font-bold uppercase text-background dark:text-surface-light">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface dark:text-surface-light hover:bg-primary-fixed dark:hover:bg-primary-container active:scale-95 transition-transform w-16 h-full rounded-none border-2 border-transparent hover:border-on-surface dark:hover:border-surface-light">
+<span class="material-symbols-outlined mb-1">history</span>
+<span class="font-label-sm text-label-sm font-bold uppercase text-background dark:text-surface-light">History</span>
+</button>
+<!-- ACTIVE STATE: Add -->
+<button class="flex flex-col items-center justify-center text-on-surface dark:text-surface-light font-bold hover:bg-primary-fixed dark:hover:bg-primary-container active:scale-95 transition-transform w-16 h-full relative border-2 border-on-surface dark:border-surface-light bg-secondary-fixed dark:bg-secondary-container shadow-[4px_4px_0px_0px_rgba(14,21,15,1)] dark:shadow-[4px_4px_0px_0px_rgba(221,229,217,1)] -translate-y-2">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="font-label-sm text-label-sm font-bold uppercase text-background dark:text-surface-light">Add</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface dark:text-surface-light hover:bg-primary-fixed dark:hover:bg-primary-container active:scale-95 transition-transform w-16 h-full rounded-none border-2 border-transparent hover:border-on-surface dark:hover:border-surface-light">
+<span class="material-symbols-outlined mb-1">target</span>
+<span class="font-label-sm text-label-sm font-bold uppercase text-background dark:text-surface-light">Goals</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface dark:text-surface-light hover:bg-primary-fixed dark:hover:bg-primary-container active:scale-95 transition-transform w-16 h-full rounded-none border-2 border-transparent hover:border-on-surface dark:hover:border-surface-light">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span class="font-label-sm text-label-sm font-bold uppercase text-background dark:text-surface-light">Settings</span>
+</button>
+</nav>
+</div>
+
+
+</body></html>

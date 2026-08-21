@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Family CFO - Riwayat Pengeluaran</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@500&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "background": "#0e150f",
+                "tertiary-fixed": "#ffd9de",
+                "surface-container-high": "#252c24",
+                "on-secondary-fixed-variant": "#005321",
+                "on-error": "#690005",
+                "on-primary-fixed": "#002109",
+                "tertiary-container": "#ec6284",
+                "secondary-fixed-dim": "#4ae176",
+                "outline": "#879485",
+                "danger": "#ef4444",
+                "on-tertiary-container": "#5a0022",
+                "secondary-fixed": "#6bff8f",
+                "on-primary": "#003914",
+                "surface-bright": "#343b33",
+                "primary-container": "#1ca64d",
+                "on-surface": "#dde5d9",
+                "on-tertiary-fixed": "#3f0016",
+                "secondary": "#4ae176",
+                "on-background": "#dde5d9",
+                "surface": "#0e150f",
+                "tertiary-fixed-dim": "#ffb2bf",
+                "surface-container-lowest": "#09100a",
+                "on-primary-container": "#003111",
+                "surface-container-highest": "#30372f",
+                "on-error-container": "#ffdad6",
+                "outline-variant": "#3e4a3d",
+                "error": "#ffb4ab",
+                "on-tertiary": "#660027",
+                "surface-container-low": "#171d16",
+                "primary": "#62df7d",
+                "surface-dark": "#0f172a",
+                "tertiary": "#ffb2bf",
+                "background-dark": "#020617",
+                "warning": "#f59e0b",
+                "on-secondary-container": "#004119",
+                "on-secondary-fixed": "#002109",
+                "on-tertiary-fixed-variant": "#8a143c",
+                "error-container": "#93000a",
+                "surface-container": "#1b211a",
+                "surface-light": "#ffffff",
+                "surface-dim": "#0e150f",
+                "inverse-surface": "#dde5d9",
+                "primary-fixed": "#7ffc97",
+                "surface-variant": "#30372f",
+                "info": "#6366f1",
+                "secondary-container": "#00b954",
+                "background-light": "#f8fafc",
+                "on-secondary": "#003915",
+                "on-surface-variant": "#bdcaba",
+                "inverse-primary": "#006e2d",
+                "surface-tint": "#62df7d",
+                "inverse-on-surface": "#2b322b",
+                "on-primary-fixed-variant": "#005320",
+                "primary-fixed-dim": "#62df7d"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "gutter": "1rem",
+                "stack-md": "1rem",
+                "stack-lg": "1.5rem",
+                "container-padding": "1rem",
+                "stack-sm": "0.5rem"
+        },
+        "fontFamily": {
+                "data-mono": [
+                        "JetBrains Mono"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Space Grotesk"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Space Grotesk"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "currency-display": [
+                        "Space Grotesk"
+                ]
+        },
+        "fontSize": {
+                "data-mono": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "500"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "currency-display": [
+                        "28px",
+                        {
+                                "lineHeight": "34px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleIcon = document.getElementById('theme-toggle-icon');
+        const htmlElement = document.documentElement;
+
+        // Check for saved theme preference or system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlElement.classList.add('dark');
+            themeToggleIcon.textContent = 'light_mode';
+        } else {
+            htmlElement.classList.remove('dark');
+            themeToggleIcon.textContent = 'dark_mode';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            if (htmlElement.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+                themeToggleIcon.textContent = 'light_mode';
+            } else {
+                localStorage.theme = 'light';
+                themeToggleIcon.textContent = 'dark_mode';
+            }
+        });
+    });
+</script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.background-light');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.surface-variant');
+            border-radius: 4px;
+        }
+        
+        /* Utility for hiding scrollbars but keeping functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-on-surface dark:text-on-surface min-h-screen font-body-md pb-24 selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-40 bg-background-light dark:bg-background-dark border-b-4 border-black dark:border-outline shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)]">
+<div class="flex justify-between items-center px-container-padding py-stack-md w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-none bg-surface-container-high border-4 border-black dark:border-outline flex items-center justify-center overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a user in a modern family setting, neutral background, high contrast lighting, Neo-Brutalist styling, clean and structured composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoKJnZwkRlFy9xpEptUPpn7u9E45ZlLYCpDmdXG_YQ1gyPhIaprp9UDqRpu5pF5e47RJOrpamR0qREXaxzP8E3Y5yWW1qHXtUjf_0w7lstsPuzO0UaDy9SWrM7HjYxz2dRMDyluJn5eRxHGtK-rmn8kBPEyR8W70j3V9cdYeWK7y8vr6Pe2iUdvlf29c6dxHDucdtEvVyXlhSc56A1t7eMDg_kxTL6Z2nPWDceyINWILgbuGWvyO4j"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-black dark:text-primary-fixed uppercase">Family CFO</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-none border-4 border-black dark:border-outline hover:bg-surface-light dark:hover:bg-surface-container-highest active:translate-y-0.5 transition-all text-black dark:text-on-surface-variant shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)] hover:shadow-none" id="theme-toggle">
+<span class="material-symbols-outlined" id="theme-toggle-icon" style="font-variation-settings: 'FILL' 0;">dark_mode</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="w-full max-w-4xl mx-auto px-container-padding pt-stack-lg pb-stack-lg space-y-stack-lg">
+<!-- Header & Search -->
+<div class="space-y-stack-md">
+<div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+<h2 class="font-headline-lg text-headline-lg text-black dark:text-on-surface uppercase max-w-xs">Riwayat Pengeluaran</h2>
+<button class="text-black bg-primary border-4 border-black px-4 py-2 rounded-none hover:bg-primary-container transition-colors font-label-sm text-label-sm uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)] font-bold w-fit">Pilih Semua</button>
+</div>
+<div class="relative w-full mt-4">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-black dark:text-on-surface">search</span>
+<input class="w-full bg-surface-light dark:bg-surface-dark border-4 border-black dark:border-outline rounded-none py-3 pl-12 pr-4 text-body-md font-headline-md text-black dark:text-on-surface focus:outline-none focus:ring-0 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)]" placeholder="Cari transaksi, kategori, atau jumlah..." type="text"/>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="flex items-center gap-stack-sm overflow-x-auto no-scrollbar pb-2 pt-2">
+<div class="flex bg-surface-light dark:bg-surface-dark rounded-none p-1 border-4 border-black dark:border-outline shrink-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)]">
+<button class="px-6 py-2 rounded-none bg-primary border-4 border-black text-black font-label-sm text-label-sm transition-colors uppercase font-bold">Payday</button>
+<button class="px-6 py-2 rounded-none text-black dark:text-on-surface hover:bg-gray-100 dark:hover:bg-surface-container-high font-label-sm text-label-sm transition-colors uppercase font-bold">Custom</button>
+</div>
+<button class="flex items-center gap-2 bg-surface-light dark:bg-surface-dark border-4 border-black dark:border-outline px-4 py-2 rounded-none hover:bg-gray-100 dark:hover:bg-surface-container-high transition-colors shrink-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)]">
+<span class="material-symbols-outlined text-[18px] text-black dark:text-on-surface">category</span>
+<span class="font-label-sm text-label-sm text-black dark:text-on-surface uppercase font-bold">Semua Kategori</span>
+<span class="material-symbols-outlined text-[18px] text-black dark:text-on-surface">expand_more</span>
+</button>
+<button class="flex items-center gap-2 bg-surface-light dark:bg-surface-dark border-4 border-black dark:border-outline px-4 py-2 rounded-none hover:bg-gray-100 dark:hover:bg-surface-container-high transition-colors shrink-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)] hidden md:flex">
+<span class="material-symbols-outlined text-[18px] text-black dark:text-on-surface">event</span>
+<span class="font-label-sm text-label-sm text-black dark:text-on-surface uppercase font-bold">Semua Event</span>
+<span class="material-symbols-outlined text-[18px] text-black dark:text-on-surface">expand_more</span>
+</button>
+</div>
+<!-- Summary Card -->
+<div class="bg-primary border-4 border-black rounded-none p-container-padding shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-md relative mt-4">
+<div class="space-y-1">
+<p class="font-label-sm text-label-sm text-black uppercase tracking-wider font-bold">Total Filtered Spend</p>
+<p class="font-currency-display text-currency-display text-black">Rp 4.250.000</p>
+</div>
+<div class="flex bg-surface-light rounded-none p-1 border-4 border-black w-full md:w-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white">
+<button class="flex-1 md:flex-none px-6 py-2 rounded-none bg-black text-white font-label-sm text-label-sm transition-colors flex items-center justify-center gap-2 uppercase font-bold">
+<span class="material-symbols-outlined text-[18px]">pie_chart</span>
+                    Pie
+                </button>
+<button class="flex-1 md:flex-none px-6 py-2 rounded-none text-black hover:bg-gray-100 font-label-sm text-label-sm transition-colors flex items-center justify-center gap-2 uppercase font-bold">
+<span class="material-symbols-outlined text-[18px]">bar_chart</span>
+                    Bar
+                </button>
+</div>
+<!-- Decorative block -->
+<div class="absolute -right-4 -bottom-4 w-full h-full bg-black -z-10 hidden"></div>
+</div>
+<!-- Transaction List Group -->
+<div class="space-y-stack-md mt-8">
+<h3 class="font-headline-md text-body-md text-black bg-primary border-4 border-black inline-block px-4 py-2 uppercase tracking-wider sticky top-[88px] z-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold">Senin, 15 Juni 2026</h3>
+<div class="space-y-stack-md">
+<!-- Transaction Item 1 -->
+<div class="bg-surface-light dark:bg-surface-dark border-4 border-black dark:border-outline rounded-none p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-surface-container-high transition-colors cursor-pointer group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)]">
+<div class="w-8 h-8 rounded-none border-4 border-black dark:border-outline flex items-center justify-center group-hover:bg-primary shrink-0 bg-white dark:bg-surface-dark">
+<!-- Custom checkbox state -->
+</div>
+<div class="w-14 h-14 rounded-none bg-primary border-4 border-black flex items-center justify-center shrink-0 text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+<span class="material-symbols-outlined text-2xl">shopping_cart</span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col md:flex-row md:items-center justify-between gap-2">
+<div>
+<h4 class="font-headline-md text-body-md font-bold text-black dark:text-on-surface uppercase truncate">Belanja Bulanan Superindo</h4>
+<div class="flex items-center gap-2 mt-2">
+<span class="font-headline-md text-label-sm text-black dark:text-on-surface font-bold border-4 border-black dark:border-outline px-2 py-0.5 bg-white dark:bg-surface-dark">14:30</span>
+<span class="inline-flex items-center px-3 py-1 rounded-none text-[10px] font-bold bg-primary text-black border-4 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Kebutuhan Pokok</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-black font-bold shrink-0 bg-primary px-3 py-1 border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] md:ml-4 w-fit">Rp 1.250.000</span>
+</div>
+</div>
+<!-- Transaction Item 2 -->
+<div class="bg-surface-light dark:bg-surface-dark border-4 border-black dark:border-outline rounded-none p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-surface-container-high transition-colors cursor-pointer group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)]">
+<div class="w-8 h-8 rounded-none border-4 border-black dark:border-outline flex items-center justify-center shrink-0 bg-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+<span class="material-symbols-outlined text-[20px] text-black font-bold">check</span>
+</div>
+<div class="w-14 h-14 rounded-none bg-warning border-4 border-black flex items-center justify-center shrink-0 text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+<span class="material-symbols-outlined text-2xl">bolt</span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col md:flex-row md:items-center justify-between gap-2">
+<div>
+<h4 class="font-headline-md text-body-md font-bold text-black dark:text-on-surface uppercase truncate">Token Listrik PLN</h4>
+<div class="flex items-center gap-2 mt-2">
+<span class="font-headline-md text-label-sm text-black dark:text-on-surface font-bold border-4 border-black dark:border-outline px-2 py-0.5 bg-white dark:bg-surface-dark">09:15</span>
+<span class="inline-flex items-center px-3 py-1 rounded-none text-[10px] font-bold bg-warning text-black border-4 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Tagihan</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-black font-bold shrink-0 bg-warning px-3 py-1 border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] md:ml-4 w-fit">Rp 500.000</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Transaction List Group 2 -->
+<div class="space-y-stack-md mt-8">
+<h3 class="font-headline-md text-body-md text-black bg-tertiary border-4 border-black inline-block px-4 py-2 uppercase tracking-wider sticky top-[88px] z-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold">Minggu, 14 Juni 2026</h3>
+<div class="space-y-stack-md">
+<!-- Transaction Item 3 -->
+<div class="bg-surface-light dark:bg-surface-dark border-4 border-black dark:border-outline rounded-none p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-surface-container-high transition-colors cursor-pointer group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)]">
+<div class="w-8 h-8 rounded-none border-4 border-black dark:border-outline flex items-center justify-center group-hover:bg-primary shrink-0 bg-white dark:bg-surface-dark">
+</div>
+<div class="w-14 h-14 rounded-none bg-tertiary border-4 border-black flex items-center justify-center shrink-0 text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+<span class="material-symbols-outlined text-2xl">restaurant</span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col md:flex-row md:items-center justify-between gap-2">
+<div>
+<h4 class="font-headline-md text-body-md font-bold text-black dark:text-on-surface uppercase truncate">Makan Malam Keluarga</h4>
+<div class="flex items-center gap-2 mt-2">
+<span class="font-headline-md text-label-sm text-black dark:text-on-surface font-bold border-4 border-black dark:border-outline px-2 py-0.5 bg-white dark:bg-surface-dark">19:45</span>
+<span class="inline-flex items-center px-3 py-1 rounded-none text-[10px] font-bold bg-tertiary text-black border-4 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Hiburan</span>
+<span class="inline-flex items-center px-3 py-1 rounded-none text-[10px] font-bold bg-info text-white border-4 border-black uppercase ml-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Weekend</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-black font-bold shrink-0 bg-tertiary px-3 py-1 border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] md:ml-4 w-fit">Rp 350.000</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex justify-center items-center gap-3 pt-stack-lg mt-8">
+<button class="w-12 h-12 flex items-center justify-center rounded-none border-4 border-black dark:border-outline text-black dark:text-on-surface bg-white dark:bg-surface-dark hover:bg-gray-100 dark:hover:bg-surface-container-high transition-colors disabled:opacity-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)]">
+<span class="material-symbols-outlined font-bold">chevron_left</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-none border-4 border-black bg-primary text-black font-data-mono text-data-mono font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">1</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-none border-4 border-black dark:border-outline text-black dark:text-on-surface bg-white dark:bg-surface-dark hover:bg-gray-100 dark:hover:bg-surface-container-high transition-colors font-data-mono text-data-mono font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)]">2</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-none border-4 border-black dark:border-outline text-black dark:text-on-surface bg-white dark:bg-surface-dark hover:bg-gray-100 dark:hover:bg-surface-container-high transition-colors font-data-mono text-data-mono font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)] hidden sm:flex">3</button>
+<span class="text-black dark:text-on-surface font-bold px-2 font-headline-md">...</span>
+<button class="w-12 h-12 flex items-center justify-center rounded-none border-4 border-black dark:border-outline text-black dark:text-on-surface bg-white dark:bg-surface-dark hover:bg-gray-100 dark:hover:bg-surface-container-high transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)]">
+<span class="material-symbols-outlined font-bold">chevron_right</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-background-light dark:bg-surface-dark border-t-4 border-black dark:border-outline shadow-[0px_-4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[0px_-4px_0px_0px_rgba(135,148,133,1)]">
+<div class="flex justify-around items-center h-20 w-full px-2 max-w-4xl mx-auto">
+<a class="flex flex-col items-center justify-center text-black dark:text-on-surface hover:bg-gray-100 dark:hover:bg-surface-container-highest active:translate-y-1 transition-transform w-16 h-16 rounded-none border-4 border-transparent hover:border-black dark:hover:border-outline" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-headline-md text-[10px] mt-1 font-bold uppercase">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-black font-bold bg-primary border-4 border-black active:translate-y-1 transition-transform w-16 h-16 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+<span class="font-headline-md text-[10px] mt-1 font-bold uppercase">History</span>
+</a>
+<div class="relative -top-6">
+<a class="flex items-center justify-center bg-black dark:bg-white text-white dark:text-black rounded-none w-16 h-16 border-4 border-black dark:border-outline shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(135,148,133,1)] active:translate-y-1 transition-transform hover:bg-gray-800 dark:hover:bg-gray-200" href="#">
+<span class="material-symbols-outlined text-[36px]">add_circle</span>
+</a>
+</div>
+<a class="flex flex-col items-center justify-center text-black dark:text-on-surface hover:bg-gray-100 dark:hover:bg-surface-container-highest active:translate-y-1 transition-transform w-16 h-16 rounded-none border-4 border-transparent hover:border-black dark:hover:border-outline" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">target</span>
+<span class="font-headline-md text-[10px] mt-1 font-bold uppercase">Goals</span>
+</a>
+<a class="flex flex-col items-center justify-center text-black dark:text-on-surface hover:bg-gray-100 dark:hover:bg-surface-container-highest active:translate-y-1 transition-transform w-16 h-16 rounded-none border-4 border-transparent hover:border-black dark:hover:border-outline" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+<span class="font-headline-md text-[10px] mt-1 font-bold uppercase">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>

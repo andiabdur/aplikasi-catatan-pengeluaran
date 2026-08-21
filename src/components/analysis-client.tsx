@@ -265,28 +265,31 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
     <div className="space-y-4 pb-20">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link href="/" className="p-2 neo-card hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-700 dark:text-slate-200" />
+        <Link
+          href="/"
+          className="p-2.5 bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:bg-slate-950 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-950 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+        >
+          <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+          <h1 className="text-xl font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-tight">
             Analisis Pengeluaran
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Visualisasi tren temporal & alokasi belanja keluarga
+          <p className="text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-0.5">
+            Visualisasi tren & alokasi belanja
           </p>
         </div>
       </div>
 
       {/* Date Range Selector Card */}
-      <div className="neo-card p-4 space-y-3">
+      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5" /> Rentang Waktu
+          <span className="text-[11px] font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+            <Calendar className="w-4 h-4 text-brand-500" /> Rentang Waktu
           </span>
         </div>
 
-        {/* Preset Buttons - Neo Chips */}
+        {/* Preset Buttons - Bauhaus V2 Chips */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
           {[
             { label: "7 Hari", value: "7d" },
@@ -299,10 +302,10 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
               key={opt.value}
               type="button"
               className={cn(
-                "neo-button font-bold text-xs px-4 py-2 rounded-full whitespace-nowrap transition-all",
+                "px-5 py-2.5 rounded-none font-headline font-bold text-xs uppercase tracking-wider whitespace-nowrap transition-all border-2 border-slate-950 dark:border-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
                 range === opt.value
-                  ? "bg-brand-500 text-slate-950 border-brand-500 shadow-sm"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700",
+                  ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950"
+                  : "bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800"
               )}
               onClick={() => {
                 if (opt.value === "custom") {
@@ -319,139 +322,129 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
 
         {/* Custom Date Pickers */}
         {range === "custom" && (
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="pt-2 border-t-2 border-slate-950 dark:border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
+              <label className="text-[11px] font-headline font-bold text-slate-950 dark:text-slate-100 uppercase block mb-1">
                 Dari Tanggal
               </label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100"
+                className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none px-3 py-2 text-xs font-mono font-bold text-slate-950 dark:text-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
               />
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
+              <label className="text-[11px] font-headline font-bold text-slate-950 dark:text-slate-100 uppercase block mb-1">
                 Sampai Tanggal
               </label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100"
+                className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none px-3 py-2 text-xs font-mono font-bold text-slate-950 dark:text-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
               />
             </div>
           </div>
         )}
       </div>
 
-      {/* 2x2 Grid Stats (Stitch Neo-Brutalist Layout) */}
+      {/* 2x2 Grid Stats (Bauhaus V2 Layout) */}
       <div className="grid grid-cols-2 gap-3">
         {/* Card 1: Total Spent */}
-        <div className="neo-card bg-slate-950 text-white dark:bg-slate-900 border-2 border-slate-800 p-4 flex flex-col justify-between h-28">
+        <div className="bg-slate-950 text-white dark:bg-slate-900 border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex flex-col justify-between h-32 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Total Spent</span>
-            <Wallet className="w-3.5 h-3.5 text-brand-400" />
+            <span className="text-[11px] font-headline font-bold uppercase tracking-wider">Total Spent</span>
+            <Wallet className="w-4 h-4 text-brand-400" />
           </div>
           <div>
-            <p className="font-mono text-lg font-bold text-brand-400 truncate">
+            <p className="font-headline text-lg font-black text-brand-400 truncate">
               {formatIDR(totalSpent)}
             </p>
-            <p className="text-[10px] text-slate-400 mt-0.5">{daysDiff} hari rentang</p>
+            <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mt-0.5">{daysDiff} hari rentang</p>
           </div>
         </div>
 
         {/* Card 2: Daily Burn Rate */}
-        <div className="neo-card p-4 flex flex-col justify-between h-28">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Daily Burn Rate</span>
-            <CalendarDays className="w-3.5 h-3.5 text-amber-500" />
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex flex-col justify-between h-32 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+          <div className="flex items-center justify-between text-slate-950 dark:text-slate-100">
+            <span className="text-[11px] font-headline font-bold uppercase tracking-wider">Daily Burn Rate</span>
+            <CalendarDays className="w-4 h-4 text-amber-500" />
           </div>
           <div>
             <div className="flex items-baseline gap-1">
-              <span className="font-mono text-lg font-bold text-amber-600 dark:text-amber-400 truncate">
+              <span className="font-headline text-lg font-black text-slate-950 dark:text-slate-100 truncate">
                 {formatIDR(Math.round(dailyAverage))}
               </span>
-              <span className="text-[10px] font-bold text-slate-400">/hari</span>
+              <span className="text-[10px] font-bold text-slate-500">/hari</span>
             </div>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Rata-rata harian</p>
+            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mt-0.5">Rata-rata harian</p>
           </div>
         </div>
 
         {/* Card 3: Top Category */}
-        <div className="neo-card p-4 flex flex-col justify-between h-28">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Top Category</span>
-            <Sparkles className="w-3.5 h-3.5 text-brand-500" />
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex flex-col justify-between h-32 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+          <div className="flex items-center justify-between text-slate-950 dark:text-slate-100">
+            <span className="text-[11px] font-headline font-bold uppercase tracking-wider">Top Category</span>
+            <Sparkles className="w-4 h-4 text-brand-500" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-800 shrink-0"
-                style={{ backgroundColor: `${topCategory?.color ?? "#16a34a"}20` }}
+                className="w-7 h-7 rounded-none border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                style={{ backgroundColor: topCategory?.color ?? "#16a34a" }}
               >
                 {(() => {
                   const Icon = getCategoryIcon(topCategory?.name ?? "");
-                  return (
-                    <Icon
-                      className="w-3.5 h-3.5"
-                      style={{ color: topCategory?.color ?? "#16a34a" }}
-                    />
-                  );
+                  return <Icon className="w-3.5 h-3.5 text-white" />;
                 })()}
               </div>
-              <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+              <p className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 truncate">
                 {topCategory ? topCategory.name : "-"}
               </p>
             </div>
-            <p className="font-mono text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-1">
+            <p className="font-mono text-xs font-bold text-slate-600 dark:text-slate-400 mt-1">
               {topCategory ? formatIDR(topCategory.amount) : "0"}
             </p>
           </div>
         </div>
 
         {/* Card 4: Total Transaksi */}
-        <div className="neo-card p-4 flex flex-col justify-between h-28">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Total Transaksi</span>
-            <Hash className="w-3.5 h-3.5 text-indigo-500" />
+        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex flex-col justify-between h-32 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+          <div className="flex items-center justify-between text-slate-950 dark:text-slate-100">
+            <span className="text-[11px] font-headline font-bold uppercase tracking-wider">Total Transaksi</span>
+            <Hash className="w-4 h-4 text-indigo-500" />
           </div>
           <div>
-            <p className="font-mono text-lg font-bold text-slate-900 dark:text-slate-100">
-              {expenses.length} <span className="text-xs font-normal text-slate-400">item</span>
+            <p className="font-headline text-xl font-black text-slate-950 dark:text-slate-100">
+              {expenses.length} <span className="text-xs font-normal text-slate-500">item</span>
             </p>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Dalam rentang ini</p>
+            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mt-0.5">Dalam rentang ini</p>
           </div>
         </div>
       </div>
 
       {/* Interactive Chart Section */}
-      <div className="neo-card p-4 space-y-3 overflow-hidden">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3 overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
+        <div className="flex items-center justify-between border-b-4 border-slate-950 dark:border-slate-100 pb-3">
           <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-              <BarChart3 className="w-4 h-4 text-brand-600 dark:text-brand-400" /> Tren Waktu Harian
+            <h3 className="text-sm font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+              <BarChart3 className="w-4 h-4 text-brand-500" /> Tren Waktu Harian
             </h3>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Sentuh area grafik untuk melihat rincian pengeluaran harian
+            <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
+              Sentuh grafik untuk melihat rincian
             </p>
           </div>
         </div>
         <div className="pt-2">
           {loading ? (
             <div className="space-y-3 py-6">
-              <Skeleton className="h-56 w-full rounded-lg" />
-              <div className="flex justify-center gap-2">
-                <Skeleton className="h-4 w-12 rounded" />
-                <Skeleton className="h-4 w-12 rounded" />
-                <Skeleton className="h-4 w-12 rounded" />
-              </div>
+              <Skeleton className="h-56 w-full rounded-none" />
             </div>
           ) : chartData.length === 0 ? (
-            <div className="text-center py-16 text-slate-500 text-sm">
+            <div className="text-center py-16 text-slate-500 text-sm font-mono uppercase">
               <TrendingDown className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-              Tidak ada data pengeluaran ditemukan dalam rentang tanggal ini.
+              Tidak ada data pengeluaran ditemukan dalam rentang ini.
             </div>
           ) : (
             <div className="h-64 sm:h-72 w-full mt-2 select-none">
@@ -511,7 +504,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                     onClick={handleLegendClick}
                     cursor="pointer"
                     wrapperStyle={{ fontSize: "11px", paddingTop: "15px" }}
-                    iconType="circle"
+                    iconType="square"
                     iconSize={8}
                   />
                   {categoryStats.map((cat, idx) => (
@@ -521,7 +514,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                       dataKey={cat.name}
                       stackId="1"
                       stroke={cat.color}
-                      strokeWidth={1.5}
+                      strokeWidth={2}
                       fillOpacity={1}
                       fill={`url(#gradient-${idx})`}
                       hide={visibleCategories[cat.name] === false}
@@ -535,31 +528,29 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
       </div>
 
       {/* Category Breakdown & Toggle Controls */}
-      <h2 className="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5 px-1 mt-2">
-        <Filter className="w-3.5 h-3.5" /> Detail &amp; Kontrol Filter Kategori
+      <h2 className="font-headline font-bold text-xs uppercase tracking-wider text-slate-950 dark:text-slate-100 flex items-center gap-1.5 px-1 mt-2">
+        <Filter className="w-4 h-4 text-brand-500" /> Detail &amp; Kontrol Filter Kategori
       </h2>
-      <div className="neo-card p-4 space-y-3">
+      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
         {/* Enable / Disable all categories helper btns */}
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-[11px] h-7 rounded-lg border-slate-200 dark:border-slate-800 font-semibold"
+          <button
+            type="button"
+            className="text-xs px-3 py-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-100 font-headline font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
             onClick={() => toggleAllCategories(true)}
           >
             Centang Semua
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-[11px] h-7 rounded-lg border-slate-200 dark:border-slate-800 font-semibold"
+          </button>
+          <button
+            type="button"
+            className="text-xs px-3 py-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-100 font-headline font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
             onClick={() => toggleAllCategories(false)}
           >
             Matikan Semua
-          </Button>
+          </button>
         </div>
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+        <div className="divide-y-2 divide-slate-100 dark:divide-slate-800">
           {categoryStats.map((cat) => {
             const Icon = getCategoryIcon(cat.name);
             const isVisible = visibleCategories[cat.name] !== false;
@@ -567,26 +558,22 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
             return (
               <div
                 key={cat.name}
-                className="flex items-center justify-between py-2.5 transition active:bg-slate-50/50 dark:active:bg-slate-800/40 cursor-pointer"
+                className="flex items-center justify-between py-2.5 transition active:bg-slate-100 dark:active:bg-slate-800 cursor-pointer"
                 onClick={() => toggleCategorySelection(cat.name)}
               >
                 <div className="flex items-center gap-2.5 min-w-0 pr-2">
                   <div
-                    className={`flex items-center justify-center w-8 h-8 rounded-lg border transition ${
-                      isVisible
-                        ? "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm"
-                        : "bg-slate-100 dark:bg-slate-900/20 border-slate-200/50 dark:border-slate-800/40 opacity-40"
+                    className={`flex items-center justify-center w-8 h-8 rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition ${
+                      isVisible ? "" : "opacity-30"
                     }`}
+                    style={{ backgroundColor: cat.color ?? "#16a34a" }}
                   >
-                    <Icon
-                      className="w-4 h-4 shrink-0"
-                      style={{ color: cat.color ?? "#94a3b8" }}
-                    />
+                    <Icon className="w-4 h-4 text-white shrink-0" />
                   </div>
                   <div className="min-w-0">
                     <p
-                      className={`text-sm font-semibold truncate ${
-                        isVisible ? "text-slate-900 dark:text-slate-100" : "text-slate-400 dark:text-slate-600 line-through"
+                      className={`text-xs font-headline font-bold uppercase tracking-wider truncate ${
+                        isVisible ? "text-slate-950 dark:text-slate-100" : "text-slate-400 line-through"
                       }`}
                     >
                       {cat.name}
@@ -598,8 +585,8 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                 </div>
                 <div className="text-right shrink-0">
                   <p
-                    className={`text-sm font-mono font-bold ${
-                      isVisible ? "text-slate-900 dark:text-slate-100" : "text-slate-400 dark:text-slate-600"
+                    className={`text-xs font-mono font-bold ${
+                      isVisible ? "text-slate-950 dark:text-slate-100" : "text-slate-400"
                     }`}
                   >
                     {formatIDR(cat.amount)}
@@ -610,9 +597,9 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
           })}
         </div>
 
-        <div className="border-t border-slate-100 dark:border-slate-800 pt-3 flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Pengeluaran</span>
-          <span className="text-base font-mono font-bold text-brand-600 dark:text-brand-400">
+        <div className="border-t-4 border-slate-950 dark:border-slate-100 pt-3 flex items-center justify-between">
+          <span className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">Total Pengeluaran</span>
+          <span className="text-base font-headline font-black text-brand-600 dark:text-brand-400">
             {formatIDR(totalSpent)}
           </span>
         </div>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Family CFO - Dashboard</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS via CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "background": "#0e150f",
+                "tertiary-fixed": "#ffd9de",
+                "surface-container-high": "#252c24",
+                "on-secondary-fixed-variant": "#005321",
+                "on-error": "#690005",
+                "on-primary-fixed": "#002109",
+                "tertiary-container": "#ec6284",
+                "secondary-fixed-dim": "#4ae176",
+                "outline": "#879485",
+                "danger": "#ef4444",
+                "on-tertiary-container": "#5a0022",
+                "secondary-fixed": "#6bff8f",
+                "on-primary": "#003914",
+                "surface-bright": "#343b33",
+                "primary-container": "#1ca64d",
+                "on-surface": "#dde5d9",
+                "on-tertiary-fixed": "#3f0016",
+                "secondary": "#4ae176",
+                "on-background": "#dde5d9",
+                "surface": "#0e150f",
+                "tertiary-fixed-dim": "#ffb2bf",
+                "surface-container-lowest": "#09100a",
+                "on-primary-container": "#003111",
+                "surface-container-highest": "#30372f",
+                "on-error-container": "#ffdad6",
+                "outline-variant": "#3e4a3d",
+                "error": "#ffb4ab",
+                "on-tertiary": "#660027",
+                "surface-container-low": "#171d16",
+                "primary": "#62df7d",
+                "surface-dark": "#0f172a",
+                "tertiary": "#ffb2bf",
+                "background-dark": "#020617",
+                "warning": "#f59e0b",
+                "on-secondary-container": "#004119",
+                "on-secondary-fixed": "#002109",
+                "on-tertiary-fixed-variant": "#8a143c",
+                "error-container": "#93000a",
+                "surface-container": "#1b211a",
+                "surface-light": "#ffffff",
+                "surface-dim": "#0e150f",
+                "inverse-surface": "#dde5d9",
+                "primary-fixed": "#7ffc97",
+                "surface-variant": "#30372f",
+                "info": "#6366f1",
+                "secondary-container": "#00b954",
+                "background-light": "#f8fafc",
+                "on-secondary": "#003915",
+                "on-surface-variant": "#bdcaba",
+                "inverse-primary": "#006e2d",
+                "surface-tint": "#62df7d",
+                "inverse-on-surface": "#2b322b",
+                "on-primary-fixed-variant": "#005320",
+                "primary-fixed-dim": "#62df7d"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "gutter": "1rem",
+                "stack-md": "1rem",
+                "stack-lg": "1.5rem",
+                "container-padding": "1rem",
+                "stack-sm": "0.5rem"
+        },
+        "fontFamily": {
+                "data-mono": [
+                        "JetBrains Mono"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Space Grotesk"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Space Grotesk"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "currency-display": [
+                        "Space Grotesk"
+                ]
+        },
+        "fontSize": {
+                "data-mono": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "500"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "currency-display": [
+                        "28px",
+                        {
+                                "lineHeight": "34px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #444444; /* outline-variant */
+            border-radius: 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface-light dark:bg-background-dark text-on-surface-variant dark:text-on-surface font-body-md antialiased min-h-screen flex justify-center transition-colors duration-200">
+<!-- Mobile Constraint Wrapper (PWA Simulation) -->
+<div class="w-full max-w-[390px] h-[884px] relative flex flex-col bg-surface-light dark:bg-background-dark overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] border-x-4 border-y-4 border-surface-dark dark:border-surface-light transition-all duration-200">
+<!-- TopAppBar (JSON) -->
+<header class="bg-surface-light dark:bg-surface-dark w-full top-0 sticky border-b-4 border-surface-dark dark:border-surface-light shadow-[0px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[0px_4px_0px_0px_rgba(255,255,255,1)] flex justify-between items-center px-container-padding py-stack-md z-40 transition-all duration-200">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-none border-2 border-surface-dark dark:border-surface-light overflow-hidden shrink-0 transition-colors duration-200">
+<img class="w-full h-full object-cover grayscale" data-alt="A highly detailed, professional headshot portrait of an adult in a well-lit, modern minimalist office space. The lighting is crisp and cool, casting soft geometric shadows, adhering strictly to a high-contrast Neo-Brutalist visual style with subtle cool grey and slate undertones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHTnUEHxWzxjhtsDpvMWvczClXoW9eVIgi1F6HUCLuCAsSzN65kOqcjQMy-hWgoRj5Oyx0Rz0zogf2jNu0Sjed41b6mV0myIn2VN__fMEn92IWuV45_i7a6NruOE2L5akKuIacBFWBgCNIIc2LLOar5YFDoFS8nmXaOKs2tkk2N4BFflV-Gp3OEaLcMvpCHb352-L3RXfdr_0l4UUHlALyWKU9TCX_vVTwXv8pymvShJNCK6ym0TZH"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-surface-dark dark:text-surface-light tracking-tight uppercase transition-colors duration-200">Family CFO</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-none border-2 border-surface-dark dark:border-surface-light bg-surface-light dark:bg-surface-dark text-surface-dark dark:text-surface-light hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark active:translate-y-1 active:translate-x-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] transition-all duration-200" id="theme-toggle">
+<span class="material-symbols-outlined dark:hidden" data-icon="dark_mode">dark_mode</span>
+<span class="material-symbols-outlined hidden dark:block" data-icon="light_mode">light_mode</span>
+</button>
+</header>
+<!-- Main Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto overflow-x-hidden pt-stack-lg pb-32 px-container-padding flex flex-col gap-stack-lg">
+<!-- Greeting & Period Selector -->
+<section class="flex flex-col gap-stack-sm">
+<p class="font-body-lg text-on-surface-variant uppercase tracking-widest font-bold">Halo, Abbi.</p>
+<div class="flex items-center justify-between bg-surface-light dark:bg-surface-dark border-4 border-surface-dark dark:border-surface-light p-3 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all duration-200">
+<button class="text-surface-dark dark:text-surface-light hover:text-surface-light dark:hover:text-surface-dark hover:bg-surface-dark dark:hover:bg-surface-light active:translate-y-1 active:translate-x-1 transition-all border-2 border-transparent hover:border-surface-light dark:hover:border-surface-dark p-1 rounded-none"><span class="material-symbols-outlined">chevron_left</span></button>
+<div class="flex flex-col items-center">
+<h2 class="font-label-sm text-surface-dark dark:text-surface-light uppercase tracking-wider font-bold transition-colors duration-200">Gajian Juni 2026</h2>
+<span class="font-data-mono text-[10px] text-on-surface-variant mt-0.5 tracking-widest">25 Mei - 24 Jun</span>
+</div>
+<button class="text-surface-dark dark:text-surface-light hover:text-surface-light dark:hover:text-surface-dark hover:bg-surface-dark dark:hover:bg-surface-light active:translate-y-1 active:translate-x-1 transition-all border-2 border-transparent hover:border-surface-light dark:hover:border-surface-dark p-1 rounded-none"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</section>
+<!-- Hero Card (Neo-Brutalist) -->
+<section class="bg-surface-dark dark:bg-surface-light border-4 border-surface-dark dark:border-surface-light text-surface-light dark:text-surface-dark rounded-none p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] flex flex-col gap-4 relative overflow-hidden transition-all duration-200">
+<!-- Subtle background pattern accent -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-surface-light/10 dark:bg-surface-dark/10 rounded-bl-full pointer-events-none transition-colors duration-200"></div>
+<div class="flex flex-col gap-1 z-10">
+<span class="font-label-sm text-surface-light/70 dark:text-surface-dark/70 uppercase font-bold tracking-wider transition-colors duration-200">Sisa uang periode ini</span>
+<h3 class="font-currency-display text-currency-display text-surface-light dark:text-surface-dark font-black tracking-tighter transition-colors duration-200">Rp 8.450.000</h3>
+</div>
+<!-- Progress Section -->
+<div class="flex flex-col gap-2 mt-2 z-10">
+<div class="flex justify-between items-end">
+<span class="font-label-sm text-surface-light dark:text-surface-dark font-bold uppercase transition-colors duration-200">Total Budget</span>
+<span class="font-data-mono text-data-mono text-surface-light dark:text-surface-dark font-bold transition-colors duration-200">Rp 18.000.000</span>
+</div>
+<div class="h-6 w-full bg-surface-light dark:bg-surface-dark border-2 border-surface-light dark:border-surface-dark rounded-none overflow-hidden flex shadow-[inset_2px_2px_0px_0px_rgba(255,255,255,0.5)] dark:shadow-[inset_2px_2px_0px_0px_rgba(0,0,0,0.5)] transition-all duration-200">
+<div class="h-full bg-surface-dark dark:bg-surface-light border-r-2 border-surface-light dark:border-surface-dark transition-colors duration-200" style="width: 62.4%;"></div>
+</div>
+<div class="flex justify-end">
+<span class="font-data-mono text-[12px] text-surface-light dark:text-surface-dark font-bold bg-surface-light dark:bg-surface-dark text-surface-dark dark:text-surface-light px-2 py-0.5 uppercase tracking-widest border border-surface-light dark:border-surface-dark shadow-[1px_1px_0px_0px_rgba(255,255,255,1)] dark:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all duration-200">62.4% Tersisa</span>
+</div>
+</div>
+<!-- Income/Spent Mini Stats -->
+<div class="grid grid-cols-2 gap-4 mt-2 pt-4 border-t-4 border-surface-light dark:border-surface-dark border-dashed z-10 transition-colors duration-200">
+<div class="flex flex-col">
+<span class="font-label-sm text-surface-light/70 dark:text-surface-dark/70 flex items-center gap-1 uppercase font-bold tracking-wider transition-colors duration-200"><span class="material-symbols-outlined text-[14px]">arrow_downward</span> Pemasukan</span>
+<span class="font-data-mono text-data-mono text-surface-light dark:text-surface-dark mt-1 font-bold transition-colors duration-200">Rp 18.000.000</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-surface-light/70 dark:text-surface-dark/70 flex items-center gap-1 uppercase font-bold tracking-wider transition-colors duration-200"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> Pengeluaran</span>
+<span class="font-data-mono text-data-mono text-surface-light dark:text-surface-dark mt-1 font-bold transition-colors duration-200">Rp 9.550.000</span>
+</div>
+</div>
+</section>
+<!-- AI CFO Banner -->
+<button class="w-full bg-surface-light dark:bg-surface-dark border-4 border-surface-dark dark:border-surface-light rounded-none p-4 flex items-center gap-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark group active:translate-y-1 active:translate-x-1 transition-all duration-200 text-left">
+<div class="w-12 h-12 rounded-none bg-surface-dark dark:bg-surface-light border-2 border-surface-dark dark:border-surface-light group-hover:border-surface-light dark:group-hover:border-surface-dark flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:group-hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] transition-all duration-200">
+<span class="material-symbols-outlined text-surface-light dark:text-surface-dark text-[24px] transition-colors duration-200" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="flex flex-col flex-1">
+<h4 class="font-label-sm text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark uppercase tracking-widest font-black transition-colors duration-200">Audit CFO AI</h4>
+<p class="font-body-md text-on-surface-variant group-hover:text-surface-light/70 dark:group-hover:text-surface-dark/70 text-sm mt-0.5 transition-colors duration-200">Diagnosa kesehatan periode ini</p>
+</div>
+<span class="material-symbols-outlined text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark transition-colors duration-200">arrow_forward</span>
+</button>
+<!-- Breakdown Budget -->
+<section class="flex flex-col gap-stack-md mt-2">
+<div class="flex justify-between items-end">
+<h3 class="font-headline-md text-headline-md text-surface-dark dark:text-surface-light font-black uppercase tracking-tight transition-colors duration-200">Alokasi Budget</h3>
+<button class="font-label-sm text-surface-light dark:text-surface-dark bg-surface-dark dark:bg-surface-light border-2 border-surface-dark dark:border-surface-light px-2 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:translate-x-0.5 hover:-translate-y-0.5 active:translate-y-0.5 active:translate-x-0.5 transition-all duration-200 uppercase font-bold tracking-widest">Lihat Semua</button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Item 1: Tagihan (Warning >80%) -->
+<div class="bg-surface-light dark:bg-surface-dark border-4 border-surface-dark dark:border-surface-light rounded-none p-4 flex flex-col gap-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all duration-200">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-none bg-surface-dark dark:bg-surface-light border-2 border-surface-dark dark:border-surface-light flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] transition-all duration-200">
+<span class="material-symbols-outlined text-surface-light dark:text-surface-dark text-[18px] transition-colors duration-200">receipt_long</span>
+</div>
+<span class="font-body-md font-bold text-surface-dark dark:text-surface-light uppercase tracking-wider transition-colors duration-200">Tagihan &amp; Cicilan</span>
+</div>
+<span class="font-data-mono text-[16px] text-surface-light dark:text-surface-dark bg-surface-dark dark:bg-surface-light px-2 py-1 border-2 border-surface-dark dark:border-surface-light shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] font-black transition-all duration-200">85%</span>
+</div>
+<div class="h-4 w-full bg-surface-light dark:bg-surface-dark border-2 border-surface-dark dark:border-surface-light rounded-none overflow-hidden shadow-[inset_2px_2px_0px_0px_rgba(0,0,0,0.2)] dark:shadow-[inset_2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all duration-200">
+<div class="h-full bg-surface-dark dark:bg-surface-light border-r-2 border-surface-dark dark:border-surface-light transition-colors duration-200" style="width: 85%;"></div>
+</div>
+<div class="flex justify-between items-center text-[12px] font-data-mono text-on-surface-variant font-bold tracking-wider">
+<span>Rp 4.250.000 terpakai</span>
+<span>dari Rp 5.000.000</span>
+</div>
+</div>
+<!-- Item 2: Makan -->
+<div class="bg-surface-light dark:bg-surface-dark border-4 border-surface-dark dark:border-surface-light rounded-none p-4 flex flex-col gap-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all duration-200">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-none bg-surface-dark dark:bg-surface-light border-2 border-surface-dark dark:border-surface-light flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] transition-all duration-200">
+<span class="material-symbols-outlined text-surface-light dark:text-surface-dark text-[18px] transition-colors duration-200">restaurant</span>
+</div>
+<span class="font-body-md font-bold text-surface-dark dark:text-surface-light uppercase tracking-wider transition-colors duration-200">Makan &amp; Belanja</span>
+</div>
+<span class="font-data-mono text-[16px] text-surface-light dark:text-surface-dark bg-surface-dark dark:bg-surface-light px-2 py-1 border-2 border-surface-dark dark:border-surface-light shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] font-black transition-all duration-200">45%</span>
+</div>
+<div class="h-4 w-full bg-surface-light dark:bg-surface-dark border-2 border-surface-dark dark:border-surface-light rounded-none overflow-hidden shadow-[inset_2px_2px_0px_0px_rgba(0,0,0,0.2)] dark:shadow-[inset_2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all duration-200">
+<div class="h-full bg-surface-dark dark:bg-surface-light border-r-2 border-surface-dark dark:border-surface-light transition-colors duration-200" style="width: 45%;"></div>
+</div>
+<div class="flex justify-between items-center text-[12px] font-data-mono text-on-surface-variant font-bold tracking-wider">
+<span>Rp 1.800.000 terpakai</span>
+<span>dari Rp 4.000.000</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Transactions -->
+<section class="flex flex-col gap-stack-md mt-4">
+<h3 class="font-headline-md text-headline-md text-surface-dark dark:text-surface-light font-black uppercase tracking-tight transition-colors duration-200">Transaksi Terakhir</h3>
+<div class="bg-surface-light dark:bg-surface-dark border-4 border-surface-dark dark:border-surface-light rounded-none overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all duration-200">
+<!-- Tx 1 -->
+<div class="flex items-center justify-between p-4 border-b-4 border-surface-dark dark:border-surface-light hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark group transition-all duration-200">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-none bg-surface-light dark:bg-surface-dark group-hover:bg-surface-dark dark:group-hover:bg-surface-light flex items-center justify-center border-2 border-surface-dark dark:border-surface-light group-hover:border-surface-light dark:group-hover:border-surface-dark shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] group-hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:group-hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200">
+<span class="material-symbols-outlined text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark transition-colors duration-200">school</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark font-bold uppercase tracking-wider transition-colors duration-200">SPP Anak</span>
+<span class="font-label-sm text-on-surface-variant group-hover:text-surface-light/70 dark:group-hover:text-surface-dark/70 tracking-widest transition-colors duration-200">Hari ini, 09:00</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark font-black transition-colors duration-200">- Rp 1.500.000</span>
+</div>
+<!-- Tx 2 -->
+<div class="flex items-center justify-between p-4 border-b-4 border-surface-dark dark:border-surface-light hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark group transition-all duration-200">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-none bg-surface-light dark:bg-surface-dark group-hover:bg-surface-dark dark:group-hover:bg-surface-light flex items-center justify-center border-2 border-surface-dark dark:border-surface-light group-hover:border-surface-light dark:group-hover:border-surface-dark shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] group-hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:group-hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200">
+<span class="material-symbols-outlined text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark transition-colors duration-200">shopping_cart</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark font-bold uppercase tracking-wider transition-colors duration-200">Supermarket</span>
+<span class="font-label-sm text-on-surface-variant group-hover:text-surface-light/70 dark:group-hover:text-surface-dark/70 tracking-widest transition-colors duration-200">Kemarin, 18:30</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark font-black transition-colors duration-200">- Rp 850.000</span>
+</div>
+<!-- Tx 3 -->
+<div class="flex items-center justify-between p-4 border-b-4 border-surface-dark dark:border-surface-light hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark group transition-all duration-200">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-none bg-surface-light dark:bg-surface-dark group-hover:bg-surface-dark dark:group-hover:bg-surface-light flex items-center justify-center border-2 border-surface-dark dark:border-surface-light group-hover:border-surface-light dark:group-hover:border-surface-dark shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] group-hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:group-hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200">
+<span class="material-symbols-outlined text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark transition-colors duration-200">local_gas_station</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark font-bold uppercase tracking-wider transition-colors duration-200">BBM Mobil</span>
+<span class="font-label-sm text-on-surface-variant group-hover:text-surface-light/70 dark:group-hover:text-surface-dark/70 tracking-widest transition-colors duration-200">2 Jun, 07:15</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark font-black transition-colors duration-200">- Rp 350.000</span>
+</div>
+<!-- Tx 4 -->
+<div class="flex items-center justify-between p-4 border-b-4 border-surface-dark dark:border-surface-light hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark group transition-all duration-200">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-none bg-surface-light dark:bg-surface-dark group-hover:bg-surface-dark dark:group-hover:bg-surface-light flex items-center justify-center border-2 border-surface-dark dark:border-surface-light group-hover:border-surface-light dark:group-hover:border-surface-dark shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] group-hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:group-hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200">
+<span class="material-symbols-outlined text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark transition-colors duration-200">flash_on</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark font-bold uppercase tracking-wider transition-colors duration-200">Token Listrik</span>
+<span class="font-label-sm text-on-surface-variant group-hover:text-surface-light/70 dark:group-hover:text-surface-dark/70 tracking-widest transition-colors duration-200">1 Jun, 10:00</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark font-black transition-colors duration-200">- Rp 500.000</span>
+</div>
+<!-- Tx 5 -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark group transition-all duration-200">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-none bg-surface-light dark:bg-surface-dark group-hover:bg-surface-dark dark:group-hover:bg-surface-light flex items-center justify-center border-2 border-surface-dark dark:border-surface-light group-hover:border-surface-light dark:group-hover:border-surface-dark shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] group-hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:group-hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200">
+<span class="material-symbols-outlined text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark transition-colors duration-200">payments</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark font-bold uppercase tracking-wider transition-colors duration-200">Gaji Masuk</span>
+<span class="font-label-sm text-on-surface-variant group-hover:text-surface-light/70 dark:group-hover:text-surface-dark/70 tracking-widest transition-colors duration-200">25 Mei, 08:00</span>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-surface-dark dark:text-surface-light group-hover:text-surface-light dark:group-hover:text-surface-dark font-black transition-colors duration-200">+ Rp 18.000.000</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button (Speed Dial Pattern) -->
+<div class="absolute bottom-24 right-4 z-40 flex flex-col items-end gap-2" id="fab-container">
+<!-- Speed dial items (hidden by default, handled via inline JS if needed, but keeping simple for UI design) -->
+<button class="w-16 h-16 bg-surface-dark dark:bg-surface-light text-surface-light dark:text-surface-dark rounded-none border-4 border-surface-dark dark:border-surface-light shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] flex items-center justify-center active:translate-y-1 active:translate-x-1 active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:active:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:bg-surface-light dark:hover:bg-surface-dark hover:text-surface-dark dark:hover:text-surface-light hover:border-surface-dark dark:hover:border-surface-light hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] transition-all duration-200">
+<span class="material-symbols-outlined text-[32px] font-bold">mic</span>
+</button>
+</div>
+<!-- BottomNavBar (JSON) -->
+<nav class="bg-surface-light dark:bg-surface-dark fixed bottom-0 w-full max-w-[382px] z-50 border-t-4 border-surface-dark dark:border-surface-light shadow-[0px_-4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[0px_-4px_0px_0px_rgba(255,255,255,1)] flex justify-around items-center h-20 px-2 pb-2 transition-all duration-200">
+<!-- Home (Active) -->
+<button class="flex flex-col items-center justify-center text-surface-light dark:text-surface-dark bg-surface-dark dark:bg-surface-light border-2 border-surface-dark dark:border-surface-light font-bold active:scale-95 transition-all duration-200 w-16 h-14 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] mt-2">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-[10px] mt-1 tracking-widest uppercase">Home</span>
+</button>
+<!-- History -->
+<button class="flex flex-col items-center justify-center text-surface-dark dark:text-surface-light hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark hover:border-2 hover:border-surface-dark dark:hover:border-surface-light active:scale-95 transition-all duration-200 w-16 h-14 rounded-none mt-2">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-sm text-[10px] mt-1 tracking-widest uppercase">History</span>
+</button>
+<!-- Add (Center) -->
+<button class="flex flex-col items-center justify-center text-surface-dark dark:text-surface-light hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark hover:border-2 hover:border-surface-dark dark:hover:border-surface-light active:scale-95 transition-all duration-200 w-16 h-14 rounded-none mt-2">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-label-sm text-[10px] mt-1 tracking-widest uppercase">Add</span>
+</button>
+<!-- Goals -->
+<button class="flex flex-col items-center justify-center text-surface-dark dark:text-surface-light hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark hover:border-2 hover:border-surface-dark dark:hover:border-surface-light active:scale-95 transition-all duration-200 w-16 h-14 rounded-none mt-2">
+<span class="material-symbols-outlined" data-icon="target">track_changes</span> <!-- using track_changes as standard material substitute for target if unavailable, but will stick to literal string if strictly enforced, wait, system rule: "literal string from data-icon". So 'target' it is. -->
+<span class="font-label-sm text-[10px] mt-1 tracking-widest uppercase">Goals</span>
+</button>
+<!-- Settings -->
+<button class="flex flex-col items-center justify-center text-surface-dark dark:text-surface-light hover:bg-surface-dark dark:hover:bg-surface-light hover:text-surface-light dark:hover:text-surface-dark hover:border-2 hover:border-surface-dark dark:hover:border-surface-light active:scale-95 transition-all duration-200 w-16 h-14 rounded-none mt-2">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-sm text-[10px] mt-1 tracking-widest uppercase">Settings</span>
+</button>
+</nav>
+</div>
+<script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+
+    themeToggle.addEventListener('click', () => {
+        html.classList.toggle('dark');
+        html.classList.toggle('light');
+    });
+</script>
+</body></html>
