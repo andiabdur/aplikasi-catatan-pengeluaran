@@ -8,8 +8,9 @@ import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import { currentPeriodLabelWithCustom, labelMonthKey, periodTitle, getPeriodRange, periodRangeTextWithCustom } from "@/lib/period";
 import { PeriodSelector } from "@/components/period-selector";
 import { getCategoryIcon } from "@/components/category-icon";
-import type { Category, Budget, Income, CustomPeriod, MonthlySummaryRow } from "@/lib/types";
-import { Plus, Trash2, LogOut, Save, CalendarCog, Edit3, RotateCcw, Tent } from "lucide-react";
+import type { Category, Budget, Income, CustomPeriod, MonthlySummaryRow, GoalWithProgress, Goal } from "@/lib/types";
+import { Plus, Trash2, LogOut, Save, CalendarCog, Edit3, RotateCcw, Tent, Target, AlertCircle, X, Check, Loader2, Sparkles, Coins } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const COLORS = [
   "#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4",
@@ -23,6 +24,7 @@ export function SettingsClient({
   initialLabelMonth,
   email,
   customPeriods: initialCustomPeriods,
+  initialGoals = [],
 }: {
   householdId: string;
   categories: Category[];
@@ -30,6 +32,7 @@ export function SettingsClient({
   initialLabelMonth: string;
   email: string;
   customPeriods: { label_month: string; start_date: string; end_date: string }[];
+  initialGoals?: GoalWithProgress[];
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -39,6 +42,8 @@ export function SettingsClient({
   const [labelMonth, setLabelMonth] = useState<Date>(new Date(initialLabelMonth));
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [incomes, setIncomes] = useState<Income[]>([]);
+  const [goals, setGoals] = useState<GoalWithProgress[]>(initialGoals);
+  const [incomeModalOpen, setIncomeModalOpen] = useState(false);
   const [summary, setSummary] = useState<MonthlySummaryRow[]>([]);
   const [savingKey, setSavingKey] = useState<string | null>(null);
 
@@ -159,6 +164,44 @@ export function SettingsClient({
     setCats((cs) => cs.filter((c) => c.id !== cat.id));
   }
 
+  async function reloadGoals() {
+    if (!householdId) return;
+    const [goalsRes, depositsRes, withdrawalsRes] = await Promise.all([
+      supabase
+        .from("goals")
+        .select("*")
+        .eq("household_id", householdId)
+        .eq("status", "active")
+        .order("sort_order"),
+      supabase
+        .from("expenses")
+        .select("goal_id, amount")
+        .eq("household_id", householdId)
+        .not("goal_id", "is", null),
+      supabase
+        .from("incomes")
+        .select("goal_id, amount")
+        .eq("household_id", householdId)
+        .not("goal_id", "is", null),
+    ]);
+    const gList = (goalsRes.data ?? []) as Goal[];
+    const savedByGoal = new Map<string, number>();
+    (depositsRes.data ?? []).forEach((d) => {
+      if (!d.goal_id) return;
+      savedByGoal.set(d.goal_id, (savedByGoal.get(d.goal_id) ?? 0) + Number(d.amount));
+    });
+    (withdrawalsRes.data ?? []).forEach((w) => {
+      if (!w.goal_id) return;
+      savedByGoal.set(w.goal_id, (savedByGoal.get(w.goal_id) ?? 0) - Number(w.amount));
+    });
+    setGoals(
+      gList.map((g) => ({
+        ...g,
+        saved: Math.max(0, savedByGoal.get(g.id) ?? 0),
+      })),
+    );
+  }
+
   async function setIncomeAmount(inc: Income, amount: number) {
     setSavingKey("i-" + inc.id);
     const { data } = await supabase
@@ -168,29 +211,60 @@ export function SettingsClient({
       .select()
       .single();
     if (data) setIncomes((is) => is.map((i) => (i.id === data.id ? data : i)));
+    if (inc.goal_id) {
+      await reloadGoals();
+      router.refresh();
+    }
     setSavingKey(null);
   }
 
-  async function addIncome() {
-    const source = prompt("Sumber income (contoh: Bonus, Freelance):");
-    if (!source?.trim()) return;
-    const { data } = await supabase
+  async function handleSaveIncome(source: string, amount: number, goalId?: string | null) {
+    setSavingKey("add-income");
+    const payload: {
+      household_id: string;
+      month: string;
+      source: string;
+      amount: number;
+      goal_id: string | null;
+    } = {
+      household_id: householdId,
+      month: labelKey,
+      source,
+      amount,
+      goal_id: goalId || null,
+    };
+    const { data, error } = await supabase
       .from("incomes")
-      .insert({
-        household_id: householdId,
-        month: labelKey,
-        source: source.trim(),
-        amount: 0,
-      })
+      .insert(payload)
       .select()
       .single();
-    if (data) setIncomes((is) => [...is, data]);
+    setSavingKey(null);
+    if (error) {
+      alert("Gagal menyimpan income: " + error.message);
+      return;
+    }
+    if (data) {
+      setIncomes((is) => [...is, data as Income]);
+      setIncomeModalOpen(false);
+      if (goalId) {
+        await reloadGoals();
+        router.refresh();
+      }
+    }
   }
 
   async function deleteIncome(inc: Income) {
-    if (!confirm(`Hapus income "${inc.source}"?`)) return;
+    const isGoal = Boolean(inc.goal_id);
+    const msg = isGoal
+      ? `Hapus income "${inc.source}"? Saldo penarikan sebesar ${formatIDR(inc.amount)} akan otomatis dikembalikan ke Tabungan.`
+      : `Hapus income "${inc.source}"?`;
+    if (!confirm(msg)) return;
     await supabase.from("incomes").delete().eq("id", inc.id);
     setIncomes((is) => is.filter((i) => i.id !== inc.id));
+    if (isGoal) {
+      await reloadGoals();
+      router.refresh();
+    }
   }
 
   async function savePayDay(v: number) {
@@ -347,7 +421,7 @@ export function SettingsClient({
       <section>
         <div className="flex items-center justify-between mb-2 px-1">
           <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">Income / Pemasukan</h2>
-          <button onClick={addIncome} className="text-xs font-headline font-bold uppercase text-brand-600 dark:text-brand-400 flex items-center gap-1 hover:underline">
+          <button onClick={() => setIncomeModalOpen(true)} className="text-xs font-headline font-bold uppercase text-brand-600 dark:text-brand-400 flex items-center gap-1 hover:underline">
             <Plus className="w-3.5 h-3.5" /> Tambah
           </button>
         </div>
@@ -359,6 +433,7 @@ export function SettingsClient({
             <IncomeRow
               key={inc.id}
               income={inc}
+              goal={goals.find((g) => g.id === inc.goal_id)}
               saving={savingKey === "i-" + inc.id}
               onChange={(v) => setIncomeAmount(inc, v)}
               onDelete={() => deleteIncome(inc)}
@@ -454,17 +529,27 @@ export function SettingsClient({
           </button>
         </div>
       </section>
+
+      <AddIncomeModal
+        isOpen={incomeModalOpen}
+        onClose={() => setIncomeModalOpen(false)}
+        onSave={handleSaveIncome}
+        goals={goals}
+        saving={savingKey === "add-income"}
+      />
     </div>
   );
 }
 
 function IncomeRow({
   income,
+  goal,
   saving,
   onChange,
   onDelete,
 }: {
   income: Income;
+  goal?: GoalWithProgress | Goal;
   saving: boolean;
   onChange: (v: number) => void;
   onDelete: () => void;
@@ -480,7 +565,19 @@ function IncomeRow({
   }, [income.amount]);
   return (
     <div className="flex items-center gap-3 p-3.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-      <span className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 flex-1 truncate">{income.source}</span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 truncate">
+            {income.source}
+          </span>
+          {income.goal_id && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 bg-amber-200 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 border border-slate-950 dark:border-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+              <Target className="w-3 h-3 text-amber-700 dark:text-amber-400" />
+              Tabungan{goal ? `: ${goal.name}` : ""}
+            </span>
+          )}
+        </div>
+      </div>
       <div className="relative w-36">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-headline font-black text-slate-950 dark:text-slate-100">
           Rp
@@ -500,7 +597,7 @@ function IncomeRow({
         />
       </div>
       {saving && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
-      <button onClick={onDelete} className="p-1.5 text-slate-600 hover:text-rose-600 rounded-none border border-transparent hover:border-rose-600 transition-colors">
+      <button onClick={onDelete} className="p-1.5 text-slate-600 hover:text-rose-600 rounded-none border border-transparent hover:border-rose-600 transition-colors" title="Hapus income">
         <Trash2 className="w-4 h-4" />
       </button>
     </div>
@@ -667,4 +764,290 @@ function CustomPeriodEditor({
     </div>
   );
 }
+
+function AddIncomeModal({
+  isOpen,
+  onClose,
+  onSave,
+  goals,
+  saving,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (source: string, amount: number, goalId?: string | null) => Promise<void>;
+  goals: GoalWithProgress[];
+  saving: boolean;
+}) {
+  const [tab, setTab] = useState<"regular" | "goal">("regular");
+  const [source, setSource] = useState("");
+  const [amountText, setAmountText] = useState("");
+  const [selectedGoalId, setSelectedGoalId] = useState(goals[0]?.id ?? "");
+  const [customGoalSource, setCustomGoalSource] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTab(goals.length > 0 && goals.some((g) => g.saved > 0) ? "regular" : "regular");
+      setSource("");
+      setAmountText("");
+      const firstWithSaved = goals.find((g) => g.saved > 0) ?? goals[0];
+      if (firstWithSaved) {
+        setSelectedGoalId(firstWithSaved.id);
+        setCustomGoalSource(`Tarik Tabungan: ${firstWithSaved.name}`);
+      }
+      setError(null);
+    }
+  }, [isOpen, goals]);
+
+  if (!isOpen) return null;
+
+  const selectedGoal = goals.find((g) => g.id === selectedGoalId);
+
+  const handleGoalChange = (gid: string) => {
+    setSelectedGoalId(gid);
+    const g = goals.find((item) => item.id === gid);
+    if (g) {
+      setCustomGoalSource(`Tarik Tabungan: ${g.name}`);
+    }
+  };
+
+  const handleSetQuickAmount = (val: number) => {
+    setAmountText(formatIDRInput(String(val)));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const amount = parseIDRInput(amountText);
+    if (amount <= 0) {
+      setError("Nominal harus lebih dari 0");
+      return;
+    }
+
+    if (tab === "regular") {
+      if (!source.trim()) {
+        setError("Nama sumber pemasukan wajib diisi");
+        return;
+      }
+      await onSave(source.trim(), amount, null);
+    } else {
+      if (!selectedGoal) {
+        setError("Pilih target tabungan terlebih dahulu");
+        return;
+      }
+      const goalSource = customGoalSource.trim() || `Tarik Tabungan: ${selectedGoal.name}`;
+      await onSave(goalSource, amount, selectedGoal.id);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 w-full max-w-md p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b-2 border-slate-950 dark:border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-none bg-brand-500 text-slate-950 border-2 border-slate-950 flex items-center justify-center font-bold">
+              <Plus className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-headline font-black text-base uppercase tracking-wider text-slate-950 dark:text-slate-100">
+                Tambah Pemasukan
+              </h3>
+              <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                Catat cashflow masuk ke periode ini
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-100 border border-transparent hover:border-slate-950"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Tab switch */}
+        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-100">
+          <button
+            type="button"
+            onClick={() => { setTab("regular"); setError(null); }}
+            className={cn(
+              "py-2 px-3 text-xs font-headline font-bold uppercase tracking-wider transition-all",
+              tab === "regular"
+                ? "bg-brand-500 text-slate-950 border-2 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white"
+            )}
+          >
+            Pemasukan Baru
+          </button>
+          <button
+            type="button"
+            onClick={() => { setTab("goal"); setError(null); }}
+            className={cn(
+              "py-2 px-3 text-xs font-headline font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5",
+              tab === "goal"
+                ? "bg-amber-400 text-slate-950 border-2 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white"
+            )}
+          >
+            <Target className="w-3.5 h-3.5" /> Dari Tabungan
+          </button>
+        </div>
+
+        {error && (
+          <div className="p-2.5 bg-rose-100 dark:bg-rose-950/60 border-2 border-rose-600 text-rose-900 dark:text-rose-200 text-xs font-mono font-bold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {tab === "regular" ? (
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block mb-1">
+                  Sumber Pemasukan
+                </label>
+                <input
+                  type="text"
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                  placeholder="Contoh: Gaji Pokok, Bonus, Freelance, THR"
+                  className="w-full border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-3 py-2 text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  autoFocus
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {goals.length === 0 ? (
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-600 text-amber-900 dark:text-amber-200 text-xs font-mono">
+                  Belum ada Target/Tabungan aktif. Buat tabungan dulu di menu Goals.
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block mb-1">
+                      Pilih Tabungan / Goal yang Dicoceng
+                    </label>
+                    <select
+                      value={selectedGoalId}
+                      onChange={(e) => handleGoalChange(e.target.value)}
+                      className="w-full border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-3 py-2 text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    >
+                      {goals.map((g) => (
+                        <option key={g.id} value={g.id}>
+                          {g.name} (Tersedia: {formatIDR(g.saved)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {selectedGoal && (
+                    <div className="p-3 bg-amber-50 dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-100 rounded-none space-y-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-headline font-bold uppercase text-slate-700 dark:text-slate-300">
+                          Saldo Tabungan Tersedia:
+                        </span>
+                        <span className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400">
+                          {formatIDR(selectedGoal.saved)}
+                        </span>
+                      </div>
+                      <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                        Saldo &quot;{selectedGoal.name}&quot; akan otomatis terpotong saat penarikan ini disimpan.
+                      </p>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block mb-1">
+                      Label Catatan Pemasukan
+                    </label>
+                    <input
+                      type="text"
+                      value={customGoalSource}
+                      onChange={(e) => setCustomGoalSource(e.target.value)}
+                      placeholder="Tarik Tabungan: ..."
+                      className="w-full border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-3 py-2 text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Nominal input */}
+          <div className="space-y-2">
+            <label className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block">
+              Nominal {tab === "goal" ? "Penarikan" : "Pemasukan"}
+            </label>
+            <div className="flex items-center bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none px-3 py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              <span className="font-headline text-lg font-black text-slate-950 dark:text-slate-100 mr-2">
+                Rp
+              </span>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={amountText}
+                onChange={(e) => setAmountText(formatIDRInput(e.target.value))}
+                placeholder="0"
+                className="w-full bg-transparent font-headline text-xl font-black text-slate-950 dark:text-slate-100 focus:outline-none placeholder-slate-400"
+              />
+            </div>
+
+            {/* Quick amount chips */}
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {[100000, 250000, 500000, 1000000].map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => handleSetQuickAmount(val)}
+                  className="px-2 py-1 text-[11px] font-mono font-bold bg-white dark:bg-slate-900 border border-slate-950 dark:border-slate-100 hover:bg-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                >
+                  +{formatIDR(val).replace(",00", "").replace("Rp ", "")}
+                </button>
+              ))}
+              {tab === "goal" && selectedGoal && selectedGoal.saved > 0 && (
+                <button
+                  type="button"
+                  onClick={() => handleSetQuickAmount(selectedGoal.saved)}
+                  className="px-2 py-1 text-[11px] font-mono font-bold bg-amber-300 text-slate-950 border border-slate-950 hover:bg-amber-200 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                >
+                  Tarik Semua Saldo
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-2 justify-end pt-3 border-t-2 border-slate-950 dark:border-slate-100">
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 px-4 py-2 rounded-none border-2 border-slate-950 hover:bg-slate-100 transition"
+              disabled={saving}
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="text-xs font-headline font-black uppercase px-5 py-2 rounded-none bg-brand-500 text-slate-950 hover:bg-brand-400 border-2 border-slate-950 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1.5 transition-all"
+              disabled={saving || (tab === "goal" && goals.length === 0)}
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...
+                </>
+              ) : (
+                <>
+                  <Check className="w-4 h-4" /> Simpan Pemasukan
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 

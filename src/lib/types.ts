@@ -33,6 +33,7 @@ export type Income = {
   month: string;
   source: string;
   amount: number;
+  goal_id?: string | null;
 };
 
 export type Expense = {

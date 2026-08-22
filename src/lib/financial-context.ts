@@ -31,11 +31,12 @@ export async function buildFinancialContext(
   householdId: string,
   periodsToAnalyze = 3,
 ): Promise<FinancialContext | null> {
-  const [hhRes, cpRes, goalsRes, depositsRes, eventsRes, eventExpensesRes, memoriesRes] = await Promise.all([
+  const [hhRes, cpRes, goalsRes, depositsRes, withdrawalsRes, eventsRes, eventExpensesRes, memoriesRes] = await Promise.all([
     supabase.from("households").select("pay_day_of_month").eq("id", householdId).maybeSingle(),
     supabase.from("custom_periods").select("label_month, start_date, end_date").eq("household_id", householdId),
     supabase.from("goals").select("id,name,target_amount,target_date,status").eq("household_id", householdId).eq("status", "active"),
     supabase.from("expenses").select("goal_id, amount").eq("household_id", householdId).not("goal_id", "is", null),
+    supabase.from("incomes").select("goal_id, amount").eq("household_id", householdId).not("goal_id", "is", null),
     supabase.from("events").select("id,name,status,start_date,end_date").eq("household_id", householdId),
     supabase.from("expenses").select("event_id, amount, description, spent_at").eq("household_id", householdId).not("event_id", "is", null),
     supabase.from("ai_memories").select("id, content, created_at").eq("household_id", householdId).order("created_at", { ascending: false }).limit(25),
@@ -54,6 +55,10 @@ export async function buildFinancialContext(
   (depositsRes.data ?? []).forEach((d) => {
     if (!d.goal_id) return;
     savedByGoal.set(d.goal_id, (savedByGoal.get(d.goal_id) ?? 0) + Number(d.amount));
+  });
+  (withdrawalsRes.data ?? []).forEach((w) => {
+    if (!w.goal_id) return;
+    savedByGoal.set(w.goal_id, (savedByGoal.get(w.goal_id) ?? 0) - Number(w.amount));
   });
 
   const eventExpenseMap = new Map<string, { totalSpent: number; count: number; items: string[] }>();
