@@ -633,7 +633,7 @@ function CategoryRow({
       >
         <Icon className="w-4 h-4 text-white shrink-0" />
       </div>
-      <span className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 flex-1 truncate">{category.name}</span>
+      <span className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 flex-1 break-words leading-snug">{category.name}</span>
       <div className="relative w-36">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-headline font-black text-slate-950 dark:text-slate-100">
           Rp

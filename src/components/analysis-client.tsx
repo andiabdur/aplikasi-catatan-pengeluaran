@@ -400,7 +400,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                   return <Icon className="w-3.5 h-3.5 text-white" />;
                 })()}
               </div>
-              <p className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 truncate">
+              <p className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 break-words leading-snug line-clamp-2">
                 {topCategory ? topCategory.name : "-"}
               </p>
             </div>
