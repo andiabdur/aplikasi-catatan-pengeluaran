@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import {
@@ -60,7 +60,32 @@ export function HistoryList({
   // Selection mode states
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
-  
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressTriggeredRef = useRef(false);
+
+  function startPress(id: string) {
+    if (isSelectionMode) return;
+    isLongPressTriggeredRef.current = false;
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressTriggeredRef.current = true;
+      setIsSelectionMode(true);
+      setSelectedIds(new Set([id]));
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        try {
+          navigator.vibrate(40);
+        } catch {}
+      }
+    }, 450);
+  }
+
+  function cancelPress() {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }
+
   function toggleSelection(id: string) {
     const newSet = new Set(selectedIds);
     if (newSet.has(id)) {
@@ -539,11 +564,22 @@ export function HistoryList({
                     <div
                       key={r.id}
                       className={cn(
-                        "flex items-start justify-between p-3.5 group select-none transition-colors hover:bg-slate-950 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-950",
+                        "flex items-start justify-between p-3.5 group select-none transition-colors hover:bg-slate-950 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-950 cursor-pointer",
                         itemIdx !== items.length - 1 && "border-b-4 border-slate-950 dark:border-slate-100",
-                        selectedIds.has(r.id) && "bg-brand-500/20"
+                        selectedIds.has(r.id) && "bg-brand-500/20 dark:bg-brand-500/30"
                       )}
+                      onTouchStart={() => startPress(r.id)}
+                      onTouchEnd={cancelPress}
+                      onTouchMove={cancelPress}
+                      onTouchCancel={cancelPress}
+                      onMouseDown={() => startPress(r.id)}
+                      onMouseUp={cancelPress}
+                      onMouseLeave={cancelPress}
                       onClick={() => {
+                        if (isLongPressTriggeredRef.current) {
+                          isLongPressTriggeredRef.current = false;
+                          return;
+                        }
                         if (isSelectionMode) {
                           toggleSelection(r.id);
                         }
@@ -555,11 +591,11 @@ export function HistoryList({
                             className={cn(
                               "w-6 h-6 rounded-none border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 transition-colors mt-2",
                               selectedIds.has(r.id)
-                                ? "bg-brand-500 text-slate-950"
+                                ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950"
                                 : "bg-white dark:bg-slate-950"
                             )}
                           >
-                            {selectedIds.has(r.id) && <Check className="w-4 h-4 font-bold" />}
+                            {selectedIds.has(r.id) && <Check className="w-4 h-4 stroke-[3]" />}
                           </div>
                         )}
                         <div
@@ -597,6 +633,8 @@ export function HistoryList({
                             e.stopPropagation();
                             setEditingId(r.id);
                           }}
+                          onTouchStart={(e) => e.stopPropagation()}
+                          onMouseDown={(e) => e.stopPropagation()}
                           className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white rounded-none border border-transparent hover:border-slate-950 transition-colors"
                           aria-label="Edit"
                         >
@@ -607,6 +645,8 @@ export function HistoryList({
                             e.stopPropagation();
                             handleDelete(r.id);
                           }}
+                          onTouchStart={(e) => e.stopPropagation()}
+                          onMouseDown={(e) => e.stopPropagation()}
                           className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-rose-600 rounded-none border border-transparent hover:border-rose-600 transition-colors"
                           aria-label="Hapus"
                         >
@@ -744,18 +784,22 @@ export function HistoryList({
       )}
 
       {isSelectionMode && selectedIds.size > 0 && (
-        <div className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
-          <div className="bg-slate-950 text-white border-4 border-slate-100 p-4 flex items-center justify-between shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
+        <div className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="bg-slate-950 text-white dark:bg-slate-900 border-4 border-slate-950 dark:border-slate-100 p-4 flex items-center justify-between shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
             <div>
-              <p className="text-xs font-mono uppercase text-slate-400 font-bold">Terpilih {selectedIds.size} item</p>
-              <p className="font-headline font-black text-xl text-brand-400">{formatIDR(selectedSum)}</p>
+              <p className="text-xs font-mono uppercase text-brand-400 font-bold tracking-wider">
+                Terpilih {selectedIds.size} item
+              </p>
+              <p className="font-headline font-black text-2xl text-white dark:text-brand-400 mt-0.5">
+                {formatIDR(selectedSum)}
+              </p>
             </div>
             <button
               onClick={() => {
                 setSelectedIds(new Set());
                 setIsSelectionMode(false);
               }}
-              className="px-4 py-2 bg-white text-slate-950 font-headline font-bold text-xs uppercase border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,0.5)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+              className="px-4 py-2.5 bg-brand-500 hover:bg-brand-400 text-slate-950 font-headline font-bold text-xs uppercase border-2 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
             >
               Tutup
             </button>
