@@ -283,7 +283,7 @@ export function FloatingVoice() {
             >
               <Check className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 whitespace-normal break-words leading-snug">
                   {s.description}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">

@@ -252,7 +252,7 @@ export function FloatingActions({ householdId }: { householdId?: string }) {
             <div key={s.id ?? i} className="flex items-start gap-2.5 bg-emerald-100 dark:bg-emerald-950/60 border-2 border-slate-950 dark:border-slate-100 rounded-none p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
               <Check className="w-4 h-4 text-emerald-800 dark:text-emerald-300 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 truncate">{s.description}</p>
+                <p className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 whitespace-normal break-words leading-snug">{s.description}</p>
                 <p className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5">{formatIDR(s.amount)}{s.categoryName ? ` · ${s.categoryName}` : ""}</p>
                 {s.items.length > 1 && <p className="text-[10px] font-mono text-slate-500 leading-snug mt-0.5">{s.items.map((it) => `${it.name} ${formatIDR(it.price)}`).join(" + ")}</p>}
               </div>
@@ -285,7 +285,7 @@ export function FloatingActions({ householdId }: { householdId?: string }) {
               <div key={s.id ?? i} className="flex items-start gap-2.5 bg-emerald-100 dark:bg-emerald-950/60 border-2 border-slate-950 dark:border-slate-100 rounded-none p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                 <Check className="w-4 h-4 text-emerald-800 dark:text-emerald-300 shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 truncate">{s.description}</p>
+                  <p className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 whitespace-normal break-words leading-snug">{s.description}</p>
                   <p className="text-[11px] font-mono font-bold text-slate-800 dark:text-slate-200">{formatIDR(s.amount)} · {s.categoryName}</p>
                   {s.items.length > 1 && <p className="text-[10px] font-mono text-slate-500 leading-snug mt-0.5">{s.items.map((it) => `${it.name} ${formatIDR(it.price)}`).join(" + ")}</p>}
                 </div>

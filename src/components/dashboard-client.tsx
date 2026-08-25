@@ -284,9 +284,9 @@ export function DashboardClient({
                 idx !== recent.length - 1 && "border-b-4 border-slate-950 dark:border-slate-100"
               )}
             >
-              <div className="min-w-0 flex-1 flex items-center gap-3">
+              <div className="min-w-0 flex-1 flex items-start gap-3">
                 <div
-                  className="w-10 h-10 rounded-none border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                  className="w-10 h-10 rounded-none border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] mt-0.5"
                   style={{ backgroundColor: e.categories?.color ?? "#16a34a" }}
                 >
                   {(() => {
@@ -294,8 +294,8 @@ export function DashboardClient({
                     return <Icon className="w-5 h-5 text-white" />;
                   })()}
                 </div>
-                <div className="min-w-0">
-                  <p className="font-headline font-bold text-sm uppercase tracking-wider text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950 truncate">
+                <div className="min-w-0 flex-1">
+                  <p className="font-headline font-bold text-sm uppercase tracking-wider text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950 whitespace-normal break-words leading-snug">
                     {e.description}
                   </p>
                   <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 group-hover:text-slate-300 dark:group-hover:text-slate-700 tracking-wider uppercase mt-0.5">
@@ -307,7 +307,7 @@ export function DashboardClient({
                   </p>
                 </div>
               </div>
-              <p className="font-mono font-black text-sm text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950 shrink-0 ml-3">
+              <p className="font-mono font-black text-sm text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950 shrink-0 ml-3 self-center sm:self-start sm:pt-0.5">
                 - {formatIDR(e.amount)}
               </p>
             </div>
