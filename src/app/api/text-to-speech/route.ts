@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -172,6 +173,14 @@ async function speechFromAudioEndpoint(params: {
 }
 
 export async function POST(req: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Belum login." }, { status: 401 });
+  }
+
   const apiKey = process.env.OPENAI_API_KEY || process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
