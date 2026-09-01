@@ -43,7 +43,7 @@ export function ExpenseForm({
   const [justSaved, setJustSaved] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const descRef = useRef<HTMLInputElement>(null);
+  const costRef = useRef<HTMLInputElement>(null);
 
   // Hook 1: Text to Speech voice feedbacks
   const { unlockSpeech, speakFeedback } = useVoiceFeedback();
@@ -70,7 +70,7 @@ export function ExpenseForm({
   });
 
   useEffect(() => {
-    descRef.current?.focus();
+    costRef.current?.focus();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -99,7 +99,7 @@ export function ExpenseForm({
     setDescription("");
     setCostText("");
     setGoalId("");
-    descRef.current?.focus();
+    costRef.current?.focus();
     setTimeout(() => setJustSaved(false), 1500);
     startTransition(() => router.refresh());
   }
@@ -133,6 +133,7 @@ export function ExpenseForm({
           </span>
           <input
             id="cost"
+            ref={costRef}
             type="text"
             inputMode="numeric"
             value={costText}
@@ -274,7 +275,6 @@ export function ExpenseForm({
           </Label>
           <input
             id="description"
-            ref={descRef}
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
