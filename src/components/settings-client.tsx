@@ -11,6 +11,7 @@ import { getCategoryIcon } from "@/components/category-icon";
 import type { Category, Budget, Income, CustomPeriod, MonthlySummaryRow, GoalWithProgress, Goal } from "@/lib/types";
 import { Plus, Trash2, LogOut, Save, CalendarCog, Edit3, RotateCcw, Tent, Target, AlertCircle, X, Check, Loader2, Sparkles, Coins } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ApiTokensManager } from "@/components/api-tokens-manager";
 
 const COLORS = [
   "#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4",
@@ -515,6 +516,11 @@ export function SettingsClient({
             />
           ))}
         </div>
+      </section>
+
+      {/* Integrasi AI & MCP Access Tokens */}
+      <section>
+        <ApiTokensManager />
       </section>
 
       {/* Account */}
