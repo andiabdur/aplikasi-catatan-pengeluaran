@@ -83,7 +83,10 @@ export function ExpenseForm({
     if (amount <= 0) return setError("Cost harus lebih dari 0");
 
     const selectedCat = categories.find((c) => c.id === categoryId);
-    const goalForSave = isSavingsCategory(selectedCat?.name) ? goalId : null;
+    const generalGoal = goals.find((g) => /general|umum/i.test(g.name));
+    const goalForSave = isSavingsCategory(selectedCat?.name)
+      ? (goalId || generalGoal?.id || null)
+      : null;
 
     const { error: err } = await saveExpense({
       eventId: selectedEventId,
@@ -382,8 +385,8 @@ export function ExpenseForm({
               onChange={(e) => setGoalId(e.target.value)}
               className="w-full h-10 px-3 py-2 text-sm rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-900 text-slate-950 dark:text-slate-100 font-headline font-bold focus:outline-none"
             >
-              <option value="">Tanpa Goal Khusus</option>
-              {goals.map((g) => (
+              <option value="">Tabungan General (Default / Tanpa Target Khusus)</option>
+              {goals.filter((g) => !/general|umum/i.test(g.name)).map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.name}
                 </option>

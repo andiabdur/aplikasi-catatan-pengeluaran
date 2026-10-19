@@ -271,6 +271,7 @@ export function HistoryList({
 
     const selectedCat = cats.find((c) => c.id === catId);
     const isSavings = isSavingsCategory(selectedCat?.name);
+    const generalGoal = goalList.find((g) => /general|umum/i.test(g.name));
 
     return (
       <div className="p-3.5 space-y-2.5 bg-slate-50 dark:bg-slate-950 border-t-4 border-slate-950 dark:border-slate-100">
@@ -311,8 +312,8 @@ export function HistoryList({
               onChange={(e) => setGoalId(e.target.value)}
               className="input text-xs py-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 font-headline font-bold uppercase"
             >
-              <option value="">(Tanpa Goal Khusus)</option>
-              {goalList.map((g) => (
+              <option value="">Tabungan General (Default / Tanpa Target Khusus)</option>
+              {goalList.filter((g) => !/general|umum/i.test(g.name)).map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.name}
                 </option>
@@ -355,7 +356,7 @@ export function HistoryList({
                 amount: parseIDRInput(amtText),
                 spent_at: spentAt,
                 event_id: evtId || null,
-                goal_id: isSavings ? (goalId || null) : null,
+                goal_id: isSavings ? (goalId || generalGoal?.id || null) : null,
               })
             }
             className="btn-primary flex-1 text-xs py-2 flex items-center justify-center gap-1.5 font-headline font-bold rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase"

@@ -86,6 +86,11 @@ export function GoalsClient({
   }
 
   async function remove(id: string) {
+    const target = goals.find((g) => g.id === id);
+    if (target && /general|umum/i.test(target.name)) {
+      alert("Tabungan General adalah wadah utama untuk tabungan tanpa alokasi khusus dan tidak dapat dihapus.");
+      return;
+    }
     if (!confirm("Hapus goal ini? Setoran yang sudah tercatat tetap ada, cuma lepas tag-nya.")) return;
     setBusyId(id);
     const supabase = createClient();
@@ -197,6 +202,7 @@ function GoalCard({
   onReactivate?: () => void;
   onDelete: () => void;
 }) {
+  const isGeneral = /general|umum/i.test(goal.name) && goal.target_amount <= 0;
   const pct = goal.target_amount > 0
     ? Math.min(100, Math.round((goal.saved / goal.target_amount) * 100))
     : 0;
@@ -224,25 +230,37 @@ function GoalCard({
             )}
           </div>
           <p className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400 mt-0.5">
-            {formatIDR(goal.saved)} / {formatIDR(goal.target_amount)}
-            {goal.target_date && ` · ${formatTargetDate(goal.target_date)}`}
+            {isGeneral || goal.target_amount <= 0 ? (
+              <span>{formatIDR(goal.saved)} · Tabungan Bebas / Fleksibel</span>
+            ) : (
+              <>
+                {formatIDR(goal.saved)} / {formatIDR(goal.target_amount)}
+                {goal.target_date && ` · ${formatTargetDate(goal.target_date)}`}
+              </>
+            )}
           </p>
         </div>
-        <span
-          className={cn(
-            "text-base font-headline font-black shrink-0",
-            reached ? "text-emerald-600 dark:text-emerald-400" : "text-slate-950 dark:text-slate-100",
-          )}
-        >
-          {pct}%
-        </span>
+        {isGeneral || goal.target_amount <= 0 ? (
+          <span className="text-[11px] font-mono font-bold bg-brand-400 text-slate-950 px-2 py-0.5 border border-slate-950 uppercase tracking-wider shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+            Umum
+          </span>
+        ) : (
+          <span
+            className={cn(
+              "text-base font-headline font-black shrink-0",
+              reached ? "text-emerald-600 dark:text-emerald-400" : "text-slate-950 dark:text-slate-100",
+            )}
+          >
+            {pct}%
+          </span>
+        )}
       </div>
 
       <div className="h-3 rounded-none bg-slate-100 dark:bg-slate-950 overflow-hidden border-2 border-slate-950 dark:border-slate-100">
         <div
           className="h-full rounded-none transition-all"
           style={{
-            width: `${pct}%`,
+            width: isGeneral || goal.target_amount <= 0 ? "100%" : `${pct}%`,
             background: reached ? "#22c55e" : goal.color,
           }}
         />
@@ -250,7 +268,9 @@ function GoalCard({
 
       <div className="flex items-center justify-between pt-0.5">
         <p className="text-xs font-mono font-bold uppercase text-slate-600 dark:text-slate-400">
-          {reached ? (
+          {isGeneral || goal.target_amount <= 0 ? (
+            <span className="text-emerald-700 dark:text-emerald-400 font-headline font-bold">Dana siap digunakan</span>
+          ) : reached ? (
             <span className="text-emerald-600 dark:text-emerald-400 font-headline font-black">Target tercapai!</span>
           ) : (
             <>Kurang <span className="font-bold text-slate-950 dark:text-slate-100">{formatIDR(remaining)}</span></>
@@ -261,12 +281,12 @@ function GoalCard({
             <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
           ) : (
             <>
-              {isActive && onAchieve && reached && (
+              {isActive && onAchieve && reached && !isGeneral && (
                 <IconBtn title="Tandai tercapai" onClick={onAchieve} className="text-emerald-600 dark:text-emerald-400">
                   <Check className="w-4 h-4" />
                 </IconBtn>
               )}
-              {isActive && onArchive && (
+              {isActive && onArchive && !isGeneral && (
                 <IconBtn title="Arsipkan" onClick={onArchive} className="text-slate-400">
                   <Archive className="w-4 h-4" />
                 </IconBtn>
@@ -279,9 +299,11 @@ function GoalCard({
               <IconBtn title="Edit" onClick={onEdit} className="text-slate-600 hover:text-slate-950">
                 <Pencil className="w-4 h-4" />
               </IconBtn>
-              <IconBtn title="Hapus" onClick={onDelete} className="text-slate-600 hover:text-rose-600">
-                <Trash2 className="w-4 h-4" />
-              </IconBtn>
+              {!isGeneral && (
+                <IconBtn title="Hapus" onClick={onDelete} className="text-slate-600 hover:text-rose-600">
+                  <Trash2 className="w-4 h-4" />
+                </IconBtn>
+              )}
             </>
           )}
         </div>
