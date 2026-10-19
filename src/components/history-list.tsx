@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import {
@@ -14,9 +15,14 @@ import Link from "next/link";
 import { PeriodSelector } from "@/components/period-selector";
 import { CategoryPieChart, CategoryBarChart } from "@/components/expense-charts";
 import { getCategoryIcon } from "@/components/category-icon";
-import { Search, Trash2, X, PieChart as PieIcon, BarChart3, ChevronDown, ChevronUp, Pencil, Check, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Trash2, X, PieChart as PieIcon, BarChart3, ChevronDown, ChevronUp, Pencil, Check, ArrowUpRight, ChevronLeft, ChevronRight, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Category, Expense } from "@/lib/types";
+import type { Category, Expense, Goal } from "@/lib/types";
+
+function isSavingsCategory(name: string | undefined): boolean {
+  if (!name) return false;
+  return /nabung|tabung/i.test(name);
+}
 
 type Row = Expense & {
   categories: { name: string; color: string | null } | null;
@@ -27,6 +33,7 @@ type ChartMode = "pie" | "bar";
 
 export function HistoryList({
   events = [],
+  goals = [],
   categories,
   householdId,
   payDay,
@@ -34,7 +41,8 @@ export function HistoryList({
   initialCatFilter = "",
   customPeriods: initialCustomPeriods,
 }: {
-  events?: { id: string, name: string, status: string }[];
+  events?: { id: string; name: string; status: string }[];
+  goals?: Goal[];
   categories: Category[];
   householdId: string;
   payDay: number;
@@ -42,6 +50,8 @@ export function HistoryList({
   initialCatFilter?: string;
   customPeriods: { label_month: string; start_date: string; end_date: string }[];
 }) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
   const [customPeriods, setCustomPeriods] = useState(initialCustomPeriods);
   const [filterMode, setFilterMode] = useState<FilterMode>("period");
   const [labelMonth, setLabelMonth] = useState<Date>(new Date(initialLabelMonth));
@@ -163,7 +173,14 @@ export function HistoryList({
 
   async function handleSave(
     id: string,
-    patch: { description: string; category_id: string; amount: number; spent_at: string },
+    patch: {
+      description: string;
+      category_id: string;
+      amount: number;
+      spent_at: string;
+      event_id: string | null;
+      goal_id: string | null;
+    },
   ) {
     const supabase = createClient();
     const { data } = await supabase
@@ -176,6 +193,9 @@ export function HistoryList({
       setRows((rs) => rs.map((r) => (r.id === id ? (data as Row) : r)));
     }
     setEditingId(null);
+    startTransition(() => {
+      router.refresh();
+    });
   }
 
   async function handleDelete(id: string) {
@@ -183,6 +203,9 @@ export function HistoryList({
     const supabase = createClient();
     await supabase.from("expenses").delete().eq("id", id);
     setRows((rs) => rs.filter((r) => r.id !== id));
+    startTransition(() => {
+      router.refresh();
+    });
   }
 
   // Pagination states
@@ -219,13 +242,22 @@ export function HistoryList({
     row,
     categories: cats,
     activeEvents,
+    goals: goalList = [],
     onSave,
     onCancel,
   }: {
     row: Row;
     categories: Category[];
-    activeEvents: { id: string, name: string }[];
-    onSave: (patch: { description: string; category_id: string; amount: number; spent_at: string; event_id: string | null }) => void;
+    activeEvents: { id: string; name: string }[];
+    goals?: Goal[];
+    onSave: (patch: {
+      description: string;
+      category_id: string;
+      amount: number;
+      spent_at: string;
+      event_id: string | null;
+      goal_id: string | null;
+    }) => void;
     onCancel: () => void;
   }) {
     const [desc, setDesc] = useState(row.description);
@@ -235,6 +267,10 @@ export function HistoryList({
       row.amount ? Number(row.amount).toLocaleString("id-ID") : "",
     );
     const [evtId, setEvtId] = useState(row.event_id || "");
+    const [goalId, setGoalId] = useState(row.goal_id || "");
+
+    const selectedCat = cats.find((c) => c.id === catId);
+    const isSavings = isSavingsCategory(selectedCat?.name);
 
     return (
       <div className="p-3.5 space-y-2.5 bg-slate-50 dark:bg-slate-950 border-t-4 border-slate-950 dark:border-slate-100">
@@ -265,6 +301,25 @@ export function HistoryList({
             </option>
           ))}
         </select>
+        {isSavings && goalList.length > 0 && (
+          <div className="p-2.5 bg-brand-500/10 border-2 border-slate-950 dark:border-slate-100 rounded-none space-y-1">
+            <label className="text-[10px] font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1">
+              <Target className="w-3.5 h-3.5 text-brand-500" /> Alokasikan ke Goal Tabungan
+            </label>
+            <select
+              value={goalId}
+              onChange={(e) => setGoalId(e.target.value)}
+              className="input text-xs py-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 font-headline font-bold uppercase"
+            >
+              <option value="">(Tanpa Goal Khusus)</option>
+              {goalList.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         {activeEvents.length > 0 && (
           <select
             value={evtId}
@@ -300,6 +355,7 @@ export function HistoryList({
                 amount: parseIDRInput(amtText),
                 spent_at: spentAt,
                 event_id: evtId || null,
+                goal_id: isSavings ? (goalId || null) : null,
               })
             }
             className="btn-primary flex-1 text-xs py-2 flex items-center justify-center gap-1.5 font-headline font-bold rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase"
@@ -557,6 +613,7 @@ export function HistoryList({
                       row={r}
                       categories={categories}
                       activeEvents={events}
+                      goals={goals}
                       onSave={(patch) => handleSave(r.id, patch)}
                       onCancel={() => setEditingId(null)}
                     />
@@ -613,6 +670,15 @@ export function HistoryList({
                           </p>
                           <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-300 dark:group-hover:text-slate-700 font-mono uppercase">
                             <span>{r.categories?.name}</span>
+                            {r.goal_id && (() => {
+                              const g = goals?.find((item) => item.id === r.goal_id);
+                              return g ? (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-none bg-emerald-500 text-slate-950 border border-slate-950 flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                  <Target className="w-3 h-3" />
+                                  {g.name}
+                                </span>
+                              ) : null;
+                            })()}
                             {r.event_id && (() => {
                               const evt = events?.find((e) => e.id === r.event_id);
                               return evt ? (
