@@ -11,31 +11,44 @@ export default async function EventsPage() {
   const householdId = await getCurrentHouseholdId();
   if (!householdId) redirect("/login");
 
-  const { data: events } = await supabase
-    .from("events")
-    .select("*")
-    .eq("household_id", householdId)
-    .order("start_date", { ascending: false });
+  const [eventsRes, hhRes, cpRes, expensesRes] = await Promise.all([
+    supabase
+      .from("events")
+      .select("*")
+      .eq("household_id", householdId)
+      .order("start_date", { ascending: false }),
+    supabase
+      .from("households")
+      .select("pay_day_of_month")
+      .eq("id", householdId)
+      .maybeSingle(),
+    supabase
+      .from("custom_periods")
+      .select("label_month, start_date, end_date")
+      .eq("household_id", householdId),
+    supabase
+      .from("expenses")
+      .select("event_id, amount")
+      .eq("household_id", householdId)
+      .not("event_id", "is", null),
+  ]);
 
-  const { data: expenses } = await supabase
-    .from("expenses")
-    .select("event_id, amount")
-    .eq("household_id", householdId)
-    .not("event_id", "is", null);
-    
+  const payDay = hhRes.data?.pay_day_of_month ?? 25;
+  const customPeriods = cpRes.data ?? [];
+  const events = eventsRes.data ?? [];
+  const expenses = expensesRes.data ?? [];
+
   const spentByEvent = new Map<string, number>();
-  if (expenses) {
-    for (const exp of expenses) {
-      if (exp.event_id) {
-        spentByEvent.set(exp.event_id, (spentByEvent.get(exp.event_id) || 0) + (exp.amount || 0));
-      }
+  for (const exp of expenses) {
+    if (exp.event_id) {
+      spentByEvent.set(exp.event_id, (spentByEvent.get(exp.event_id) || 0) + (exp.amount || 0));
     }
   }
 
   // Extend events with totalSpent
-  const eventsWithTotal = (events || []).map(evt => ({
+  const eventsWithTotal = events.map((evt) => ({
     ...evt,
-    totalSpent: spentByEvent.get(evt.id) || 0
+    totalSpent: spentByEvent.get(evt.id) || 0,
   }));
 
   return (
@@ -49,7 +62,7 @@ export default async function EventsPage() {
         </Link>
         <div>
           <h1 className="text-xl font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-tight">Event &amp; Perjalanan</h1>
-          <p className="text-xs font-mono uppercase text-slate-500 dark:text-slate-400 mt-0.5">Kelola anggaran khusus liburan & acara</p>
+          <p className="text-xs font-mono uppercase text-slate-500 dark:text-slate-400 mt-0.5">Kelola anggaran khusus liburan &amp; acara</p>
         </div>
       </div>
 
@@ -68,7 +81,11 @@ export default async function EventsPage() {
         </div>
       </form>
 
-      <EventsList events={eventsWithTotal} />
+      <EventsList
+        events={eventsWithTotal}
+        payDay={payDay}
+        customPeriods={customPeriods}
+      />
     </div>
   );
 }

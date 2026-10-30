@@ -8,8 +8,8 @@ import { formatIDR, formatIDRInput, parseIDRInput } from "@/lib/format";
 import { currentPeriodLabelWithCustom, labelMonthKey, periodTitle, getPeriodRange, periodRangeTextWithCustom } from "@/lib/period";
 import { PeriodSelector } from "@/components/period-selector";
 import { getCategoryIcon } from "@/components/category-icon";
-import type { Category, Budget, Income, CustomPeriod, MonthlySummaryRow, GoalWithProgress, Goal } from "@/lib/types";
-import { Plus, Trash2, LogOut, Save, CalendarCog, Edit3, RotateCcw, Tent, Target, AlertCircle, X, Check, Loader2, Sparkles, Coins } from "lucide-react";
+import type { Category, Budget, Income, CustomPeriod, MonthlySummaryRow, GoalWithProgress, Goal, Event } from "@/lib/types";
+import { Plus, Trash2, LogOut, Save, CalendarCog, Edit3, RotateCcw, Tent, Target, AlertCircle, X, Check, Loader2, Sparkles, Coins, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ApiTokensManager } from "@/components/api-tokens-manager";
 
@@ -17,6 +17,27 @@ const COLORS = [
   "#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4",
   "#3b82f6", "#a855f7", "#ec4899", "#14b8a6", "#64748b",
 ];
+
+function formatDisplayDate(dateStr: string) {
+  if (!dateStr) return "";
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function getEventPeriodKey(
+  startDateStr: string,
+  payDay: number,
+  customPeriods: { label_month: string; start_date: string; end_date: string }[]
+): string {
+  const [y, m, d] = (startDateStr || "").split("-").map(Number);
+  const targetDate = !isNaN(y) && !isNaN(m) && !isNaN(d) ? new Date(y, m - 1, d) : new Date();
+  const periodDate = currentPeriodLabelWithCustom(payDay, customPeriods, targetDate);
+  return labelMonthKey(periodDate);
+}
 
 export function SettingsClient({
   householdId,
@@ -26,6 +47,7 @@ export function SettingsClient({
   email,
   customPeriods: initialCustomPeriods,
   initialGoals = [],
+  events = [],
 }: {
   householdId: string;
   categories: Category[];
@@ -34,6 +56,7 @@ export function SettingsClient({
   email: string;
   customPeriods: { label_month: string; start_date: string; end_date: string }[];
   initialGoals?: GoalWithProgress[];
+  events?: (Event & { totalSpent?: number })[];
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -346,7 +369,7 @@ export function SettingsClient({
 
   return (
     <div className="space-y-4 pb-20">
-      <section>
+      <section className="space-y-2">
         <Link href="/events" className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex items-center justify-between shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 group transition-all">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-none bg-indigo-200 text-indigo-950 border-2 border-slate-950 flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
@@ -361,6 +384,59 @@ export function SettingsClient({
           </div>
           <p className="font-headline font-black text-xl">›</p>
         </Link>
+
+        {events && events.length > 0 && (
+          <div className="space-y-2 pt-1">
+            <p className="text-[10px] font-headline font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
+              Event Aktif &amp; Terakhir (Klik untuk ke Riwayat Periode)
+            </p>
+            <div className="grid gap-2">
+              {events.slice(0, 3).map((evt) => {
+                const periodKey = getEventPeriodKey(evt.start_date, payDay, customPeriods);
+                const historyHref = `/history?event=${evt.id}&period=${periodKey}`;
+                return (
+                  <Link
+                    key={evt.id}
+                    href={historyHref}
+                    className="bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 rounded-none p-3 flex items-center justify-between gap-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:bg-slate-50 dark:hover:bg-slate-900 group transition-all"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-headline font-bold text-xs uppercase tracking-wider text-slate-950 dark:text-slate-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 truncate">
+                          {evt.name}
+                        </span>
+                        <span
+                          className={cn(
+                            "text-[9px] font-headline font-bold px-1.5 py-0.5 rounded-none border",
+                            evt.status === "active"
+                              ? "bg-emerald-400 text-slate-950 border-slate-950 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                              : "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-950 dark:border-slate-100"
+                          )}
+                        >
+                          {evt.status === "active" ? "Sedang Berjalan" : "Selesai"}
+                        </span>
+                      </div>
+                      <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 uppercase">
+                        {formatDisplayDate(evt.start_date)}
+                        {evt.end_date ? ` - ${formatDisplayDate(evt.end_date)}` : " - Sekarang"}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0 flex items-center gap-2">
+                      <div>
+                        <p className="font-headline font-black text-brand-600 dark:text-brand-400 text-xs">
+                          {formatIDR(evt.totalSpent || 0)}
+                        </p>
+                        <span className="text-[9px] font-headline font-bold uppercase text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-400 group-hover:underline flex items-center gap-0.5 justify-end">
+                          Riwayat <ArrowUpRight className="w-3 h-3" />
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Pay day setting */}

@@ -31,6 +31,11 @@ type Row = Expense & {
 type FilterMode = "period" | "custom";
 type ChartMode = "pie" | "bar";
 
+function parseLabelMonth(str: string): Date {
+  const [y, m, d] = str.split("-").map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+
 export function HistoryList({
   events = [],
   goals = [],
@@ -39,26 +44,46 @@ export function HistoryList({
   payDay,
   initialLabelMonth,
   initialCatFilter = "",
+  initialEvtFilter = "",
   customPeriods: initialCustomPeriods,
 }: {
-  events?: { id: string; name: string; status: string }[];
+  events?: { id: string; name: string; status: string; start_date?: string; end_date?: string | null }[];
   goals?: Goal[];
   categories: Category[];
   householdId: string;
   payDay: number;
   initialLabelMonth: string;
   initialCatFilter?: string;
+  initialEvtFilter?: string;
   customPeriods: { label_month: string; start_date: string; end_date: string }[];
 }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [customPeriods, setCustomPeriods] = useState(initialCustomPeriods);
   const [filterMode, setFilterMode] = useState<FilterMode>("period");
-  const [labelMonth, setLabelMonth] = useState<Date>(new Date(initialLabelMonth));
+  const [labelMonth, setLabelMonth] = useState<Date>(() => parseLabelMonth(initialLabelMonth));
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [catFilter, setCatFilter] = useState<string>(initialCatFilter);
-  const [evtFilter, setEvtFilter] = useState<string>("");
+  const [evtFilter, setEvtFilter] = useState<string>(initialEvtFilter);
+
+  useEffect(() => {
+    if (initialEvtFilter !== undefined) {
+      setEvtFilter(initialEvtFilter);
+    }
+  }, [initialEvtFilter]);
+
+  useEffect(() => {
+    if (initialLabelMonth) {
+      setLabelMonth(parseLabelMonth(initialLabelMonth));
+    }
+  }, [initialLabelMonth]);
+
+  useEffect(() => {
+    if (initialCatFilter !== undefined) {
+      setCatFilter(initialCatFilter);
+    }
+  }, [initialCatFilter]);
   const [search, setSearch] = useState("");
   const [chartMode, setChartMode] = useState<ChartMode>("pie");
   const [chartOpen, setChartOpen] = useState(true);

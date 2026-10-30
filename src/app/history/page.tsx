@@ -10,7 +10,12 @@ export const dynamic = "force-dynamic";
 export default async function HistoryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ cat?: string; period?: string }>;
+  searchParams: Promise<{
+    cat?: string;
+    period?: string;
+    event?: string;
+    evt?: string;
+  }>;
 }) {
   const supabase = await createClient();
   const householdId = await getCurrentHouseholdId();
@@ -34,7 +39,7 @@ export default async function HistoryPage({
       .eq("household_id", householdId ?? ""),
     supabase
       .from("events")
-      .select("id, name, status")
+      .select("id, name, status, start_date, end_date")
       .eq("household_id", householdId ?? "")
       .order("start_date", { ascending: false }),
     supabase
@@ -48,6 +53,7 @@ export default async function HistoryPage({
   const customPeriods = cpRes.data ?? [];
   const defaultLabelMonth = labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods));
   const initialLabelMonth = params.period ?? defaultLabelMonth;
+  const initialEvtFilter = params.event || params.evt || "";
 
   return (
     <PageShell title="Riwayat" subtitle="Filter, analisis, & cari">
@@ -59,9 +65,9 @@ export default async function HistoryPage({
         payDay={payDay}
         initialLabelMonth={initialLabelMonth}
         initialCatFilter={params.cat ?? ""}
+        initialEvtFilter={initialEvtFilter}
         customPeriods={customPeriods}
       />
     </PageShell>
   );
 }
-
