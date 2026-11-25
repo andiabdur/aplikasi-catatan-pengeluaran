@@ -68,11 +68,11 @@ function renderTable(headers: string[], rows: string[][], key: number): React.Re
     <div key={`t${key}`} className="overflow-x-auto -mx-1">
       <table className="w-full text-xs border-collapse min-w-[200px]">
         <thead>
-          <tr className="bg-slate-100 dark:bg-slate-700/60">
+          <tr className="bg-muted">
             {pad(headers, colCount).map((h, i) => (
               <th
                 key={i}
-                className="px-2.5 py-1.5 text-left font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 whitespace-nowrap"
+                className="px-2.5 py-1.5 text-left font-semibold text-foreground border border-border whitespace-nowrap"
               >
                 {h || ""}
               </th>
@@ -83,11 +83,11 @@ function renderTable(headers: string[], rows: string[][], key: number): React.Re
           {rows.map((rawRow, ri) => {
             const cells = pad(rawRow, colCount);
             return (
-              <tr key={ri} className="even:bg-slate-50/50 dark:even:bg-slate-800/30">
+              <tr key={ri} className="even:bg-muted/40">
                 {cells.map((c, ci) => (
                   <td
                     key={ci}
-                    className="px-2.5 py-1.5 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 whitespace-nowrap"
+                    className="px-2.5 py-1.5 border border-border text-foreground/90 whitespace-nowrap"
                   >
                     {renderInline(c, `t${key}-r${ri}-c${ci}`)}
                   </td>

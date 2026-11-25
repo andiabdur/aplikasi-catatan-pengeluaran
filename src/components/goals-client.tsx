@@ -9,7 +9,7 @@ import type { GoalWithProgress, GoalStatus } from "@/lib/types";
 import {
   Plus, Target, Check, Trash2, Pencil, Loader2, X, Trophy, Archive,
   Plane, Home, Car, GraduationCap, Heart, Smartphone, Palmtree, Coins, Gift, Compass, Stethoscope, HelpCircle,
-  ArrowDownLeft, AlertCircle, Sparkles
+  ArrowDownLeft, AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -104,18 +104,18 @@ export function GoalsClient({
       <button
         type="button"
         onClick={() => setEdit({ mode: "new" })}
-        className="w-full py-3.5 bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black text-sm uppercase tracking-wider rounded-none border-4 border-slate-950 dark:border-slate-100 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-2 transition-all"
+        className="w-full min-h-[48px] py-3 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm rounded-xl shadow-sm active:scale-[0.98] flex items-center justify-center gap-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         <Plus className="w-5 h-5" /> Tambah Target Finansial Baru
       </button>
 
       {active.length === 0 && done.length === 0 && (
-        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none text-center py-12 px-4 space-y-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <div className="w-14 h-14 rounded-none bg-brand-500 text-slate-950 border-2 border-slate-950 flex items-center justify-center mx-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <Target className="w-7 h-7" />
+        <div className="bg-card border border-border rounded-2xl text-center py-12 px-4 space-y-3 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-accent text-primary border border-brand-200 dark:border-brand-800/40 flex items-center justify-center mx-auto">
+            <Target className="w-6 h-6" />
           </div>
-          <p className="text-xs font-mono uppercase text-slate-600 dark:text-slate-300 max-w-xs mx-auto leading-relaxed">
-            Belum ada goal. Buat target pertama keluarga Anda — Umroh, dana darurat, liburan, atau DP rumah.
+          <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+            Belum ada goal. Buat target pertama keluarga Anda: Umroh, dana darurat, liburan, atau DP rumah.
           </p>
         </div>
       )}
@@ -135,7 +135,7 @@ export function GoalsClient({
 
       {done.length > 0 && (
         <div className="pt-3">
-          <p className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 px-1 mb-2.5 uppercase tracking-wider">
+          <p className="text-xs font-semibold text-muted-foreground px-1 mb-2.5">
             Selesai / Diarsipkan
           </p>
           <div className="space-y-3">
@@ -211,25 +211,25 @@ function GoalCard({
   const isActive = goal.status === "active";
 
   return (
-    <div className={cn("bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]", !isActive && "opacity-75")}>
+    <div className={cn("bg-card border border-border rounded-2xl p-4 space-y-3.5 shadow-sm", !isActive && "opacity-75")}>
       <div className="flex items-start gap-3">
         <div
-          className="w-11 h-11 rounded-none flex items-center justify-center shrink-0 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
-          style={{ backgroundColor: goal.color ?? "#16a34a" }}
+          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+          style={{ backgroundColor: goal.color ?? "#B85138" }}
         >
           <GoalIcon iconNameOrEmoji={goal.emoji} className="w-5 h-5 text-white" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <h3 className="font-headline font-bold text-sm text-slate-950 dark:text-slate-100 uppercase tracking-wider truncate">{goal.name}</h3>
+            <h3 className="font-semibold text-sm text-foreground truncate">{goal.name}</h3>
             {goal.status === "achieved" && (
               <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
             )}
             {goal.status === "archived" && (
-              <Archive className="w-4 h-4 text-slate-400 shrink-0" />
+              <Archive className="w-4 h-4 text-muted-foreground shrink-0" />
             )}
           </div>
-          <p className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400 mt-0.5">
+          <p className="text-xs font-mono text-muted-foreground mt-0.5 tabular-nums">
             {isGeneral || goal.target_amount <= 0 ? (
               <span>{formatIDR(goal.saved)} · Tabungan Bebas / Fleksibel</span>
             ) : (
@@ -241,14 +241,14 @@ function GoalCard({
           </p>
         </div>
         {isGeneral || goal.target_amount <= 0 ? (
-          <span className="text-[11px] font-mono font-bold bg-brand-400 text-slate-950 px-2 py-0.5 border border-slate-950 uppercase tracking-wider shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+          <span className="text-xs font-medium bg-accent text-accent-foreground border border-brand-200 dark:border-brand-800/50 px-2.5 py-0.5 rounded-full shrink-0">
             Umum
           </span>
         ) : (
           <span
             className={cn(
-              "text-base font-headline font-black shrink-0",
-              reached ? "text-emerald-600 dark:text-emerald-400" : "text-slate-950 dark:text-slate-100",
+              "text-base font-mono font-bold shrink-0 tabular-nums",
+              reached ? "text-teal-700 dark:text-teal-300" : "text-foreground",
             )}
           >
             {pct}%
@@ -256,51 +256,51 @@ function GoalCard({
         )}
       </div>
 
-      <div className="h-3 rounded-none bg-slate-100 dark:bg-slate-950 overflow-hidden border-2 border-slate-950 dark:border-slate-100">
+      <div className="h-2.5 rounded-full bg-muted overflow-hidden">
         <div
-          className="h-full rounded-none transition-all"
+          className="h-full rounded-full transition-all"
           style={{
             width: isGeneral || goal.target_amount <= 0 ? "100%" : `${pct}%`,
-            background: reached ? "#22c55e" : goal.color,
+            background: reached ? "#0F766E" : goal.color,
           }}
         />
       </div>
 
       <div className="flex items-center justify-between pt-0.5">
-        <p className="text-xs font-mono font-bold uppercase text-slate-600 dark:text-slate-400">
+        <p className="text-xs text-muted-foreground">
           {isGeneral || goal.target_amount <= 0 ? (
-            <span className="text-emerald-700 dark:text-emerald-400 font-headline font-bold">Dana siap digunakan</span>
+            <span className="text-teal-700 dark:text-teal-300 font-medium">Dana siap digunakan</span>
           ) : reached ? (
-            <span className="text-emerald-600 dark:text-emerald-400 font-headline font-black">Target tercapai!</span>
+            <span className="text-teal-700 dark:text-teal-300 font-semibold">Target tercapai!</span>
           ) : (
-            <>Kurang <span className="font-bold text-slate-950 dark:text-slate-100">{formatIDR(remaining)}</span></>
+            <>Kurang <span className="font-mono font-semibold text-foreground">{formatIDR(remaining)}</span></>
           )}
         </p>
         <div className="flex items-center gap-1.5">
           {busy ? (
-            <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
           ) : (
             <>
               {isActive && onAchieve && reached && !isGeneral && (
-                <IconBtn title="Tandai tercapai" onClick={onAchieve} className="text-emerald-600 dark:text-emerald-400">
+                <IconBtn title="Tandai tercapai" onClick={onAchieve} className="text-teal-700 dark:text-teal-300">
                   <Check className="w-4 h-4" />
                 </IconBtn>
               )}
               {isActive && onArchive && !isGeneral && (
-                <IconBtn title="Arsipkan" onClick={onArchive} className="text-slate-400">
+                <IconBtn title="Arsipkan" onClick={onArchive} className="text-muted-foreground">
                   <Archive className="w-4 h-4" />
                 </IconBtn>
               )}
               {!isActive && onReactivate && (
-                <IconBtn title="Aktifkan lagi" onClick={onReactivate} className="text-brand-600 dark:text-brand-400">
+                <IconBtn title="Aktifkan lagi" onClick={onReactivate} className="text-primary">
                   <Target className="w-4 h-4" />
                 </IconBtn>
               )}
-              <IconBtn title="Edit" onClick={onEdit} className="text-slate-600 hover:text-slate-950">
+              <IconBtn title="Edit" onClick={onEdit} className="text-muted-foreground hover:text-foreground">
                 <Pencil className="w-4 h-4" />
               </IconBtn>
               {!isGeneral && (
-                <IconBtn title="Hapus" onClick={onDelete} className="text-slate-600 hover:text-rose-600">
+                <IconBtn title="Hapus" onClick={onDelete} className="text-muted-foreground hover:text-rose-700 dark:hover:text-rose-300">
                   <Trash2 className="w-4 h-4" />
                 </IconBtn>
               )}
@@ -313,7 +313,7 @@ function GoalCard({
         <button
           type="button"
           onClick={onWithdraw}
-          className="w-full py-2 px-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-headline font-bold text-xs uppercase tracking-wider rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center justify-center gap-1.5 transition-all mt-1"
+          className="w-full min-h-[40px] py-2 px-3 bg-secondary hover:bg-accent text-foreground hover:text-accent-foreground font-semibold text-xs rounded-xl border border-border active:scale-[0.98] flex items-center justify-center gap-1.5 transition-all mt-1"
         >
           <ArrowDownLeft className="w-4 h-4" /> Tarik ke Pemasukan
         </button>
@@ -335,7 +335,8 @@ function IconBtn({
       type="button"
       onClick={onClick}
       title={title}
-      className={cn("p-1.5 rounded-none border border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 transition", className)}
+      aria-label={title}
+      className={cn("min-h-[34px] min-w-[34px] rounded-lg border border-border bg-background hover:bg-muted flex items-center justify-center transition-colors", className)}
     >
       {children}
     </button>
@@ -388,24 +389,29 @@ function GoalEditor({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 pb-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] space-y-4 max-h-[90dvh] overflow-y-auto"
+        className="w-full max-w-sm bg-card border border-border rounded-2xl p-5 shadow-xl space-y-4 max-h-[90dvh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-2 border-b-2 border-slate-950 dark:border-slate-100">
-          <h2 className="font-headline font-bold text-slate-950 dark:text-slate-100 uppercase text-base tracking-wider">
+        <div className="flex items-center justify-between pb-2.5 border-b border-border">
+          <h2 className="font-semibold text-foreground text-base">
             {goal ? "Edit Goal" : "Goal Baru"}
           </h2>
-          <button type="button" onClick={onClose} className="p-1 rounded-none border border-slate-950 text-slate-950 dark:text-slate-100 hover:bg-slate-950 hover:text-white">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup"
+            className="min-h-[34px] min-w-[34px] rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div>
-          <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1.5">Pilih Ikon</label>
+          <label className="text-xs font-semibold text-foreground block mb-1.5">Pilih Ikon</label>
           <div className="flex flex-wrap gap-2">
             {ICON_CHOICES.map((ic) => (
               <button
@@ -413,10 +419,10 @@ function GoalEditor({
                 type="button"
                 onClick={() => setEmoji(ic)}
                 className={cn(
-                  "w-10 h-10 rounded-none flex items-center justify-center border-2 transition-all",
+                  "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
                   emoji === ic
-                    ? "border-slate-950 bg-brand-500 text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-bold"
-                    : "border-slate-950 bg-slate-50 dark:bg-slate-950 text-slate-500 hover:bg-slate-100"
+                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                    : "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 <GoalIcon iconNameOrEmoji={ic} className="w-5 h-5" />
@@ -426,21 +432,21 @@ function GoalEditor({
         </div>
 
         <div>
-          <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1.5">Nama Goal</label>
+          <label className="text-xs font-semibold text-foreground block mb-1.5">Nama Goal</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="contoh: Umroh sekeluarga"
-            className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none py-2.5 px-3.5 text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            placeholder="Contoh: Umroh sekeluarga"
+            className="w-full min-h-[44px] bg-background border border-input rounded-xl py-2.5 px-3.5 text-base sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             autoFocus
           />
         </div>
 
         <div>
-          <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1.5">Target Nominal (Rp)</label>
+          <label className="text-xs font-semibold text-foreground block mb-1.5">Target Nominal (Rp)</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-headline font-black text-slate-950 dark:text-slate-100">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">
               Rp
             </span>
             <input
@@ -449,28 +455,32 @@ function GoalEditor({
               value={amountText}
               onChange={(e) => setAmountText(formatIDRInput(e.target.value))}
               placeholder="0"
-              className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none py-2.5 pl-10 pr-3.5 text-xs font-mono font-bold text-slate-950 dark:text-slate-100 focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+              className="w-full min-h-[44px] bg-background border border-input rounded-xl py-2.5 pl-10 pr-3.5 text-base sm:text-sm font-mono font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1.5">Target Tanggal (Opsional)</label>
+          <label className="text-xs font-semibold text-foreground block mb-1.5">Target Tanggal (Opsional)</label>
           <input
             type="date"
             value={targetDate}
             onChange={(e) => setTargetDate(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none py-2.5 px-3.5 text-xs font-mono font-bold text-slate-950 dark:text-slate-100 focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            className="w-full min-h-[44px] bg-background border border-input rounded-xl py-2.5 px-3.5 text-base sm:text-sm font-mono text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
 
-        {error && <p className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-none border-2 border-rose-600 uppercase">{error}</p>}
+        {error && (
+          <p className="text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800/60">
+            {error}
+          </p>
+        )}
 
         <button
           type="button"
           onClick={save}
           disabled={saving}
-          className="w-full py-3.5 bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black uppercase tracking-wider text-xs rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+          className="w-full min-h-[46px] py-3 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm rounded-xl shadow-sm active:scale-[0.98] transition-all"
         >
           {saving ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : goal ? "Simpan Perubahan" : "Buat Goal"}
         </button>
@@ -550,18 +560,18 @@ function GoalWithdrawModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 w-full max-w-md p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] space-y-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b-2 border-slate-950 dark:border-slate-100 pb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-none bg-amber-400 text-slate-950 border-2 border-slate-950 flex items-center justify-center font-bold">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-card border border-border rounded-2xl w-full max-w-md p-5 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 flex items-center justify-center">
               <ArrowDownLeft className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-headline font-black text-base uppercase tracking-wider text-slate-950 dark:text-slate-100">
+              <h3 className="font-semibold text-base text-foreground">
                 Tarik ke Pemasukan
               </h3>
-              <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 Cairkan saldo tabungan ke periode {currentTitle}
               </p>
             </div>
@@ -569,54 +579,54 @@ function GoalWithdrawModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-100 border border-transparent hover:border-slate-950"
+            aria-label="Tutup modal"
+            className="min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Goal summary info card */}
-        <div className="p-3 bg-amber-50 dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-100 rounded-none space-y-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+        <div className="p-3.5 bg-muted/50 border border-border rounded-xl space-y-2">
           <div className="flex items-center gap-2.5">
             <div
-              className="w-8 h-8 rounded-none flex items-center justify-center shrink-0 border border-slate-950 dark:border-slate-100"
-              style={{ backgroundColor: goal.color ?? "#16a34a" }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+              style={{ backgroundColor: goal.color ?? "#B85138" }}
             >
               <GoalIcon iconNameOrEmoji={goal.emoji} className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0 flex-1">
-              <h4 className="font-headline font-bold text-xs uppercase tracking-wider text-slate-950 dark:text-slate-100 truncate">
+              <h4 className="font-semibold text-xs text-foreground truncate">
                 {goal.name}
               </h4>
-              <p className="font-mono text-[11px] text-slate-600 dark:text-slate-400">
+              <p className="font-mono text-xs text-muted-foreground">
                 Target: {formatIDR(goal.target_amount)}
               </p>
             </div>
           </div>
-          <div className="pt-2 border-t border-slate-950/10 dark:border-slate-100/10 flex items-center justify-between">
-            <span className="text-xs font-headline font-bold uppercase text-slate-700 dark:text-slate-300">
-              Saldo Tabungan Tersedia:
+          <div className="pt-2 border-t border-border flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">
+              Saldo tabungan tersedia:
             </span>
-            <span className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400">
+            <span className="font-mono text-sm font-semibold text-teal-700 dark:text-teal-300">
               {formatIDR(goal.saved)}
             </span>
           </div>
         </div>
 
         {error && (
-          <div className="p-2.5 bg-rose-100 dark:bg-rose-950/60 border-2 border-rose-600 text-rose-900 dark:text-rose-200 text-xs font-mono font-bold flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+          <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block">
-              Nominal yang Ditarik / Dicoceng
+            <label className="text-xs font-semibold text-foreground block">
+              Nominal yang Ditarik
             </label>
-            <div className="flex items-center bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none px-3 py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <span className="font-headline text-lg font-black text-slate-950 dark:text-slate-100 mr-2">
+            <div className="flex items-center bg-background border border-input rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-ring">
+              <span className="text-lg font-bold text-muted-foreground mr-2">
                 Rp
               </span>
               <input
@@ -625,19 +635,18 @@ function GoalWithdrawModal({
                 value={amountText}
                 onChange={(e) => setAmountText(formatIDRInput(e.target.value))}
                 placeholder="0"
-                className="w-full bg-transparent font-headline text-xl font-black text-slate-950 dark:text-slate-100 focus:outline-none placeholder-slate-400"
+                className="w-full bg-transparent font-mono text-xl font-bold text-foreground focus:outline-none placeholder:text-muted-foreground/60 tabular-nums"
                 autoFocus
               />
             </div>
 
-            {/* Quick amount chips */}
             <div className="flex flex-wrap gap-1.5 pt-1">
               {[100000, 250000, 500000, 1000000].map((val) => (
                 <button
                   key={val}
                   type="button"
                   onClick={() => handleSetQuick(val)}
-                  className="px-2 py-1 text-[11px] font-mono font-bold bg-white dark:bg-slate-900 border border-slate-950 dark:border-slate-100 hover:bg-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                  className="min-h-[34px] px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-secondary border border-border text-secondary-foreground hover:bg-muted"
                 >
                   +{formatIDR(val).replace(",00", "").replace("Rp ", "")}
                 </button>
@@ -646,16 +655,16 @@ function GoalWithdrawModal({
                 <button
                   type="button"
                   onClick={() => handleSetQuick(goal.saved)}
-                  className="px-2 py-1 text-[11px] font-mono font-bold bg-amber-300 text-slate-950 border border-slate-950 hover:bg-amber-200 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                  className="min-h-[34px] px-2.5 py-1 rounded-lg text-xs font-medium bg-accent text-accent-foreground border border-brand-200 dark:border-brand-800/50 hover:bg-primary hover:text-primary-foreground transition-colors"
                 >
-                  Tarik Semua Saldo ({formatIDR(goal.saved)})
+                  Tarik semua ({formatIDR(goal.saved)})
                 </button>
               )}
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block mb-1">
+            <label className="text-xs font-semibold text-foreground block mb-1.5">
               Keterangan Sumber Income
             </label>
             <input
@@ -663,26 +672,26 @@ function GoalWithdrawModal({
               value={source}
               onChange={(e) => setSource(e.target.value)}
               placeholder={`Tarik Tabungan: ${goal.name}`}
-              className="w-full border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-3 py-2 text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+              className="w-full min-h-[44px] border border-input bg-background text-foreground rounded-xl px-3 py-2 text-base sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
 
-          <div className="p-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-950 dark:border-slate-100 text-[11px] font-mono text-slate-600 dark:text-slate-400">
-            Dana akan langsung ditambahkan ke Pemasukan periode <strong>{currentTitle}</strong> dan saldo target ini akan berkurang.
+          <div className="p-3 bg-muted/50 border border-border rounded-xl text-xs text-muted-foreground">
+            Dana akan langsung ditambahkan ke Pemasukan periode <strong className="text-foreground">{currentTitle}</strong> dan saldo target ini akan berkurang.
           </div>
 
-          <div className="flex gap-2 justify-end pt-3 border-t-2 border-slate-950 dark:border-slate-100">
+          <div className="flex gap-2 justify-end pt-3 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 px-4 py-2 rounded-none border-2 border-slate-950 hover:bg-slate-100 transition"
+              className="min-h-[42px] text-xs font-medium text-foreground px-4 py-2 rounded-xl border border-border hover:bg-muted transition-colors"
               disabled={saving}
             >
               Batal
             </button>
             <button
               type="submit"
-              className="text-xs font-headline font-black uppercase px-5 py-2 rounded-none bg-amber-400 hover:bg-amber-300 text-slate-950 border-2 border-slate-950 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1.5 transition-all"
+              className="min-h-[42px] text-xs font-semibold px-5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm flex items-center gap-1.5 transition-all"
               disabled={saving}
             >
               {saving ? (

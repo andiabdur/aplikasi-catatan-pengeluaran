@@ -7,8 +7,6 @@ import { createClient } from "@/lib/supabase/client";
 import { formatIDR } from "@/lib/format";
 import { getCategoryIcon } from "@/components/category-icon";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AreaChart,
@@ -54,25 +52,25 @@ function CustomAnalysisTooltip({ active, payload, label }: any) {
   const dailyTotal = activeItems.reduce((acc: number, item: any) => acc + Number(item.value), 0);
 
   return (
-    <div className="bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-700/80 dark:border-slate-800 text-slate-100 p-3 rounded-xl shadow-2xl z-50 text-xs min-w-[210px] space-y-2 pointer-events-none">
-      <div className="border-b border-slate-700/60 pb-1.5 flex items-center justify-between gap-3">
-        <span className="font-semibold text-slate-200">{formattedDate}</span>
-        <span className="font-bold text-brand-400">{formatIDR(dailyTotal)}</span>
+    <div className="bg-popover border border-border text-popover-foreground p-3 rounded-xl shadow-lg z-50 text-xs min-w-[210px] space-y-2 pointer-events-none">
+      <div className="border-b border-border pb-1.5 flex items-center justify-between gap-3">
+        <span className="font-semibold text-foreground">{formattedDate}</span>
+        <span className="font-mono font-bold text-primary">{formatIDR(dailyTotal)}</span>
       </div>
       {activeItems.length === 0 ? (
-        <p className="text-[11px] text-slate-400">Tidak ada pengeluaran</p>
+        <p className="text-xs text-muted-foreground">Tidak ada pengeluaran</p>
       ) : (
         <div className="space-y-1.5 max-h-48 overflow-y-auto pr-0.5">
           {activeItems.map((item: any) => (
-            <div key={item.name} className="flex items-center justify-between gap-3 text-[11px]">
+            <div key={item.name} className="flex items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-1.5 truncate">
                 <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm"
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
                   style={{ backgroundColor: item.color || item.fill }}
                 />
-                <span className="text-slate-300 truncate font-medium">{item.name}</span>
+                <span className="text-muted-foreground truncate font-medium">{item.name}</span>
               </div>
-              <span className="font-bold text-slate-100 shrink-0">{formatIDR(Number(item.value))}</span>
+              <span className="font-mono font-semibold text-foreground shrink-0">{formatIDR(Number(item.value))}</span>
             </div>
           ))}
         </div>
@@ -100,7 +98,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
     setRange(opt);
     const now = new Date();
     const endStr = now.toISOString().slice(0, 10);
-    let d = new Date();
+    const d = new Date();
     if (opt === "7d") d.setDate(now.getDate() - 7);
     else if (opt === "30d") d.setDate(now.getDate() - 30);
     else if (opt === "3m") d.setMonth(now.getMonth() - 3);
@@ -130,7 +128,6 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
       if (!error && data) {
         setExpenses(data as unknown as ExpenseWithCategory[]);
 
-        // Initialize all categories as visible by default
         const uniqueCats = new Set<string>();
         data.forEach((exp: any) => {
           if (exp.categories?.name) {
@@ -149,7 +146,6 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
     loadData();
   }, [householdId, startDate, endDate]);
 
-  // Extract category stats
   const categoryStats = useMemo(() => {
     const stats: Record<string, { amount: number; color: string }> = {};
     expenses.forEach((e) => {
@@ -190,7 +186,6 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
     return categoryStats.length > 0 ? categoryStats[0] : null;
   }, [categoryStats]);
 
-  // Transform raw rows into daily timeseries
   const chartData = useMemo(() => {
     if (expenses.length === 0) return [];
 
@@ -202,7 +197,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
     const start = new Date(minTime);
     const end = new Date(maxTime);
 
-    let curr = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const curr = new Date(start.getFullYear(), start.getMonth(), start.getDate());
     const endMidnight = new Date(end.getFullYear(), end.getMonth(), end.getDate());
 
     while (curr <= endMidnight) {
@@ -264,33 +259,32 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
 
   return (
     <div className="space-y-4 pb-20">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <Link
           href="/"
-          className="p-2.5 bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:bg-slate-950 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-950 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+          aria-label="Kembali ke Beranda"
+          className="w-10 h-10 bg-card border border-border rounded-xl flex items-center justify-center hover:bg-muted transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-xl font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-tight">
+          <h1 className="text-lg font-semibold text-foreground tracking-tight">
             Analisis Pengeluaran
           </h1>
-          <p className="text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-0.5">
-            Visualisasi tren & alokasi belanja
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Visualisasi tren &amp; alokasi belanja
           </p>
         </div>
       </div>
 
-      {/* Date Range Selector Card */}
-      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] space-y-3">
+      {/* Date Range Selector */}
+      <div className="bg-card border border-border rounded-2xl p-4 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
-            <Calendar className="w-4 h-4 text-brand-500" /> Rentang Waktu
+          <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+            <Calendar className="w-4 h-4 text-primary" /> Rentang Waktu
           </span>
         </div>
 
-        {/* Preset Buttons - Bauhaus V2 Chips */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
           {[
             { label: "7 Hari", value: "7d" },
@@ -303,16 +297,16 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
               key={opt.value}
               type="button"
               className={cn(
-                "px-5 py-2.5 rounded-none font-headline font-bold text-xs uppercase tracking-wider whitespace-nowrap transition-all border-2 border-slate-950 dark:border-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
+                "px-4 min-h-[38px] py-1.5 rounded-xl font-medium text-xs whitespace-nowrap transition-all border",
                 range === opt.value
-                  ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950"
-                  : "bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                  : "bg-secondary text-secondary-foreground border-border hover:bg-muted"
               )}
               onClick={() => {
                 if (opt.value === "custom") {
                   setRange("custom");
                 } else {
-                  selectPresetRange(opt.value as any);
+                  selectPresetRange(opt.value as "7d" | "30d" | "3m" | "6m");
                 }
               }}
             >
@@ -321,118 +315,113 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
           ))}
         </div>
 
-        {/* Custom Date Pickers */}
         {range === "custom" && (
-          <div className="pt-2 border-t-2 border-slate-950 dark:border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="pt-2 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <label className="text-[11px] font-headline font-bold text-slate-950 dark:text-slate-100 uppercase block mb-1">
+              <label className="text-xs font-medium text-muted-foreground block mb-1">
                 Dari Tanggal
               </label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none px-3 py-2 text-xs font-mono font-bold text-slate-950 dark:text-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                className="w-full min-h-[42px] bg-background border border-input rounded-xl px-3 py-2 text-base sm:text-xs font-mono text-foreground"
               />
             </div>
             <div>
-              <label className="text-[11px] font-headline font-bold text-slate-950 dark:text-slate-100 uppercase block mb-1">
+              <label className="text-xs font-medium text-muted-foreground block mb-1">
                 Sampai Tanggal
               </label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none px-3 py-2 text-xs font-mono font-bold text-slate-950 dark:text-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                className="w-full min-h-[42px] bg-background border border-input rounded-xl px-3 py-2 text-base sm:text-xs font-mono text-foreground"
               />
             </div>
           </div>
         )}
       </div>
 
-      {/* 2x2 Grid Stats (Bauhaus V2 Layout) */}
+      {/* 2x2 Grid Stats */}
       <div className="grid grid-cols-2 gap-3">
-        {/* Card 1: Total Spent */}
-        <div className="bg-slate-950 text-white dark:bg-slate-900 border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex flex-col justify-between h-32 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[11px] font-headline font-bold uppercase tracking-wider">Total Spent</span>
-            <Wallet className="w-4 h-4 text-brand-400" />
+        <div className="bg-accent/70 border border-brand-200 dark:border-brand-800/40 rounded-2xl p-4 flex flex-col justify-between min-h-[120px] shadow-sm">
+          <div className="flex items-center justify-between text-accent-foreground">
+            <span className="text-xs font-medium">Total Spent</span>
+            <Wallet className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <p className="font-headline text-lg font-black text-brand-400 truncate">
+            <p className="font-mono text-lg font-bold text-foreground truncate tabular-nums">
               {formatIDR(totalSpent)}
             </p>
-            <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mt-0.5">{daysDiff} hari rentang</p>
+            <p className="text-xs font-mono text-muted-foreground mt-0.5">{daysDiff} hari rentang</p>
           </div>
         </div>
 
-        {/* Card 2: Daily Burn Rate */}
-        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex flex-col justify-between h-32 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-          <div className="flex items-center justify-between text-slate-950 dark:text-slate-100">
-            <span className="text-[11px] font-headline font-bold uppercase tracking-wider">Daily Burn Rate</span>
-            <CalendarDays className="w-4 h-4 text-amber-500" />
+        <div className="bg-card border border-border rounded-2xl p-4 flex flex-col justify-between min-h-[120px] shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <span className="text-xs font-medium">Daily Burn Rate</span>
+            <CalendarDays className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
             <div className="flex items-baseline gap-1">
-              <span className="font-headline text-lg font-black text-slate-950 dark:text-slate-100 truncate">
+              <span className="font-mono text-lg font-bold text-foreground truncate tabular-nums">
                 {formatIDR(Math.round(dailyAverage))}
               </span>
-              <span className="text-[10px] font-bold text-slate-500">/hari</span>
+              <span className="text-xs text-muted-foreground">/hari</span>
             </div>
-            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mt-0.5">Rata-rata harian</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Rata-rata harian</p>
           </div>
         </div>
 
-        {/* Card 3: Top Category */}
-        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex flex-col justify-between h-32 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-          <div className="flex items-center justify-between text-slate-950 dark:text-slate-100">
-            <span className="text-[11px] font-headline font-bold uppercase tracking-wider">Top Category</span>
-            <Sparkles className="w-4 h-4 text-brand-500" />
+        <div className="bg-card border border-border rounded-2xl p-4 flex flex-col justify-between min-h-[120px] shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <span className="text-xs font-medium">Top Category</span>
+            <Sparkles className="w-4 h-4 text-primary" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <div
-                className="w-7 h-7 rounded-none border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                style={{ backgroundColor: topCategory?.color ?? "#16a34a" }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                style={{ backgroundColor: topCategory?.color ?? "#B85138" }}
               >
                 {(() => {
                   const Icon = getCategoryIcon(topCategory?.name ?? "");
                   return <Icon className="w-3.5 h-3.5 text-white" />;
                 })()}
               </div>
-              <p className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 break-words leading-snug line-clamp-2">
+              <p className="text-xs font-semibold text-foreground break-words leading-snug line-clamp-2">
                 {topCategory ? topCategory.name : "-"}
               </p>
             </div>
-            <p className="font-mono text-xs font-bold text-slate-600 dark:text-slate-400 mt-1">
+            <p className="font-mono text-xs font-medium text-muted-foreground mt-1 tabular-nums">
               {topCategory ? formatIDR(topCategory.amount) : "0"}
             </p>
           </div>
         </div>
 
-        {/* Card 4: Total Transaksi */}
-        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex flex-col justify-between h-32 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-          <div className="flex items-center justify-between text-slate-950 dark:text-slate-100">
-            <span className="text-[11px] font-headline font-bold uppercase tracking-wider">Total Transaksi</span>
+        <div className="bg-card border border-border rounded-2xl p-4 flex flex-col justify-between min-h-[120px] shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <span className="text-xs font-medium">Total Transaksi</span>
             <Hash className="w-4 h-4 text-indigo-500" />
           </div>
           <div>
-            <p className="font-headline text-xl font-black text-slate-950 dark:text-slate-100">
-              {expenses.length} <span className="text-xs font-normal text-slate-500">item</span>
+            <p className="font-mono text-xl font-bold text-foreground tabular-nums">
+              {expenses.length} <span className="text-xs font-sans font-normal text-muted-foreground">item</span>
             </p>
-            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mt-0.5">Dalam rentang ini</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Dalam rentang ini</p>
           </div>
         </div>
       </div>
 
       {/* Interactive Chart Section */}
-      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3 overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
-        <div className="flex items-center justify-between border-b-4 border-slate-950 dark:border-slate-100 pb-3">
+      <div className="bg-card border border-border rounded-2xl p-4 space-y-3 overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between border-b border-border pb-3">
           <div>
-            <h3 className="text-sm font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
-              <BarChart3 className="w-4 h-4 text-brand-500" /> Tren Waktu Harian
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+              <BarChart3 className="w-4 h-4 text-primary" /> Tren Waktu Harian
             </h3>
-            <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Sentuh grafik untuk melihat rincian
             </p>
           </div>
@@ -440,11 +429,11 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
         <div className="pt-2">
           {loading ? (
             <div className="space-y-3 py-6">
-              <Skeleton className="h-56 w-full rounded-none" />
+              <Skeleton className="h-56 w-full rounded-xl" />
             </div>
           ) : chartData.length === 0 ? (
-            <div className="text-center py-16 text-slate-500 text-sm font-mono uppercase">
-              <TrendingDown className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+            <div className="text-center py-16 text-muted-foreground text-xs">
+              <TrendingDown className="w-8 h-8 mx-auto mb-2 opacity-60" />
               Tidak ada data pengeluaran ditemukan dalam rentang ini.
             </div>
           ) : (
@@ -464,34 +453,26 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                         x2="0"
                         y2="1"
                       >
-                        <stop
-                          offset="5%"
-                          stopColor={cat.color}
-                          stopOpacity={0.4}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor={cat.color}
-                          stopOpacity={0.0}
-                        />
+                        <stop offset="5%" stopColor={cat.color} stopOpacity={0.35} />
+                        <stop offset="95%" stopColor={cat.color} stopOpacity={0.0} />
                       </linearGradient>
                     ))}
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    className="stroke-slate-200 dark:stroke-slate-800"
+                    className="stroke-border"
                     vertical={false}
                   />
                   <XAxis
                     dataKey="formattedDate"
                     tick={{ fontSize: 10 }}
-                    className="text-slate-500 dark:text-slate-400 font-mono"
+                    className="text-muted-foreground font-mono"
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
                     tick={{ fontSize: 10 }}
-                    className="text-slate-500 dark:text-slate-400 font-mono"
+                    className="text-muted-foreground font-mono"
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={(val) => {
@@ -505,7 +486,7 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
                     onClick={handleLegendClick}
                     cursor="pointer"
                     wrapperStyle={{ fontSize: "11px", paddingTop: "15px" }}
-                    iconType="square"
+                    iconType="circle"
                     iconSize={8}
                   />
                   {categoryStats.map((cat, idx) => (
@@ -529,29 +510,28 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
       </div>
 
       {/* Category Breakdown & Toggle Controls */}
-      <h2 className="font-headline font-bold text-xs uppercase tracking-wider text-slate-950 dark:text-slate-100 flex items-center gap-1.5 px-1 mt-2">
-        <Filter className="w-4 h-4 text-brand-500" /> Detail &amp; Kontrol Filter Kategori
+      <h2 className="font-semibold text-sm text-foreground flex items-center gap-1.5 px-1 mt-2">
+        <Filter className="w-4 h-4 text-primary" /> Detail &amp; Kontrol Filter Kategori
       </h2>
-      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-        {/* Enable / Disable all categories helper btns */}
+      <div className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-sm">
         <div className="flex gap-2">
           <button
             type="button"
-            className="text-xs px-3 py-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-100 font-headline font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+            className="text-xs px-3 py-1.5 min-h-[36px] rounded-xl border border-border bg-secondary text-secondary-foreground font-medium hover:bg-muted transition-colors"
             onClick={() => toggleAllCategories(true)}
           >
             Centang Semua
           </button>
           <button
             type="button"
-            className="text-xs px-3 py-1.5 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-100 font-headline font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+            className="text-xs px-3 py-1.5 min-h-[36px] rounded-xl border border-border bg-secondary text-secondary-foreground font-medium hover:bg-muted transition-colors"
             onClick={() => toggleAllCategories(false)}
           >
             Matikan Semua
           </button>
         </div>
 
-        <div className="divide-y-2 divide-slate-100 dark:divide-slate-800">
+        <div className="divide-y divide-border">
           {categoryStats.map((cat) => {
             const Icon = getCategoryIcon(cat.name);
             const isVisible = visibleCategories[cat.name] !== false;
@@ -559,36 +539,39 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
             return (
               <div
                 key={cat.name}
-                className="flex items-center justify-between py-2.5 transition active:bg-slate-100 dark:active:bg-slate-800 cursor-pointer"
+                className="flex items-center justify-between py-2.5 transition-colors hover:bg-muted/40 rounded-lg px-1 cursor-pointer"
                 onClick={() => toggleCategorySelection(cat.name)}
               >
                 <div className="flex items-center gap-2.5 min-w-0 pr-2">
                   <div
-                    className={`flex items-center justify-center w-8 h-8 rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition ${
-                      isVisible ? "" : "opacity-30"
-                    }`}
-                    style={{ backgroundColor: cat.color ?? "#16a34a" }}
+                    className={cn(
+                      "flex items-center justify-center w-8 h-8 rounded-xl transition-opacity",
+                      !isVisible && "opacity-30"
+                    )}
+                    style={{ backgroundColor: cat.color ?? "#B85138" }}
                   >
                     <Icon className="w-4 h-4 text-white shrink-0" />
                   </div>
                   <div className="min-w-0">
                     <p
-                      className={`text-xs font-headline font-bold uppercase tracking-wider truncate ${
-                        isVisible ? "text-slate-950 dark:text-slate-100" : "text-slate-400 line-through"
-                      }`}
+                      className={cn(
+                        "text-xs font-semibold truncate",
+                        isVisible ? "text-foreground" : "text-muted-foreground line-through"
+                      )}
                     >
                       {cat.name}
                     </p>
-                    <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                    <p className="text-xs font-mono text-muted-foreground">
                       {percentage.toFixed(1)}% dari total
                     </p>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
                   <p
-                    className={`text-xs font-mono font-bold ${
-                      isVisible ? "text-slate-950 dark:text-slate-100" : "text-slate-400"
-                    }`}
+                    className={cn(
+                      "text-xs font-mono font-semibold tabular-nums",
+                      isVisible ? "text-foreground" : "text-muted-foreground"
+                    )}
                   >
                     {formatIDR(cat.amount)}
                   </p>
@@ -598,9 +581,9 @@ export function AnalysisClient({ householdId }: { householdId: string }) {
           })}
         </div>
 
-        <div className="border-t-4 border-slate-950 dark:border-slate-100 pt-3 flex items-center justify-between">
-          <span className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">Total Pengeluaran</span>
-          <span className="text-base font-headline font-black text-brand-600 dark:text-brand-400">
+        <div className="border-t border-border pt-3 flex items-center justify-between">
+          <span className="text-xs font-semibold text-foreground">Total Pengeluaran</span>
+          <span className="text-base font-mono font-bold text-primary tabular-nums">
             {formatIDR(totalSpent)}
           </span>
         </div>

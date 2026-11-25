@@ -7,80 +7,77 @@ const config: Config = {
   	extend: {
   		colors: {
   			brand: {
-  				'50': '#f0fdf4',
-  				'100': '#dcfce7',
-  				'200': '#bbf7d0',
-  				'300': '#86efac',
-  				'400': '#4ade80',
-  				'500': '#22c55e',
-  				'600': '#16a34a',
-  				'700': '#15803d',
-  				'800': '#166534',
-  				'900': '#14532d',
-  				DEFAULT: '#16a34a'
+  				'50': '#FDF5F2',
+  				'100': '#FAE6DF',
+  				'200': '#F4CBBF',
+  				'300': '#EAA995',
+  				'400': '#E58870',
+  				'500': '#C85D43',
+  				'600': '#B85138',
+  				'700': '#9E4029',
+  				'800': '#8A3621',
+  				'900': '#6B2A1A',
+  				'950': '#3D160D',
+  				DEFAULT: '#B85138'
   			},
-  			bauhaus: {
-  				black: '#1a1a1a',
-  				yellow: '#ffcc00',
-  				red: '#e63b2e',
-  				blue: '#0055ff',
-  				paper: '#f5f0e8'
-  			},
-  			"background-dark": "#020617",
-  			"surface-dark": "#0f172a",
-  			"surface-container-high": "#1e293b",
-  			"surface-container-highest": "#334155",
-  			"outline-variant": "#334155",
-  			background: 'var(--background)',
-  			foreground: 'var(--foreground)',
+  			"background-dark": "#141210",
+  			"surface-dark": "#1E1B18",
+  			"surface-container-high": "#282420",
+  			"surface-container-highest": "#36312C",
+  			"outline-variant": "#3E3832",
+  			background: 'rgb(var(--background) / <alpha-value>)',
+  			foreground: 'rgb(var(--foreground) / <alpha-value>)',
   			card: {
-  				DEFAULT: 'var(--card)',
-  				foreground: 'var(--card-foreground)'
+  				DEFAULT: 'rgb(var(--card) / <alpha-value>)',
+  				foreground: 'rgb(var(--card-foreground) / <alpha-value>)'
   			},
   			popover: {
-  				DEFAULT: 'var(--popover)',
-  				foreground: 'var(--popover-foreground)'
+  				DEFAULT: 'rgb(var(--popover) / <alpha-value>)',
+  				foreground: 'rgb(var(--popover-foreground) / <alpha-value>)'
   			},
   			primary: {
-  				DEFAULT: 'var(--primary)',
-  				foreground: 'var(--primary-foreground)'
+  				DEFAULT: 'rgb(var(--primary) / <alpha-value>)',
+  				foreground: 'rgb(var(--primary-foreground) / <alpha-value>)'
   			},
   			secondary: {
-  				DEFAULT: 'var(--secondary)',
-  				foreground: 'var(--secondary-foreground)'
+  				DEFAULT: 'rgb(var(--secondary) / <alpha-value>)',
+  				foreground: 'rgb(var(--secondary-foreground) / <alpha-value>)'
   			},
   			muted: {
-  				DEFAULT: 'var(--muted)',
-  				foreground: 'var(--muted-foreground)'
+  				DEFAULT: 'rgb(var(--muted) / <alpha-value>)',
+  				foreground: 'rgb(var(--muted-foreground) / <alpha-value>)'
   			},
   			accent: {
-  				DEFAULT: 'var(--accent)',
-  				foreground: 'var(--accent-foreground)'
+  				DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
+  				foreground: 'rgb(var(--accent-foreground) / <alpha-value>)'
   			},
-  			destructive: 'var(--destructive)',
-  			border: 'var(--border)',
-  			input: 'var(--input)',
-  			ring: 'var(--ring)',
+  			destructive: {
+  				DEFAULT: 'rgb(var(--destructive) / <alpha-value>)',
+  				foreground: 'rgb(var(--destructive-foreground) / <alpha-value>)'
+  			},
+  			border: 'rgb(var(--border) / <alpha-value>)',
+  			input: 'rgb(var(--input) / <alpha-value>)',
+  			ring: 'rgb(var(--ring) / <alpha-value>)',
   			chart: {
-  				'1': 'var(--chart-1)',
-  				'2': 'var(--chart-2)',
-  				'3': 'var(--chart-3)',
-  				'4': 'var(--chart-4)',
-  				'5': 'var(--chart-5)'
+  				'1': 'rgb(var(--chart-1) / <alpha-value>)',
+  				'2': 'rgb(var(--chart-2) / <alpha-value>)',
+  				'3': 'rgb(var(--chart-3) / <alpha-value>)',
+  				'4': 'rgb(var(--chart-4) / <alpha-value>)',
+  				'5': 'rgb(var(--chart-5) / <alpha-value>)'
   			},
   			sidebar: {
-  				DEFAULT: 'var(--sidebar)',
-  				foreground: 'var(--sidebar-foreground)',
-  				primary: 'var(--sidebar-primary)',
-  				'primary-foreground': 'var(--sidebar-primary-foreground)',
-  				accent: 'var(--sidebar-accent)',
-  				'accent-foreground': 'var(--sidebar-accent-foreground)',
-  				border: 'var(--sidebar-border)',
-  				ring: 'var(--sidebar-ring)'
+  				DEFAULT: 'rgb(var(--sidebar) / <alpha-value>)',
+  				foreground: 'rgb(var(--sidebar-foreground) / <alpha-value>)',
+  				primary: 'rgb(var(--sidebar-primary) / <alpha-value>)',
+  				'primary-foreground': 'rgb(var(--sidebar-primary-foreground) / <alpha-value>)',
+  				accent: 'rgb(var(--sidebar-accent) / <alpha-value>)',
+  				'accent-foreground': 'rgb(var(--sidebar-accent-foreground) / <alpha-value>)',
+  				border: 'rgb(var(--sidebar-border) / <alpha-value>)',
+  				ring: 'rgb(var(--sidebar-ring) / <alpha-value>)'
   			}
   		},
   		fontFamily: {
-  			headline: ["Space Grotesk", "sans-serif"],
+  			headline: ["Inter", "system-ui", "-apple-system", "sans-serif"],
   			sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
   			mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"]
   		},

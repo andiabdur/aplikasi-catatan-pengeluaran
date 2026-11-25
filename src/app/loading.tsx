@@ -2,44 +2,43 @@ import { BottomNav } from "@/components/bottom-nav";
 
 export default function DashboardLoading() {
   return (
-    <div className="min-h-dvh pb-28">
-      <header className="sticky top-0 z-20 bg-white dark:bg-surface-dark border-b-4 border-slate-950 dark:border-slate-100">
-        <div className="mx-auto max-w-md px-4 py-3 flex items-center justify-between">
+    <div className="min-h-dvh pb-28 bg-background">
+      <header className="sticky top-0 z-20 h-[68px] flex items-center bg-background/90 border-b border-border">
+        <div className="mx-auto w-full max-w-md px-4 flex items-center justify-between">
           <div>
-            <div className="skeleton h-5 w-36 rounded-none" />
-            <div className="skeleton h-3 w-44 mt-1.5 rounded-none" />
+            <div className="skeleton h-5 w-36" />
+            <div className="skeleton h-3 w-44 mt-1.5" />
           </div>
-          <div className="skeleton h-8 w-8 rounded-none border border-slate-950" />
+          <div className="skeleton h-9 w-24" />
         </div>
       </header>
 
       <main className="mx-auto max-w-md px-4 py-4 space-y-4">
-        <div className="skeleton h-10 w-full rounded-none border-2 border-slate-950" />
+        <div className="skeleton h-12 w-full rounded-2xl" />
 
-        <div className="rounded-none border-4 border-slate-950 dark:border-slate-100 bg-brand-500 p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-          <div className="skeleton h-4 w-32 rounded-none !bg-slate-950/20" />
-          <div className="skeleton h-8 w-48 mt-2 rounded-none !bg-slate-950/30" />
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            <div className="skeleton h-16 rounded-none !bg-slate-950/20" />
-            <div className="skeleton h-16 rounded-none !bg-slate-950/20" />
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+          <div className="skeleton h-16 w-full rounded-xl" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="skeleton h-14 rounded-xl" />
+            <div className="skeleton h-14 rounded-xl" />
           </div>
         </div>
 
-        <section className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b-2 border-slate-950 dark:border-slate-100">
-            <div className="skeleton h-4 w-32 rounded-none" />
-            <div className="skeleton h-4 w-16 rounded-none" />
+        <section className="bg-card border border-border rounded-2xl p-4 shadow-sm space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-border">
+            <div className="skeleton h-4 w-32" />
+            <div className="skeleton h-4 w-16" />
           </div>
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800"
+              className="flex items-center justify-between py-2 border-b border-border last:border-0"
             >
               <div className="flex items-center gap-3">
-                <div className="skeleton h-4 w-4 rounded-none" />
-                <div className="skeleton h-4 w-24 rounded-none" />
+                <div className="skeleton h-8 w-8 rounded-xl" />
+                <div className="skeleton h-4 w-24" />
               </div>
-              <div className="skeleton h-4 w-20 rounded-none" />
+              <div className="skeleton h-4 w-20" />
             </div>
           ))}
         </section>

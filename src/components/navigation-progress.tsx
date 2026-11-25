@@ -40,7 +40,7 @@ export function NavigationProgress() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 h-[3px]">
       <div
-        className="h-full bg-brand-500 shadow-sm shadow-brand-500/50"
+        className="h-full bg-primary"
         style={{
           animation:
             state === "loading"

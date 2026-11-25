@@ -45,7 +45,6 @@ export default async function EventsPage() {
     }
   }
 
-  // Extend events with totalSpent
   const eventsWithTotal = events.map((evt) => ({
     ...evt,
     totalSpent: spentByEvent.get(evt.id) || 0,
@@ -56,28 +55,29 @@ export default async function EventsPage() {
       <div className="flex items-center gap-3">
         <Link
           href="/settings"
-          className="p-2.5 bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+          aria-label="Kembali ke Pengaturan"
+          className="w-10 h-10 bg-card border border-border rounded-xl flex items-center justify-center hover:bg-muted transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-xl font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-tight">Event &amp; Perjalanan</h1>
-          <p className="text-xs font-mono uppercase text-slate-500 dark:text-slate-400 mt-0.5">Kelola anggaran khusus liburan &amp; acara</p>
+          <h1 className="text-lg font-semibold text-foreground tracking-tight">Event &amp; Perjalanan</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Kelola anggaran khusus liburan &amp; acara</p>
         </div>
       </div>
 
-      <form action={async (formData) => { "use server"; await createEvent(formData); }} className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-        <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">Buat Event Baru</h2>
+      <form action={async (formData) => { "use server"; await createEvent(formData); }} className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-sm">
+        <h2 className="text-sm font-semibold text-foreground">Buat Event Baru</h2>
         <div className="space-y-3">
           <div>
-            <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1">Nama Event</label>
-            <input required name="name" type="text" placeholder="Misal: Liburan Bali, Renovasi Dapur" className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 px-3.5 py-2.5 rounded-none text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" />
+            <label className="text-xs font-semibold text-foreground block mb-1.5">Nama Event</label>
+            <input required name="name" type="text" placeholder="Misal: Liburan Bali, Renovasi Dapur" className="w-full min-h-[44px] bg-background border border-input px-3.5 py-2 rounded-xl text-base sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
           </div>
           <div>
-            <label className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider block mb-1">Tanggal Mulai</label>
-            <input required name="start_date" type="date" defaultValue={new Date().toISOString().split("T")[0]} className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 px-3.5 py-2.5 rounded-none text-xs font-mono font-bold text-slate-950 dark:text-slate-100 focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" />
+            <label className="text-xs font-semibold text-foreground block mb-1.5">Tanggal Mulai</label>
+            <input required name="start_date" type="date" defaultValue={new Date().toISOString().split("T")[0]} className="w-full min-h-[44px] bg-background border border-input px-3.5 py-2 rounded-xl text-base sm:text-sm font-mono text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
           </div>
-          <button type="submit" className="w-full py-3.5 bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black uppercase tracking-wider text-xs rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all">Tambah Event</button>
+          <button type="submit" className="w-full min-h-[44px] py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm rounded-xl shadow-sm active:scale-[0.98] transition-all">Tambah Event</button>
         </div>
       </form>
 

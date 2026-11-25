@@ -8,7 +8,6 @@ import { formatIDR } from "@/lib/format";
 import {
   currentPeriodLabelWithCustom,
   labelMonthKey,
-  isoDate,
   getPeriodRange,
   periodRangeTextWithCustom,
 } from "@/lib/period";
@@ -32,13 +31,12 @@ export function DashboardClient({
   initialLabelMonth: string;
   customPeriods: { label_month: string; start_date: string; end_date: string }[];
 }) {
-  const [customPeriods, setCustomPeriods] = useState(initialCustomPeriods);
+  const [customPeriods] = useState(initialCustomPeriods);
   const [labelMonth, setLabelMonth] = useState<Date>(new Date(initialLabelMonth));
   const [summary, setSummary] = useState<MonthlySummaryRow[]>([]);
   const [incomes, setIncomes] = useState<Income[]>([]);
   const [recent, setRecent] = useState<Recent[]>([]);
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     if (!householdId) return;
@@ -78,13 +76,14 @@ export function DashboardClient({
 
   const totalSpent = summary.reduce((s, r) => s + Number(r.spent), 0);
   const totalBudget = summary.reduce((s, r) => s + Number(r.budget), 0);
-  const totalIncome = incomes.reduce((s, r) => s + Number(r.amount), 0);
+  const totalIncome = incomes.reduce((s, i) => s + Number(i.amount), 0);
   const sisa = totalIncome - totalSpent;
   const isCurrent = labelMonthKey(labelMonth) === labelMonthKey(currentPeriodLabelWithCustom(payDay, customPeriods));
+  const budgetPct = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
   return (
     <>
-      <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 p-3 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all">
+      <div className="bg-card border border-border p-3 rounded-2xl shadow-sm transition-colors">
         <PeriodSelector
           labelMonth={labelMonth}
           payDay={payDay}
@@ -93,90 +92,113 @@ export function DashboardClient({
         />
         {!isCurrent && (
           <button
+            type="button"
             onClick={() => setLabelMonth(currentPeriodLabelWithCustom(payDay, customPeriods))}
-            className="mt-2 text-xs font-mono font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400 w-full text-center hover:underline"
+            className="mt-2 text-xs font-medium text-primary w-full text-center hover:underline py-1"
           >
             Ke periode sekarang
           </button>
         )}
       </div>
 
-      {/* Hero summary (Bauhaus V2 Style) */}
-      <section className="bg-slate-950 text-slate-50 dark:bg-slate-900 border-4 border-slate-950 dark:border-slate-100 p-5 rounded-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] flex flex-col gap-4 relative overflow-hidden transition-all">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full pointer-events-none" />
-        <div className="flex flex-col gap-1 z-10">
-          <span className="text-xs font-headline font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Wallet className="w-4 h-4 text-brand-400" /> Sisa uang periode ini
+      {/* Hero Summary Card (Soft Warm Shadcn Surface) */}
+      <section className="bg-card text-card-foreground border border-border rounded-2xl p-5 shadow-sm flex flex-col gap-4 transition-colors">
+        <div className="rounded-xl bg-accent/80 border border-brand-200/70 dark:border-brand-800/40 p-4 space-y-1">
+          <span className="text-xs font-medium text-accent-foreground flex items-center gap-1.5">
+            <Wallet className="w-4 h-4 text-primary" /> Sisa uang periode ini
           </span>
-          <h3 className="font-headline text-3xl font-black tracking-tight text-brand-400 mt-1">
+          <h3
+            className={cn(
+              "text-3xl font-bold tracking-tight font-mono tabular-nums",
+              sisa < 0 ? "text-rose-700 dark:text-rose-300" : "text-foreground"
+            )}
+          >
             {formatIDR(sisa)}
           </h3>
         </div>
 
-        {/* Progress Section */}
+        {/* Budget Progress */}
         {totalBudget > 0 && (
-          <div className="flex flex-col gap-2 mt-1 z-10">
-            <div className="flex justify-between items-end">
-              <span className="text-xs font-headline font-bold uppercase text-slate-300">Total Budget</span>
-              <span className="font-mono text-xs font-bold text-slate-300">{formatIDR(totalBudget)}</span>
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-medium text-muted-foreground">Pemakaian budget</span>
+              <span className="font-mono font-semibold text-foreground tabular-nums">
+                {formatIDR(totalSpent)} / {formatIDR(totalBudget)}
+              </span>
             </div>
-            <div className="h-5 w-full bg-slate-900 border-2 border-slate-100 rounded-none overflow-hidden flex shadow-[inset_2px_2px_0px_0px_rgba(0,0,0,0.5)]">
+            <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full bg-brand-500 border-r-2 border-slate-100 transition-all"
-                style={{ width: `${Math.min(100, (totalSpent / totalBudget) * 100)}%` }}
+                className={cn(
+                  "h-full rounded-full transition-all duration-300",
+                  budgetPct > 100 ? "bg-rose-600 dark:bg-rose-400" : budgetPct > 80 ? "bg-amber-600 dark:bg-amber-400" : "bg-primary"
+                )}
+                style={{ width: `${Math.min(100, budgetPct)}%` }}
               />
             </div>
             <div className="flex justify-end">
-              <span className="font-mono text-[11px] font-bold bg-white text-slate-950 px-2 py-0.5 uppercase tracking-widest border border-slate-950 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                {((totalSpent / totalBudget) * 100).toFixed(1)}% Terpakai
+              <span
+                className={cn(
+                  "text-xs font-mono font-medium px-2 py-0.5 rounded-full border",
+                  budgetPct > 100
+                    ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60"
+                    : budgetPct > 80
+                      ? "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60"
+                      : "bg-muted text-muted-foreground border-border"
+                )}
+              >
+                {budgetPct.toFixed(1)}% terpakai
               </span>
             </div>
           </div>
         )}
 
         {/* Income/Spent Mini Stats */}
-        <div className="grid grid-cols-2 gap-3 mt-1 pt-3 border-t-4 border-slate-800 border-dashed z-10">
-          <div className="bg-slate-900 border-2 border-slate-800 p-2.5">
-            <span className="text-[10px] font-headline font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> Pemasukan
+        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border">
+          <div className="bg-muted/60 rounded-xl p-3 border border-border/60">
+            <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+              <TrendingUp className="w-3.5 h-3.5 text-teal-700 dark:text-teal-300" /> Pemasukan
             </span>
-            <span className="font-mono text-xs font-bold text-white mt-0.5 block">{formatIDR(totalIncome)}</span>
+            <span className="font-mono text-sm font-semibold text-teal-700 dark:text-teal-300 mt-1 block tabular-nums">
+              {formatIDR(totalIncome)}
+            </span>
           </div>
-          <div className="bg-slate-900 border-2 border-slate-800 p-2.5">
-            <span className="text-[10px] font-headline font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-              <TrendingDown className="w-3.5 h-3.5 text-rose-400" /> Pengeluaran
+          <div className="bg-muted/60 rounded-xl p-3 border border-border/60">
+            <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+              <TrendingDown className="w-3.5 h-3.5 text-rose-700 dark:text-rose-300" /> Pengeluaran
             </span>
-            <span className="font-mono text-xs font-bold text-white mt-0.5 block">{formatIDR(totalSpent)}</span>
+            <span className="font-mono text-sm font-semibold text-rose-700 dark:text-rose-300 mt-1 block tabular-nums">
+              {formatIDR(totalSpent)}
+            </span>
           </div>
         </div>
       </section>
 
       {/* Asisten Keuangan AI (Direct Chat & Audit CFO) */}
-      <section className="w-full bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+      <section className="w-full bg-card border border-border rounded-2xl p-4 space-y-3 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-none bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-            <Sparkles className="w-5 h-5 text-brand-400" />
+          <div className="w-10 h-10 rounded-xl bg-accent text-primary border border-brand-200/70 dark:border-brand-800/40 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <h4 className="font-headline text-sm font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">
+            <h4 className="text-sm font-semibold text-foreground">
               Asisten Keuangan AI
             </h4>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Tanya cashflow, catat cepat, atau audit CFO
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2.5">
           <Link
             href="/asisten?tab=chat"
-            className="min-h-[44px] px-3 py-2 bg-brand-500 hover:bg-brand-400 text-slate-950 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center justify-center gap-1.5 font-headline font-black text-xs uppercase tracking-wider transition-all"
+            className="min-h-[44px] px-3 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5 font-semibold text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <MessageCircle className="w-4 h-4" />
             <span>Chat AI</span>
           </Link>
           <Link
             href="/asisten?tab=analisa"
-            className="min-h-[44px] px-3 py-2 bg-slate-950 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-950 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center justify-center gap-1.5 font-headline font-black text-xs uppercase tracking-wider transition-all"
+            className="min-h-[44px] px-3 py-2 rounded-xl bg-secondary hover:bg-muted text-secondary-foreground border border-border active:scale-[0.98] flex items-center justify-center gap-1.5 font-semibold text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <BarChart3 className="w-4 h-4" />
             <span>Audit CFO</span>
@@ -187,25 +209,25 @@ export function DashboardClient({
       {/* Categories Breakdown */}
       <section className="space-y-3 mt-1">
         <div className="flex items-center justify-between">
-          <h2 className="font-headline font-bold text-slate-950 dark:text-slate-100 text-sm uppercase tracking-wider">
+          <h2 className="font-semibold text-foreground text-sm">
             Alokasi Budget
           </h2>
           <Link
             href="/settings"
-            className="font-mono text-xs font-bold text-slate-950 dark:text-slate-100 bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 px-2 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all uppercase tracking-wider"
+            className="text-xs font-medium text-primary hover:underline px-2 py-1 rounded-lg hover:bg-accent transition-colors"
           >
             Atur Budget
           </Link>
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
           {loading && (
-            <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 p-6 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-              <p className="text-xs font-mono uppercase tracking-wider text-slate-500">Memuat alokasi budget...</p>
+            <div className="bg-card border border-border rounded-2xl p-6 text-center shadow-sm">
+              <p className="text-xs text-muted-foreground">Memuat alokasi budget...</p>
             </div>
           )}
           {!loading && summary.length === 0 && (
-            <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 p-6 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-              <p className="text-xs font-mono uppercase tracking-wider text-slate-500">Belum ada kategori budget.</p>
+            <div className="bg-card border border-border rounded-2xl p-6 text-center shadow-sm">
+              <p className="text-xs text-muted-foreground">Belum ada kategori budget.</p>
             </div>
           )}
           {summary.map((row) => {
@@ -217,41 +239,41 @@ export function DashboardClient({
                 key={row.category_id}
                 href={href}
                 prefetch={false}
-                className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex flex-col gap-2.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-2.5 shadow-sm hover:border-primary/40 active:scale-[0.99] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2.5">
+                <div className="flex justify-between items-center gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <div
-                      className="w-10 h-10 rounded-none border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] shrink-0"
-                      style={{ backgroundColor: row.color ?? "#16a34a" }}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                      style={{ backgroundColor: row.color ?? "#B85138" }}
                     >
                       {(() => {
                         const Icon = getCategoryIcon(row.category_name);
-                        return <Icon className="w-5 h-5 text-white" />;
+                        return <Icon className="w-4 h-4 text-white" />;
                       })()}
                     </div>
-                    <span className="font-headline font-bold text-sm text-slate-950 dark:text-slate-100 uppercase tracking-wider">
+                    <span className="font-semibold text-sm text-foreground truncate">
                       {row.category_name}
                     </span>
                   </div>
                   <span
                     className={cn(
-                      "font-mono text-xs px-2 py-0.5 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] font-black",
+                      "font-mono text-xs px-2.5 py-0.5 rounded-full border font-semibold shrink-0 tabular-nums",
                       overBudget
-                        ? "bg-rose-500 text-white"
+                        ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60"
                         : pct > 80
-                        ? "bg-amber-400 text-slate-950"
-                        : "bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950"
+                          ? "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60"
+                          : "bg-muted text-muted-foreground border-border"
                     )}
                   >
                     {Number(row.usage_pct).toFixed(0)}%
                   </span>
                 </div>
-                <div className="h-3.5 w-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-950 dark:border-slate-100 rounded-none overflow-hidden shadow-[inset_2px_2px_0px_0px_rgba(0,0,0,0.15)]">
+                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                   <div
                     className={cn(
-                      "h-full border-r-2 border-slate-950 dark:border-slate-100 transition-all",
-                      overBudget ? "bg-rose-500" : pct > 80 ? "bg-amber-400" : "bg-brand-500"
+                      "h-full rounded-full transition-all",
+                      overBudget ? "bg-rose-600 dark:bg-rose-400" : pct > 80 ? "bg-amber-500" : "bg-primary"
                     )}
                     style={{
                       width: `${pct}%`,
@@ -259,8 +281,8 @@ export function DashboardClient({
                     }}
                   />
                 </div>
-                <div className="flex justify-between items-center text-[11px] font-mono font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                  <span className={cn(overBudget && "text-rose-600 dark:text-rose-400")}>
+                <div className="flex justify-between items-center text-xs font-mono text-muted-foreground tabular-nums">
+                  <span className={cn(overBudget && "text-rose-700 dark:text-rose-300 font-semibold")}>
                     {formatIDR(row.spent)} terpakai
                   </span>
                   <span>dari {formatIDR(row.budget)}</span>
@@ -274,45 +296,42 @@ export function DashboardClient({
       {/* Recent expenses */}
       <section className="space-y-3 mt-2">
         <div className="flex items-center justify-between">
-          <h2 className="font-headline font-bold text-slate-950 dark:text-slate-100 text-sm uppercase tracking-wider">
+          <h2 className="font-semibold text-foreground text-sm">
             Transaksi Terakhir
           </h2>
           <Link
             href="/history"
-            className="font-mono text-xs font-bold text-slate-950 dark:text-slate-100 flex items-center gap-1 uppercase tracking-wider hover:underline"
+            className="text-xs font-medium text-primary flex items-center gap-1 hover:underline px-2 py-1 rounded-lg hover:bg-accent transition-colors"
           >
             Lihat semua <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm divide-y divide-border">
           {recent.length === 0 && !loading && (
-            <p className="p-5 text-xs font-mono text-slate-500 dark:text-slate-400 text-center uppercase tracking-wider">
+            <p className="p-5 text-xs text-muted-foreground text-center">
               Belum ada pengeluaran di periode ini.
             </p>
           )}
-          {recent.map((e, idx) => (
+          {recent.map((e) => (
             <div
               key={e.id}
-              className={cn(
-                "flex items-center justify-between p-3.5 hover:bg-slate-950 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-950 group transition-all",
-                idx !== recent.length - 1 && "border-b-4 border-slate-950 dark:border-slate-100"
-              )}
+              className="flex items-center justify-between p-3.5 hover:bg-muted/50 transition-colors"
             >
               <div className="min-w-0 flex-1 flex items-start gap-3">
                 <div
-                  className="w-10 h-10 rounded-none border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] mt-0.5"
-                  style={{ backgroundColor: e.categories?.color ?? "#16a34a" }}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+                  style={{ backgroundColor: e.categories?.color ?? "#B85138" }}
                 >
                   {(() => {
                     const Icon = getCategoryIcon(e.categories?.name ?? "");
-                    return <Icon className="w-5 h-5 text-white" />;
+                    return <Icon className="w-4 h-4 text-white" />;
                   })()}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-headline font-bold text-sm uppercase tracking-wider text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950 whitespace-normal break-words leading-snug">
+                  <p className="font-medium text-sm text-foreground whitespace-normal break-words leading-snug">
                     {e.description}
                   </p>
-                  <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 group-hover:text-slate-300 dark:group-hover:text-slate-700 tracking-wider uppercase mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {e.categories?.name} ·{" "}
                     {new Date(e.spent_at).toLocaleDateString("id-ID", {
                       day: "numeric",
@@ -321,8 +340,8 @@ export function DashboardClient({
                   </p>
                 </div>
               </div>
-              <p className="font-mono font-black text-sm text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950 shrink-0 ml-3 self-center sm:self-start sm:pt-0.5">
-                - {formatIDR(e.amount)}
+              <p className="font-mono font-semibold text-sm text-foreground shrink-0 ml-3 tabular-nums">
+                -{formatIDR(e.amount)}
               </p>
             </div>
           ))}

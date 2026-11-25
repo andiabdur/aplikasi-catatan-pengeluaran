@@ -16,7 +16,10 @@ const items = [
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 border-t-4 border-slate-950 dark:border-slate-100 bg-white dark:bg-surface-dark shadow-[0px_-4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[0px_-4px_0px_0px_rgba(255,255,255,1)] transition-colors">
+    <nav
+      aria-label="Navigasi utama"
+      className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur-md transition-colors"
+    >
       <div className="mx-auto max-w-md flex justify-around items-center h-20 px-2">
         {items.map(({ href, label, icon: Icon, primary }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -26,14 +29,18 @@ export function BottomNav() {
               href={href}
               prefetch={false}
               className={cn(
-                "flex flex-col items-center justify-center rounded-none transition-all w-16 h-14",
+                "flex flex-col items-center justify-center rounded-xl transition-all w-16 h-14 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 active
-                  ? "bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
-                  : "text-slate-700 dark:text-slate-300 border-2 border-transparent hover:border-slate-950 dark:hover:border-slate-100 hover:bg-slate-950 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-950 active:scale-95"
+                  ? primary
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-accent text-accent-foreground font-semibold"
+                  : primary
+                    ? "text-primary hover:bg-accent/70 active:scale-95"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95"
               )}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-headline font-bold uppercase tracking-wider mt-0.5">
+              <span className="text-[11px] font-medium mt-0.5">
                 {label}
               </span>
             </Link>

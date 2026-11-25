@@ -244,7 +244,6 @@ export function HeaderQuickActions({ householdId }: { householdId?: string }) {
 
   return (
     <>
-      {/* Inline Header Buttons (Zero floating obstructions) */}
       {!isAdd && (
         <button
           type="button"
@@ -263,12 +262,12 @@ export function HeaderQuickActions({ householdId }: { householdId?: string }) {
           }
           title={voiceState === "recording" ? "Stop rekam" : "Catat via suara"}
           className={cn(
-            "w-10 h-10 rounded-none flex items-center justify-center border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 disabled:opacity-70",
+            "w-10 h-10 rounded-xl flex items-center justify-center border transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-70 active:scale-95",
             voiceState === "recording"
-              ? "bg-rose-500 text-white"
+              ? "bg-rose-600 border-rose-600 text-white shadow-sm"
               : voiceState === "processing"
-                ? "bg-amber-400 text-slate-950"
-                : "bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950",
+                ? "bg-amber-100 border-amber-300 text-amber-900 dark:bg-amber-950/60 dark:border-amber-800 dark:text-amber-200"
+                : "bg-card border-border text-foreground hover:bg-muted",
           )}
         >
           {voiceState === "processing" ? (
@@ -286,33 +285,32 @@ export function HeaderQuickActions({ householdId }: { householdId?: string }) {
           href="/asisten?tab=chat"
           aria-label="Buka Chat Asisten AI"
           title="Chat AI"
-          className="w-10 h-10 rounded-none bg-brand-500 text-slate-950 hover:bg-brand-400 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center justify-center shrink-0 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+          className="w-10 h-10 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm active:scale-95 flex items-center justify-center shrink-0 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <MessageCircle className="w-4 h-4" />
         </Link>
       )}
 
-      {/* Dynamic Top Voice Status Strip (Muncul hanya saat aktif / ada hasil) */}
       {showTopStrip && (
         <div className="fixed top-[68px] inset-x-0 z-40 px-4 pt-2 pointer-events-none">
-          <div className="mx-auto max-w-md pointer-events-auto bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] space-y-2">
+          <div className="mx-auto max-w-md pointer-events-auto bg-card text-card-foreground border border-border rounded-2xl p-3.5 shadow-lg space-y-2.5">
             {voiceState === "recording" && (
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="inline-block w-2.5 h-2.5 bg-rose-500 animate-pulse shrink-0" />
-                    <span className="font-mono text-xs font-bold uppercase text-rose-600 dark:text-rose-400">
+                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-rose-600 animate-pulse shrink-0" />
+                    <span className="font-mono text-xs font-semibold text-rose-700 dark:text-rose-300">
                       Merekam {elapsedFmt}
                     </span>
                   </div>
-                  <p className="text-[11px] font-headline font-bold text-slate-700 dark:text-slate-300 uppercase mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Merekam pengeluaran...
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={stopRecording}
-                  className="min-h-[40px] px-3 bg-rose-500 text-white border-2 border-slate-950 dark:border-slate-100 font-headline font-black text-xs uppercase flex items-center gap-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none shrink-0"
+                  className="min-h-[40px] px-3.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 shrink-0"
                 >
                   <Square className="w-3.5 h-3.5" fill="currentColor" />
                   Stop
@@ -322,33 +320,33 @@ export function HeaderQuickActions({ householdId }: { householdId?: string }) {
 
             {voiceState === "processing" && (
               <div className="flex items-center gap-2.5 py-1">
-                <Loader2 className="w-4 h-4 animate-spin text-brand-600 dark:text-brand-400 shrink-0" />
-                <p className="text-xs font-mono font-bold uppercase text-slate-950 dark:text-slate-100">
+                <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
+                <p className="text-xs font-medium text-foreground">
                   Menganalisis suara dengan AI...
                 </p>
               </div>
             )}
 
             {voiceState === "idle" && showVoiceResult && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between pb-1.5 border-b-2 border-slate-950 dark:border-slate-100">
-                  <p className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between pb-2 border-b border-border">
+                  <p className="text-xs font-semibold text-foreground">
                     {voiceExpenses.length > 0
-                      ? `${voiceExpenses.length} Pengeluaran Tersimpan`
-                      : "Tidak Terdeteksi"}
+                      ? `${voiceExpenses.length} pengeluaran tersimpan`
+                      : "Tidak terdeteksi"}
                   </p>
                   <button
                     type="button"
                     onClick={dismissVoiceResult}
                     aria-label="Tutup hasil suara"
-                    className="min-h-[34px] min-w-[34px] flex items-center justify-center border border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950"
+                    className="min-h-[34px] min-w-[34px] rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
                 {voiceTranscript && voiceExpenses.length === 0 && (
-                  <p className="text-xs text-slate-600 dark:text-slate-300 font-mono">
+                  <p className="text-xs text-muted-foreground font-mono bg-muted/60 rounded-xl p-2.5">
                     &ldquo;{voiceTranscript}&rdquo;
                   </p>
                 )}
@@ -356,19 +354,19 @@ export function HeaderQuickActions({ householdId }: { householdId?: string }) {
                 {voiceExpenses.map((s, i) => (
                   <div
                     key={s.id ?? i}
-                    className="flex items-start gap-2.5 bg-emerald-100 dark:bg-emerald-950/60 border-2 border-slate-950 dark:border-slate-100 p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    className="flex items-start gap-2.5 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/60 rounded-xl p-2.5"
                   >
-                    <Check className="w-4 h-4 text-emerald-800 dark:text-emerald-300 shrink-0 mt-0.5" />
+                    <Check className="w-4 h-4 text-teal-700 dark:text-teal-300 shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 whitespace-normal break-words leading-snug">
+                      <p className="text-xs font-semibold text-foreground whitespace-normal break-words leading-snug">
                         {s.description}
                       </p>
-                      <p className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                      <p className="text-xs font-mono font-medium text-teal-800 dark:text-teal-200 mt-0.5">
                         {formatIDR(s.amount)}
                         {s.categoryName ? ` · ${s.categoryName}` : ""}
                       </p>
                       {s.items.length > 1 && (
-                        <p className="text-[10px] font-mono text-slate-500 leading-snug mt-0.5">
+                        <p className="text-[11px] font-mono text-muted-foreground leading-snug mt-0.5">
                           {s.items.map((it) => `${it.name} ${formatIDR(it.price)}`).join(" + ")}
                         </p>
                       )}
@@ -376,7 +374,7 @@ export function HeaderQuickActions({ householdId }: { householdId?: string }) {
                     <button
                       type="button"
                       onClick={() => undoVoice(s.id)}
-                      className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400 hover:underline shrink-0 uppercase px-1 py-0.5"
+                      className="text-xs font-semibold text-rose-700 dark:text-rose-300 hover:underline shrink-0 px-1.5 py-0.5"
                     >
                       Batalkan
                     </button>
@@ -384,7 +382,7 @@ export function HeaderQuickActions({ householdId }: { householdId?: string }) {
                 ))}
 
                 {voiceError && (
-                  <p className="text-xs font-mono font-bold text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/50 p-2 border-2 border-rose-600 uppercase">
+                  <p className="text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl p-2.5">
                     {voiceError}
                   </p>
                 )}

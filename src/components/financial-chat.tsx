@@ -233,24 +233,24 @@ export function FinancialChat({ householdId }: { householdId: string }) {
   }
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-surface-dark border-t-4 sm:border-x-4 border-slate-950 dark:border-slate-100 overflow-hidden">
+    <div className="flex-1 min-h-0 flex flex-col bg-card border-t sm:border-x border-border sm:rounded-t-2xl overflow-hidden shadow-sm">
       {/* Clean Single Chat Toolbar */}
-      <div className="shrink-0 flex items-center gap-2 px-3 py-2 bg-white dark:bg-surface-dark border-b-2 border-slate-950 dark:border-slate-100">
+      <div className="shrink-0 flex items-center gap-2 px-3 py-2.5 bg-card border-b border-border">
         <button
           type="button"
           onClick={() => setSidebarOpen(true)}
           aria-label="Riwayat percakapan"
           title="Riwayat percakapan"
-          className="min-h-[40px] min-w-[40px] rounded-none border-2 border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 transition shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+          className="min-h-[40px] min-w-[40px] rounded-xl border border-border bg-background text-foreground hover:bg-muted transition-colors shrink-0 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Menu className="w-4 h-4" />
         </button>
 
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase truncate tracking-wider">
+          <p className="text-xs font-semibold text-foreground truncate">
             {activeTitle}
           </p>
-          <p className="text-[10px] font-mono font-bold text-brand-700 dark:text-brand-400 uppercase tracking-wider">
+          <p className="text-[11px] font-medium text-primary">
             Asisten CFO
           </p>
         </div>
@@ -261,7 +261,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
             onClick={createNewSession}
             aria-label="Percakapan baru"
             title="Percakapan baru"
-            className="min-h-[40px] min-w-[40px] rounded-none border-2 border-slate-950 dark:border-slate-100 bg-brand-400 text-slate-950 hover:bg-brand-300 transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            className="min-h-[40px] min-w-[40px] rounded-xl border border-border bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -271,11 +271,11 @@ export function FinancialChat({ householdId }: { householdId: string }) {
             onClick={() => setShowMemoryModal(true)}
             aria-label="Memori AI"
             title="Memori AI"
-            className="min-h-[40px] min-w-[40px] rounded-none border-2 border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 transition relative shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            className="min-h-[40px] min-w-[40px] rounded-xl border border-border text-foreground bg-secondary hover:bg-muted transition-colors relative flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Brain className="w-4 h-4" />
             {memories.length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-slate-950 dark:bg-brand-500 text-white dark:text-slate-950 text-[9px] font-mono font-bold border border-slate-950 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-mono font-semibold flex items-center justify-center">
                 {memories.length > 9 ? "9+" : memories.length}
               </span>
             )}
@@ -291,7 +291,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
               }}
               aria-label="Hapus sesi ini"
               title="Hapus sesi ini"
-              className="min-h-[40px] min-w-[40px] rounded-none border-2 border-slate-950 dark:border-slate-100 text-rose-600 dark:text-rose-400 bg-white dark:bg-surface-dark hover:bg-rose-50 dark:hover:bg-rose-950/40 transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+              className="min-h-[40px] min-w-[40px] rounded-xl border border-border text-rose-700 dark:text-rose-300 bg-card hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -302,24 +302,24 @@ export function FinancialChat({ householdId }: { householdId: string }) {
       {/* Messages Stream */}
       <div
         ref={scrollRef}
-        className="flex-1 min-h-0 overflow-y-auto px-3.5 py-4 space-y-4 bg-slate-50 dark:bg-slate-950"
+        className="flex-1 min-h-0 overflow-y-auto px-3.5 py-4 space-y-4 bg-background"
       >
         {loadingHistory ? (
-          <div className="flex items-center justify-center py-12 gap-2 text-xs font-mono uppercase text-slate-500 dark:text-slate-400">
-            <Loader2 className="w-4 h-4 animate-spin text-brand-500" />
+          <div className="flex items-center justify-center py-12 gap-2 text-xs text-muted-foreground">
+            <Loader2 className="w-4 h-4 animate-spin text-primary" />
             Memuat percakapan...
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-full text-center px-2 py-6">
-            <div className="w-12 h-12 rounded-none bg-brand-500 text-slate-950 border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center mb-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+            <div className="w-12 h-12 rounded-2xl bg-accent text-primary border border-brand-200 dark:border-brand-800/40 flex items-center justify-center mb-3">
               <MessageCircle className="w-6 h-6" />
             </div>
-            <p className="text-sm font-headline font-bold text-slate-950 dark:text-slate-100 mb-1">
+            <p className="text-sm font-semibold text-foreground mb-1">
               Mulai obrolan keuangan
             </p>
-            <p className="text-xs font-sans text-slate-600 dark:text-slate-400 mb-4 max-w-[290px] leading-relaxed">
+            <p className="text-xs text-muted-foreground mb-4 max-w-[290px] leading-relaxed">
               Tanya analisis cashflow, simulasi budget, atau langsung catat belanja seperti{" "}
-              <span className="font-mono font-bold text-brand-700 dark:text-brand-400">
+              <span className="font-mono font-semibold text-primary">
                 &quot;beli kopi 25rb&quot;
               </span>
               .
@@ -330,7 +330,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                   key={s}
                   type="button"
                   onClick={() => handleSend(s)}
-                  className="w-full min-h-[44px] text-left text-xs font-sans font-semibold text-slate-950 dark:text-slate-100 bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 rounded-none px-3.5 py-2.5 transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+                  className="w-full min-h-[44px] text-left text-xs font-medium text-foreground bg-card border border-border hover:bg-accent hover:text-accent-foreground hover:border-primary/40 rounded-xl px-3.5 py-2.5 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {s}
                 </button>
@@ -345,11 +345,11 @@ export function FinancialChat({ householdId }: { householdId: string }) {
               type="button"
               onClick={loadOlderMessages}
               disabled={loadingMoreHistory}
-              className="min-h-[38px] text-[11px] font-headline font-bold uppercase text-slate-950 dark:text-slate-100 bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 px-3.5 py-1.5 rounded-none transition flex items-center gap-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+              className="min-h-[38px] text-xs font-medium text-foreground bg-card border border-border hover:bg-muted px-3.5 py-1.5 rounded-xl transition-colors flex items-center gap-1.5 shadow-sm"
             >
               {loadingMoreHistory ? (
                 <>
-                  <Loader2 className="w-3 h-3 animate-spin text-brand-500" /> Memuat...
+                  <Loader2 className="w-3 h-3 animate-spin text-primary" /> Memuat...
                 </>
               ) : (
                 <>
@@ -366,22 +366,22 @@ export function FinancialChat({ householdId }: { householdId: string }) {
             className={cn("flex flex-col", m.role === "user" ? "items-end" : "items-start")}
           >
             {m.role === "user" ? (
-              <div className="max-w-[85%] rounded-none px-3.5 py-2.5 text-sm font-sans leading-relaxed whitespace-pre-wrap break-words bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 border-2 border-slate-950 dark:border-slate-100 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]">
+              <div className="max-w-[85%] rounded-2xl rounded-br-sm px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words bg-primary text-primary-foreground shadow-sm">
                 {m.content}
               </div>
             ) : (
-              <div className="max-w-[92%] w-fit rounded-none px-3.5 py-3 bg-white dark:bg-surface-dark text-slate-900 dark:text-slate-100 border-2 border-slate-950 dark:border-slate-100 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] space-y-2">
-                <p className="text-[10px] font-headline font-bold uppercase tracking-wider text-brand-700 dark:text-brand-400">
+              <div className="max-w-[92%] w-fit rounded-2xl rounded-bl-sm px-3.5 py-3 bg-card text-card-foreground border border-border shadow-sm space-y-2">
+                <p className="text-[11px] font-semibold text-primary">
                   Asisten CFO
                 </p>
-                <div className="text-sm font-sans leading-relaxed">
+                <div className="text-sm leading-relaxed">
                   <MarkdownLite text={m.content} />
                 </div>
-                <div className="border-t border-slate-200 dark:border-slate-800 pt-2 flex items-center gap-2">
+                <div className="border-t border-border pt-2 flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => speak(m.content, i)}
-                    className="min-h-[32px] px-2 py-1 text-[11px] font-mono font-bold border border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 transition inline-flex items-center gap-1"
+                    className="min-h-[32px] px-2.5 py-1 rounded-lg text-xs font-medium border border-border bg-secondary text-secondary-foreground hover:bg-muted transition-colors inline-flex items-center gap-1"
                   >
                     {speakingIndex === i ? (
                       <>
@@ -390,7 +390,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                       </>
                     ) : playingIndex === i ? (
                       <>
-                        <VolumeX className="w-3.5 h-3.5 text-rose-500" />
+                        <VolumeX className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                         <span>Stop</span>
                       </>
                     ) : (
@@ -403,11 +403,11 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                   <button
                     type="button"
                     onClick={() => handleCopyMessage(m.content, i)}
-                    className="min-h-[32px] px-2 py-1 text-[11px] font-mono font-bold border border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 transition inline-flex items-center gap-1"
+                    className="min-h-[32px] px-2.5 py-1 rounded-lg text-xs font-medium border border-border bg-secondary text-secondary-foreground hover:bg-muted transition-colors inline-flex items-center gap-1"
                   >
                     {copiedIndex === i ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                        <Check className="w-3.5 h-3.5 text-teal-700 dark:text-teal-300" />
                         <span>Tersalin</span>
                       </>
                     ) : (
@@ -426,21 +426,21 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                 {m.savedExpenses.map((exp) => (
                   <div
                     key={exp.id}
-                    className="flex items-center gap-2 bg-emerald-100 dark:bg-emerald-950/60 border-2 border-slate-950 dark:border-slate-100 rounded-none px-3 py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    className="flex items-center gap-2 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/60 rounded-xl px-3 py-2"
                   >
-                    <Check className="w-4 h-4 text-emerald-800 dark:text-emerald-300 shrink-0" />
+                    <Check className="w-4 h-4 text-teal-700 dark:text-teal-300 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 truncate">
+                      <p className="text-xs font-semibold text-foreground truncate">
                         {exp.description}
                       </p>
-                      <p className="text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300">
+                      <p className="text-xs font-mono text-teal-800 dark:text-teal-200">
                         {formatIDR(exp.amount)} · {exp.categoryName}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => undoExpense(i, exp.id)}
-                      className="min-h-[34px] px-2 text-[11px] font-mono font-bold uppercase border border-slate-950 text-rose-700 dark:text-rose-300 bg-white dark:bg-slate-900 hover:bg-rose-500 hover:text-white transition shrink-0"
+                      className="min-h-[34px] px-2.5 rounded-lg text-xs font-medium border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-300 bg-card hover:bg-rose-600 hover:text-white transition-colors shrink-0"
                     >
                       Batalkan
                     </button>
@@ -453,8 +453,8 @@ export function FinancialChat({ householdId }: { householdId: string }) {
 
         {loading && (
           <div className="flex items-start">
-            <div className="bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 rounded-none px-3.5 py-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
-              <Loader2 className="w-4 h-4 animate-spin text-brand-600 dark:text-brand-400 shrink-0" />
+            <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-3.5 py-2.5 shadow-sm flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
               <span>Menyiapkan jawaban...</span>
             </div>
           </div>
@@ -465,14 +465,14 @@ export function FinancialChat({ householdId }: { householdId: string }) {
       {error && (
         <div
           role="alert"
-          className="px-3.5 py-2 bg-rose-100 dark:bg-rose-950/60 border-t-2 border-slate-950 dark:border-slate-100 shrink-0"
+          className="px-3.5 py-2 bg-rose-50 dark:bg-rose-950/40 border-t border-rose-200 dark:border-rose-800/60 shrink-0"
         >
-          <p className="text-xs font-mono font-bold text-rose-700 dark:text-rose-300">{error}</p>
+          <p className="text-xs font-medium text-rose-700 dark:text-rose-300">{error}</p>
         </div>
       )}
 
-      {/* Proper Docked Composer Bar */}
-      <div className="shrink-0 px-3 py-2.5 bg-white dark:bg-surface-dark border-t-4 border-slate-950 dark:border-slate-100">
+      {/* Docked Composer Bar */}
+      <div className="shrink-0 px-3 py-2.5 bg-card border-t border-border">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -502,7 +502,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
               }}
               placeholder="Tanya keuangan atau catat belanja..."
               aria-label="Tulis pesan untuk Asisten Keuangan"
-              className="w-full resize-none py-2.5 px-3 rounded-none bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 text-base sm:text-sm font-sans text-slate-950 dark:text-slate-100 placeholder:text-slate-400 min-h-[44px] max-h-[120px] leading-snug shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+              className="w-full resize-none py-2.5 px-3.5 rounded-xl bg-background border border-input text-base sm:text-sm text-foreground placeholder:text-muted-foreground min-h-[44px] max-h-[120px] leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               disabled={loading}
             />
           </div>
@@ -510,7 +510,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
             type="submit"
             disabled={loading || !input.trim()}
             aria-label="Kirim pesan"
-            className="min-w-[44px] min-h-[44px] rounded-none bg-brand-500 hover:bg-brand-400 text-slate-950 border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 disabled:opacity-40 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            className="min-w-[44px] min-h-[44px] rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-40 shadow-sm active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -521,37 +521,37 @@ export function FinancialChat({ householdId }: { householdId: string }) {
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div
-            className="fixed inset-0 bg-slate-950/70 backdrop-blur-[1px]"
+            className="fixed inset-0 bg-black/50 backdrop-blur-[1px]"
             onClick={() => setSidebarOpen(false)}
           />
           <div
             role="dialog"
             aria-modal="true"
             aria-label="Riwayat Percakapan"
-            className="relative z-10 w-[85%] max-w-[320px] h-full bg-white dark:bg-surface-dark border-r-4 border-slate-950 dark:border-slate-100 shadow-[8px_0px_0px_0px_rgba(0,0,0,1)] flex flex-col"
+            className="relative z-10 w-[85%] max-w-[320px] h-full bg-card border-r border-border shadow-xl flex flex-col"
           >
-            <div className="flex items-center justify-between px-4 py-3.5 border-b-4 border-slate-950 dark:border-slate-100">
-              <h3 className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider">
+            <div className="flex items-center justify-between px-4 py-3.5 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground">
                 Riwayat Chat
               </h3>
               <button
                 type="button"
                 onClick={() => setSidebarOpen(false)}
                 aria-label="Tutup riwayat chat"
-                className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-none border border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 hover:bg-slate-950 hover:text-white"
+                className="min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="px-3 py-3 border-b-2 border-slate-950 dark:border-slate-100">
+            <div className="px-3 py-3 border-b border-border">
               <button
                 type="button"
                 onClick={() => {
                   createNewSession();
                   setSidebarOpen(false);
                 }}
-                className="w-full min-h-[44px] flex items-center justify-center gap-2 py-2.5 rounded-none font-headline font-bold text-xs uppercase tracking-wider bg-brand-500 text-slate-950 border-2 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                className="w-full min-h-[44px] flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-xs bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm active:scale-[0.98] transition-all"
               >
                 <Plus className="w-4 h-4" /> Percakapan Baru
               </button>
@@ -559,7 +559,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
 
             <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
               {sessions.length === 0 ? (
-                <p className="text-center text-xs font-mono text-slate-400 py-6 uppercase">
+                <p className="text-center text-xs text-muted-foreground py-6">
                   Belum ada riwayat chat.
                 </p>
               ) : (
@@ -572,16 +572,16 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                       setSidebarOpen(false);
                     }}
                     className={cn(
-                      "w-full min-h-[48px] text-left px-3 py-2.5 rounded-none transition-all border-2 border-slate-950 dark:border-slate-100",
+                      "w-full min-h-[48px] text-left px-3 py-2.5 rounded-xl transition-colors border",
                       s.id === activeSessionId
-                        ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                        : "bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800",
+                        ? "bg-accent text-accent-foreground border-primary/50"
+                        : "bg-background text-foreground border-border hover:bg-muted",
                     )}
                   >
-                    <p className="text-xs font-headline font-bold uppercase truncate leading-snug">
+                    <p className="text-xs font-semibold truncate leading-snug">
                       {s.title}
                     </p>
-                    <p className="text-[10px] opacity-75 mt-1 flex items-center gap-1 font-mono">
+                    <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1 font-mono">
                       <Clock className="w-3 h-3" /> {relativeTime(s.updated_at)}
                     </p>
                   </button>
@@ -594,26 +594,26 @@ export function FinancialChat({ householdId }: { householdId: string }) {
 
       {/* Full-Viewport AI Memory Modal */}
       {showMemoryModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="ai-memory-title"
-            className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none w-full max-w-md p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] space-y-3 max-h-[85dvh] flex flex-col"
+            className="bg-card border border-border rounded-2xl w-full max-w-md p-4 shadow-xl space-y-3 max-h-[85dvh] flex flex-col"
           >
-            <div className="flex items-center justify-between pb-2 border-b-2 border-slate-950 dark:border-slate-100 shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-none border-2 border-slate-950 bg-brand-400 text-slate-950 flex items-center justify-center">
+            <div className="flex items-center justify-between pb-2.5 border-b border-border shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-accent text-primary flex items-center justify-center">
                   <Brain className="w-4 h-4" />
                 </div>
                 <div>
                   <h3
                     id="ai-memory-title"
-                    className="text-xs font-headline font-bold text-slate-950 dark:text-slate-100 uppercase tracking-wider"
+                    className="text-sm font-semibold text-foreground"
                   >
                     Memori AI
                   </h3>
-                  <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">
+                  <p className="text-xs text-muted-foreground">
                     Fakta penting keluarga
                   </p>
                 </div>
@@ -622,23 +622,23 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                 type="button"
                 onClick={() => setShowMemoryModal(false)}
                 aria-label="Tutup modal memori AI"
-                className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-none border border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 hover:bg-slate-950 hover:text-white"
+                className="min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs font-mono text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-100 dark:bg-slate-950 border border-slate-950 p-2.5 rounded-none shrink-0">
+            <p className="text-xs text-muted-foreground leading-relaxed bg-muted/60 border border-border p-2.5 rounded-xl shrink-0">
               AI otomatis mendeteksi fakta penting dari obrolan. Anda juga bisa tambah atau edit manual.
             </p>
 
             {showAddMemoryForm ? (
-              <div className="p-2.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-100 rounded-none space-y-2 shrink-0">
+              <div className="p-2.5 bg-muted/40 border border-border rounded-xl space-y-2 shrink-0">
                 <textarea
                   value={newMemoryContent}
                   onChange={(e) => setNewMemoryContent(e.target.value)}
                   placeholder="Contoh: Budget liburan keluarga 7 juta"
-                  className="w-full text-base sm:text-xs p-2 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-100 font-mono resize-none"
+                  className="w-full text-base sm:text-xs p-2.5 rounded-xl border border-input bg-background text-foreground resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   rows={2}
                 />
                 <div className="flex justify-end gap-1.5">
@@ -648,7 +648,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                       setShowAddMemoryForm(false);
                       setNewMemoryContent("");
                     }}
-                    className="min-h-[36px] text-[11px] font-headline font-bold uppercase px-3 py-1 rounded-none border border-slate-950 bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-100"
+                    className="min-h-[36px] text-xs font-medium px-3 py-1 rounded-xl border border-border bg-card text-foreground hover:bg-muted"
                   >
                     Batal
                   </button>
@@ -660,7 +660,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                       setShowAddMemoryForm(false);
                     }}
                     disabled={!newMemoryContent.trim()}
-                    className="min-h-[36px] text-[11px] font-headline font-bold uppercase px-3 py-1 rounded-none bg-brand-500 text-slate-950 border border-slate-950 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50"
+                    className="min-h-[36px] text-xs font-semibold px-3 py-1 rounded-xl bg-primary text-primary-foreground disabled:opacity-50"
                   >
                     Simpan
                   </button>
@@ -670,7 +670,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
               <button
                 type="button"
                 onClick={() => setShowAddMemoryForm(true)}
-                className="w-full min-h-[42px] flex items-center justify-center gap-1.5 py-2 rounded-none border-2 border-dashed border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 text-xs font-headline font-bold uppercase hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0"
+                className="w-full min-h-[42px] flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed border-border text-foreground text-xs font-medium hover:bg-muted transition-colors shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" /> Tambah Catatan Manual
               </button>
@@ -678,21 +678,21 @@ export function FinancialChat({ householdId }: { householdId: string }) {
 
             <div className="flex-1 overflow-y-auto space-y-2 pr-1">
               {memories.length === 0 ? (
-                <div className="text-center py-6 text-xs font-mono uppercase text-slate-400">
+                <div className="text-center py-6 text-xs text-muted-foreground">
                   Belum ada memori tersimpan.
                 </div>
               ) : (
                 memories.map((m) => (
                   <div
                     key={m.id}
-                    className="p-2.5 bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    className="p-2.5 bg-background border border-border rounded-xl"
                   >
                     {editingMemoryId === m.id ? (
                       <div className="space-y-2">
                         <textarea
                           value={editingContent}
                           onChange={(e) => setEditingContent(e.target.value)}
-                          className="w-full text-base sm:text-xs p-2 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-900 text-slate-950 dark:text-slate-100 font-mono resize-none"
+                          className="w-full text-base sm:text-xs p-2 rounded-xl border border-input bg-background text-foreground resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           rows={2}
                         />
                         <div className="flex justify-end gap-1.5">
@@ -702,7 +702,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                               setEditingMemoryId(null);
                               setEditingContent("");
                             }}
-                            className="min-h-[36px] text-[11px] font-headline font-bold uppercase px-3 py-1 rounded-none border border-slate-950 bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-100"
+                            className="min-h-[36px] text-xs font-medium px-3 py-1 rounded-xl border border-border bg-card text-foreground"
                           >
                             Batal
                           </button>
@@ -714,7 +714,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                               setEditingContent("");
                             }}
                             disabled={!editingContent.trim()}
-                            className="min-h-[36px] text-[11px] font-headline font-bold uppercase px-3 py-1 rounded-none bg-brand-500 text-slate-950 border border-slate-950 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50"
+                            className="min-h-[36px] text-xs font-semibold px-3 py-1 rounded-xl bg-primary text-primary-foreground disabled:opacity-50"
                           >
                             Simpan
                           </button>
@@ -722,7 +722,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                       </div>
                     ) : (
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-mono text-slate-800 dark:text-slate-200 flex-1 leading-snug">
+                        <p className="text-xs text-foreground flex-1 leading-snug">
                           • {m.content}
                         </p>
                         <div className="flex items-center gap-1 shrink-0">
@@ -732,7 +732,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                               setEditingMemoryId(m.id);
                               setEditingContent(m.content);
                             }}
-                            className="min-h-[34px] min-w-[34px] flex items-center justify-center text-slate-600 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white"
+                            className="min-h-[34px] min-w-[34px] rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted"
                             title="Edit"
                             aria-label="Edit memori"
                           >
@@ -741,7 +741,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
                           <button
                             type="button"
                             onClick={() => deleteMemory(m.id)}
-                            className="min-h-[34px] min-w-[34px] flex items-center justify-center text-slate-600 hover:text-rose-600 dark:text-slate-300 dark:hover:text-rose-400"
+                            className="min-h-[34px] min-w-[34px] rounded-lg flex items-center justify-center text-muted-foreground hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                             title="Hapus"
                             aria-label="Hapus memori"
                           >
@@ -758,7 +758,7 @@ export function FinancialChat({ householdId }: { householdId: string }) {
             <button
               type="button"
               onClick={() => setShowMemoryModal(false)}
-              className="w-full min-h-[44px] py-2.5 text-xs font-headline font-bold uppercase tracking-wider bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0"
+              className="w-full min-h-[44px] py-2.5 text-xs font-semibold bg-secondary text-secondary-foreground border border-border hover:bg-muted rounded-xl shrink-0"
             >
               Tutup
             </button>

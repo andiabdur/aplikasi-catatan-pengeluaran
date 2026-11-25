@@ -20,17 +20,17 @@ function CustomChartTooltip({ active, payload, total }: any) {
   const pct = total > 0 ? ((val / total) * 100).toFixed(1) : "0";
 
   return (
-    <div className="bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-700/80 dark:border-slate-800 text-slate-100 p-2.5 rounded-xl shadow-2xl z-50 text-xs min-w-[140px] space-y-1 pointer-events-none">
-      <div className="flex items-center gap-1.5 font-medium text-slate-300">
+    <div className="bg-popover border border-border text-popover-foreground p-2.5 rounded-xl shadow-lg z-50 text-xs min-w-[140px] space-y-1 pointer-events-none">
+      <div className="flex items-center gap-1.5 font-medium text-muted-foreground">
         <span
           className="w-2.5 h-2.5 rounded-full shrink-0"
           style={{ backgroundColor: item.payload?.color || item.color || item.fill }}
         />
         <span className="truncate">{item.name || item.payload?.name}</span>
       </div>
-      <div className="flex items-center justify-between gap-2 font-bold">
-        <span className="text-brand-400">{formatIDR(val)}</span>
-        <span className="text-[10px] text-slate-400 font-normal">({pct}%)</span>
+      <div className="flex items-center justify-between gap-2 font-mono font-bold">
+        <span className="text-primary">{formatIDR(val)}</span>
+        <span className="text-[11px] text-muted-foreground font-normal">({pct}%)</span>
       </div>
     </div>
   );
@@ -41,7 +41,7 @@ export function CategoryPieChart({ data, total }: { data: ChartRow[]; total: num
 
   if (cleaned.length === 0) {
     return (
-      <div className="text-center py-8 text-sm text-slate-400">
+      <div className="text-center py-8 text-sm text-muted-foreground">
         Belum ada data untuk divisualisasikan
       </div>
     );
@@ -61,7 +61,7 @@ export function CategoryPieChart({ data, total }: { data: ChartRow[]; total: num
               outerRadius={95}
               innerRadius={60}
               paddingAngle={1}
-              stroke="white"
+              stroke="rgb(var(--card))"
               strokeWidth={2}
             >
               {cleaned.map((entry, i) => (
@@ -72,8 +72,8 @@ export function CategoryPieChart({ data, total }: { data: ChartRow[]; total: num
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Total</p>
-          <p className="text-lg font-bold">{formatIDR(total)}</p>
+          <p className="text-xs text-muted-foreground">Total</p>
+          <p className="text-lg font-bold text-foreground tabular-nums">{formatIDR(total)}</p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-3 text-xs">
@@ -83,8 +83,8 @@ export function CategoryPieChart({ data, total }: { data: ChartRow[]; total: num
               className="w-2 h-2 rounded-full shrink-0"
               style={{ background: d.color }}
             />
-            <span className="truncate text-slate-700 dark:text-slate-200">{d.name}</span>
-            <span className="ml-auto text-slate-500 dark:text-slate-400 font-medium">
+            <span className="truncate text-foreground">{d.name}</span>
+            <span className="ml-auto text-muted-foreground font-medium tabular-nums">
               {((d.value / total) * 100).toFixed(0)}%
             </span>
           </div>
@@ -102,7 +102,7 @@ export function CategoryBarChart({ data, total }: { data: ChartRow[]; total: num
 
   if (cleaned.length === 0) {
     return (
-      <div className="text-center py-8 text-sm text-slate-400">
+      <div className="text-center py-8 text-sm text-muted-foreground">
         Belum ada data untuk divisualisasikan
       </div>
     );

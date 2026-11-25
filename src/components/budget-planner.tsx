@@ -13,7 +13,6 @@ import {
   Copy,
   ChevronDown,
   Loader2,
-  Check,
   AlertCircle,
   ArrowUpRight,
 } from "lucide-react";
@@ -170,10 +169,10 @@ export function BudgetPlanner({
     <section className="space-y-2.5">
       <div className="flex items-center justify-between gap-2 flex-wrap px-0.5">
         <div className="flex items-center gap-2">
-          <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">
+          <h2 className="text-sm font-semibold text-foreground">
             Penyusun Budget
           </h2>
-          <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-950 dark:border-slate-100">
+          <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
             {categories.length}
           </span>
         </div>
@@ -181,16 +180,16 @@ export function BudgetPlanner({
           <button
             type="button"
             onClick={onCopyPrevBudgets}
-            className="min-h-[36px] px-2.5 py-1 text-[11px] font-mono font-bold uppercase bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium bg-card border border-border text-foreground hover:bg-muted active:scale-95 flex items-center gap-1.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             title="Salin semua budget dari periode sebelumnya"
           >
-            <Copy className="w-3 h-3" />
+            <Copy className="w-3.5 h-3.5" />
             Copy Lalu
           </button>
           <button
             type="button"
             onClick={onAddCategory}
-            className="min-h-[36px] px-2.5 py-1 text-[11px] font-headline font-bold uppercase bg-brand-400 text-slate-950 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:bg-brand-300 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 flex items-center gap-1 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus className="w-3.5 h-3.5" />
             Kategori
@@ -199,51 +198,51 @@ export function BudgetPlanner({
       </div>
 
       {loading ? (
-        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] space-y-3">
-          <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase text-slate-600 dark:text-slate-300">
-            <Loader2 className="w-4 h-4 animate-spin" />
+        <div className="bg-card border border-border rounded-2xl p-4 shadow-sm space-y-3">
+          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+            <Loader2 className="w-4 h-4 animate-spin text-primary" />
             Memuat budget dan referensi 3 periode terakhir...
           </div>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="border-2 border-slate-200 dark:border-slate-800 p-3 space-y-2 animate-pulse">
+            <div key={i} className="border border-border rounded-xl p-3 space-y-2 animate-pulse">
               <div className="flex items-center justify-between gap-3">
-                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800" />
-                <div className="h-9 w-36 bg-slate-200 dark:bg-slate-800" />
+                <div className="h-4 w-32 bg-muted rounded-md" />
+                <div className="h-9 w-36 bg-muted rounded-xl" />
               </div>
-              <div className="h-3 w-48 bg-slate-100 dark:bg-slate-800/70" />
+              <div className="h-3 w-48 bg-muted/60 rounded-md" />
             </div>
           ))}
         </div>
       ) : error ? (
-        <div className="bg-rose-50 dark:bg-rose-950/50 border-4 border-rose-600 p-4 space-y-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <div className="flex items-start gap-2 text-xs font-mono font-bold text-rose-800 dark:text-rose-200">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+        <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-2xl p-4 space-y-3">
+          <div className="flex items-start gap-2 text-xs font-medium text-rose-700 dark:text-rose-300">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
           <button
             type="button"
             onClick={onRetry}
-            className="min-h-[40px] px-4 py-1.5 text-xs font-headline font-bold uppercase bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            className="min-h-[40px] px-4 py-1.5 rounded-xl text-xs font-semibold bg-card border border-border text-foreground hover:bg-muted"
           >
             Coba Lagi
           </button>
         </div>
       ) : categories.length === 0 ? (
-        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 p-6 text-center space-y-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-          <p className="text-xs font-mono uppercase text-slate-600 dark:text-slate-300">
+        <div className="bg-card border border-border rounded-2xl p-6 text-center space-y-3 shadow-sm">
+          <p className="text-xs text-muted-foreground">
             Belum ada kategori pengeluaran aktif.
           </p>
           <button
             type="button"
             onClick={onAddCategory}
-            className="min-h-[44px] px-4 py-2 text-xs font-headline font-black uppercase bg-brand-500 text-slate-950 border-2 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] inline-flex items-center gap-1.5"
+            className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-1.5 shadow-sm"
           >
             <Plus className="w-4 h-4" />
             Tambah Kategori Pertama
           </button>
         </div>
       ) : (
-        <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none divide-y-2 divide-slate-950 dark:divide-slate-100 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+        <div className="bg-card border border-border rounded-2xl divide-y divide-border overflow-hidden shadow-sm">
           {categories.map((c) => {
             const history = historyByCategory[c.id];
             const isOpen = expandedCatId === c.id;
@@ -302,7 +301,7 @@ function BudgetCategoryRow({
   onDelete: () => void;
 }) {
   const [text, setText] = useState(draftAmount ? Number(draftAmount).toLocaleString("id-ID") : "");
-  const [selectedHistIdx, setSelectedHistIdx] = useState<0 | 1 | 2>(2); // 0=prev3, 1=prev2, 2=prev1
+  const [selectedHistIdx, setSelectedHistIdx] = useState<0 | 1 | 2>(2);
   const [sortBy, setSortBy] = useState<"amount" | "date">("amount");
   const isFocused = useRef(false);
 
@@ -346,12 +345,11 @@ function BudgetCategoryRow({
 
   return (
     <div className="transition-colors">
-      {/* Baris Utama Kategori */}
       <div className="p-3.5 space-y-2.5">
         <div className="flex items-center gap-2.5">
           <div
-            className="w-8 h-8 rounded-none flex items-center justify-center border-2 border-slate-950 dark:border-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] shrink-0"
-            style={{ backgroundColor: category.color ?? "#16a34a" }}
+            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+            style={{ backgroundColor: category.color ?? "#B85138" }}
           >
             <Icon className="w-4 h-4 text-white shrink-0" />
           </div>
@@ -359,14 +357,14 @@ function BudgetCategoryRow({
           <div className="min-w-0 flex-1">
             <label
               htmlFor={`budget-${category.id}`}
-              className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 break-words leading-snug block cursor-pointer"
+              className="text-xs font-semibold text-foreground break-words leading-snug block cursor-pointer"
             >
               {category.name}
             </label>
           </div>
 
           <div className="relative w-32 sm:w-36 shrink-0">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-headline font-black text-slate-950 dark:text-slate-100 pointer-events-none">
+            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground pointer-events-none">
               Rp
             </span>
             <input
@@ -387,7 +385,7 @@ function BudgetCategoryRow({
                 isFocused.current = false;
                 onCommitBudget(parseIDRInput(text), true);
               }}
-              className="w-full min-h-[42px] border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none pl-8 pr-2 py-1.5 text-base sm:text-xs font-mono font-bold text-right shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+              className="w-full min-h-[42px] border border-input bg-background text-foreground rounded-xl pl-8 pr-2.5 py-1.5 text-base sm:text-xs font-mono font-semibold text-right tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               placeholder="0"
             />
           </div>
@@ -398,14 +396,14 @@ function BudgetCategoryRow({
             aria-expanded={isOpen}
             aria-label={`Lihat referensi historis ${category.name}`}
             className={cn(
-              "min-h-[42px] min-w-[42px] shrink-0 border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500",
+              "min-h-[42px] min-w-[42px] rounded-xl shrink-0 border flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               isOpen
-                ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950"
-                : "bg-slate-100 dark:bg-slate-900 text-slate-950 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800"
+                ? "bg-accent text-accent-foreground border-primary/50"
+                : "bg-secondary text-secondary-foreground border-border hover:bg-muted"
             )}
           >
             {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
             ) : (
               <ChevronDown
                 className={cn("w-4 h-4 transition-transform duration-200", isOpen && "rotate-180")}
@@ -414,16 +412,15 @@ function BudgetCategoryRow({
           </button>
         </div>
 
-        {/* Strip Referensi Singkat (Selalu terlihat tanpa pindah halaman) */}
         {history && (
           <button
             type="button"
             onClick={onToggleOpen}
-            className="w-full text-left flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] font-mono text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            className="w-full text-left flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
           >
             <span>
               Lalu ({prev1?.shortLabel}):{" "}
-              <strong className="text-slate-950 dark:text-slate-100">
+              <strong className="text-foreground">
                 {formatIDR(prev1?.spent ?? 0)}
               </strong>
             </span>
@@ -431,12 +428,12 @@ function BudgetCategoryRow({
             {prev1 && prev1.budget > 0 && (
               <span
                 className={cn(
-                  "px-1.5 py-0.5 text-[10px] font-bold uppercase border border-slate-950 dark:border-slate-100",
+                  "px-2 py-0.5 rounded-full text-[11px] font-medium border",
                   prev1Diff > 0
-                    ? "bg-rose-100 text-rose-900 dark:bg-rose-950/70 dark:text-rose-200"
+                    ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60"
                     : prev1.budget - prev1.spent >= 50_000
-                      ? "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-200"
-                      : "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200"
+                      ? "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800/60"
+                      : "bg-muted text-muted-foreground border-border"
                 )}
               >
                 {prev1Diff > 0
@@ -450,7 +447,7 @@ function BudgetCategoryRow({
             {avgSpent3m > 0 && (
               <span>
                 Rata2 {activeCount}B:{" "}
-                <strong className="text-slate-950 dark:text-slate-100">
+                <strong className="text-foreground">
                   {formatIDR(avgSpent3m)}
                 </strong>
               </span>
@@ -460,8 +457,8 @@ function BudgetCategoryRow({
               <span
                 className={cn(
                   draftAmount > 0 && draftAmount < currentSpent
-                    ? "text-rose-700 dark:text-rose-300 font-bold"
-                    : "text-slate-500 dark:text-slate-400"
+                    ? "text-rose-700 dark:text-rose-300 font-semibold"
+                    : "text-muted-foreground"
                 )}
               >
                 Jalan: {formatIDR(currentSpent)}
@@ -472,20 +469,19 @@ function BudgetCategoryRow({
         )}
       </div>
 
-      {/* Panel Referensi Historis & Penyesuaian Fluktuasi (Expanded) */}
       {isOpen && history && (
-        <div className="bg-slate-50 dark:bg-slate-900/70 border-t-2 border-slate-950 dark:border-slate-100 p-3.5 space-y-3.5">
+        <div className="bg-muted/40 border-t border-border p-3.5 space-y-3.5">
           {/* Quick-Fill & Stepper Fluktuasi */}
           <div className="space-y-2">
-            <p className="text-[10px] font-headline font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-              Isi Cepat &amp; Sesuaikan Fluktuasi
+            <p className="text-xs font-medium text-muted-foreground">
+              Isi cepat &amp; sesuaikan fluktuasi
             </p>
             <div className="flex flex-wrap gap-1.5">
               {prev1 && prev1.spent > 0 && (
                 <button
                   type="button"
                   onClick={() => applyAmount(prev1.spent, true)}
-                  className="min-h-[38px] px-2.5 py-1 text-[11px] font-mono font-bold bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 hover:bg-brand-400 hover:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+                  className="min-h-[38px] px-3 py-1 rounded-xl text-xs font-mono font-medium bg-card border border-border text-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary/40 active:scale-95 transition-all"
                 >
                   Realisasi Lalu ({compactIDR(prev1.spent)})
                 </button>
@@ -494,7 +490,7 @@ function BudgetCategoryRow({
                 <button
                   type="button"
                   onClick={() => applyAmount(roundedAvg, true)}
-                  className="min-h-[38px] px-2.5 py-1 text-[11px] font-mono font-bold bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 hover:bg-brand-400 hover:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+                  className="min-h-[38px] px-3 py-1 rounded-xl text-xs font-mono font-medium bg-card border border-border text-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary/40 active:scale-95 transition-all"
                 >
                   Rata2 {activeCount}B ({compactIDR(roundedAvg)})
                 </button>
@@ -503,7 +499,7 @@ function BudgetCategoryRow({
                 <button
                   type="button"
                   onClick={() => applyAmount(prev1.budget, true)}
-                  className="min-h-[38px] px-2.5 py-1 text-[11px] font-mono font-bold bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 hover:bg-brand-400 hover:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+                  className="min-h-[38px] px-3 py-1 rounded-xl text-xs font-mono font-medium bg-card border border-border text-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary/40 active:scale-95 transition-all"
                 >
                   Budget Lalu ({compactIDR(prev1.budget)})
                 </button>
@@ -518,10 +514,10 @@ function BudgetCategoryRow({
                   onClick={() => applyAmount(draftAmount + delta, false)}
                   disabled={delta < 0 && draftAmount === 0}
                   className={cn(
-                    "min-h-[40px] px-2 text-xs font-mono font-bold border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all disabled:opacity-40",
+                    "min-h-[40px] px-2 rounded-xl text-xs font-mono font-semibold border active:scale-95 transition-all disabled:opacity-40",
                     delta > 0
-                      ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-950 dark:text-emerald-200 hover:bg-emerald-200"
-                      : "bg-rose-100 dark:bg-rose-950/60 text-rose-950 dark:text-rose-200 hover:bg-rose-200"
+                      ? "bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-200 border-teal-200 dark:border-teal-800/60 hover:bg-teal-100 dark:hover:bg-teal-950/70"
+                      : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 border-rose-200 dark:border-rose-800/60 hover:bg-rose-100 dark:hover:bg-rose-950/70"
                   )}
                 >
                   {delta > 0 ? `+${delta / 1000}rb` : `${delta / 1000}rb`}
@@ -532,8 +528,8 @@ function BudgetCategoryRow({
 
           {/* Perbandingan 3 Periode Terakhir */}
           <div className="space-y-1.5">
-            <p className="text-[10px] font-headline font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-              Tren 3 Periode (Ketuk untuk lihat rincian transaksi)
+            <p className="text-xs font-medium text-muted-foreground">
+              Tren 3 periode (ketuk untuk rincian transaksi)
             </p>
             <div className="grid grid-cols-3 gap-2">
               {snaps.map((snap, idx) => {
@@ -548,36 +544,31 @@ function BudgetCategoryRow({
                       onLoadDrilldown(snap);
                     }}
                     className={cn(
-                      "p-2 text-left border-2 border-slate-950 dark:border-slate-100 transition-all space-y-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-500",
+                      "p-2.5 text-left rounded-xl border transition-all space-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       isSelected
-                        ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
-                        : "bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        ? "bg-accent text-accent-foreground border-primary ring-1 ring-primary"
+                        : "bg-card text-foreground border-border hover:bg-muted/60"
                     )}
                   >
-                    <div className="flex items-center justify-between text-[10px] font-headline font-bold uppercase">
+                    <div className="flex items-center justify-between text-xs font-semibold">
                       <span>{snap.shortLabel}</span>
                       {snap.budget > 0 && snap.spent > snap.budget && (
-                        <span className={isSelected ? "text-rose-300 dark:text-rose-700" : "text-rose-600 dark:text-rose-400"}>
+                        <span className="text-[10px] font-medium text-rose-700 dark:text-rose-300">
                           Over
                         </span>
                       )}
                     </div>
-                    <p className="text-xs font-mono font-black truncate">
+                    <p className="text-xs font-mono font-bold truncate tabular-nums">
                       {compactIDR(snap.spent)}
                     </p>
-                    <p
-                      className={cn(
-                        "text-[10px] font-mono truncate",
-                        isSelected ? "text-slate-300 dark:text-slate-600" : "text-slate-500 dark:text-slate-400"
-                      )}
-                    >
+                    <p className="text-[11px] font-mono text-muted-foreground truncate">
                       B: {snap.budget > 0 ? compactIDR(snap.budget) : "-"}
                     </p>
-                    <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                    <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
                       <div
                         className={cn(
-                          "h-full",
-                          isSelected ? "bg-brand-400 dark:bg-brand-600" : "bg-slate-950 dark:bg-slate-100"
+                          "h-full rounded-full",
+                          isSelected ? "bg-primary" : "bg-muted-foreground/50"
                         )}
                         style={{ width: `${barPct}%` }}
                       />
@@ -588,15 +579,15 @@ function BudgetCategoryRow({
             </div>
           </div>
 
-          {/* Rincian Transaksi Periode Terpilih (Inline Drilldown) */}
+          {/* Rincian Transaksi Periode Terpilih */}
           {selectedSnap && (
-            <div className="bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 p-2.5 space-y-2">
-              <div className="flex items-center justify-between gap-2 flex-wrap border-b border-slate-200 dark:border-slate-800 pb-2">
+            <div className="bg-card border border-border rounded-xl p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2 flex-wrap border-b border-border pb-2">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-headline font-bold uppercase text-slate-950 dark:text-slate-100">
+                  <p className="text-xs font-semibold text-foreground">
                     Rincian {selectedSnap.shortLabel} ({drilldown?.items.length ?? 0})
                   </p>
-                  <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] font-mono text-muted-foreground">
                     {selectedSnap.rangeText}
                   </p>
                 </div>
@@ -604,13 +595,13 @@ function BudgetCategoryRow({
                   <button
                     type="button"
                     onClick={() => setSortBy((s) => (s === "amount" ? "date" : "amount"))}
-                    className="px-2 py-1 text-[10px] font-mono font-bold uppercase border border-slate-950 dark:border-slate-100 bg-slate-100 dark:bg-slate-800 text-slate-950 dark:text-slate-100"
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-border bg-secondary text-secondary-foreground hover:bg-muted"
                   >
                     Urut: {sortBy === "amount" ? "Terbesar" : "Terbaru"}
                   </button>
                   <Link
                     href={`/history?category=${category.id}&period=${selectedSnap.labelKey}`}
-                    className="px-2 py-1 text-[10px] font-headline font-bold uppercase border border-slate-950 dark:border-slate-100 bg-brand-400 text-slate-950 flex items-center gap-0.5 hover:bg-brand-300"
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-accent text-accent-foreground border border-brand-200 dark:border-brand-800/50 flex items-center gap-0.5 hover:bg-primary hover:text-primary-foreground transition-colors"
                   >
                     Riwayat
                     <ArrowUpRight className="w-3 h-3" />
@@ -619,41 +610,41 @@ function BudgetCategoryRow({
               </div>
 
               {drilldown?.loading ? (
-                <div className="py-4 flex items-center justify-center gap-2 text-xs font-mono text-slate-500">
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                <div className="py-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
                   Memuat rincian transaksi...
                 </div>
               ) : drilldown?.error ? (
-                <div className="py-2 flex items-center justify-between gap-2 text-xs font-mono text-rose-700 dark:text-rose-300">
+                <div className="py-2 flex items-center justify-between gap-2 text-xs text-rose-700 dark:text-rose-300">
                   <span>{drilldown.error}</span>
                   <button
                     type="button"
                     onClick={() => onLoadDrilldown(selectedSnap, true)}
-                    className="underline font-bold uppercase"
+                    className="underline font-semibold"
                   >
                     Ulangi
                   </button>
                 </div>
               ) : sortedItems.length === 0 ? (
-                <p className="py-3 text-center text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                <p className="py-3 text-center text-xs text-muted-foreground">
                   Tidak ada pengeluaran di periode {selectedSnap.shortLabel}.
                 </p>
               ) : (
-                <div className="max-h-48 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 pr-1">
+                <div className="max-h-48 overflow-y-auto divide-y divide-border pr-1">
                   {sortedItems.map((item) => (
                     <div
                       key={item.id}
-                      className="py-1.5 flex items-start justify-between gap-2 text-xs"
+                      className="py-2 flex items-start justify-between gap-2 text-xs"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="font-headline font-bold text-slate-900 dark:text-slate-100 break-words leading-snug">
+                        <p className="font-medium text-foreground break-words leading-snug">
                           {item.description}
                         </p>
-                        <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                        <p className="text-[11px] font-mono text-muted-foreground">
                           {formatShortDate(item.spent_at)}
                         </p>
                       </div>
-                      <span className="font-mono font-bold text-slate-950 dark:text-slate-100 shrink-0">
+                      <span className="font-mono font-semibold text-foreground shrink-0 tabular-nums">
                         {formatIDR(Number(item.amount))}
                       </span>
                     </div>
@@ -663,12 +654,12 @@ function BudgetCategoryRow({
             </div>
           )}
 
-          {/* Hapus Kategori (Dipindah ke dalam panel agar tidak salah pencet) */}
+          {/* Hapus Kategori */}
           <div className="flex justify-end pt-1">
             <button
               type="button"
               onClick={onDelete}
-              className="min-h-[38px] px-3 py-1 text-[11px] font-mono font-bold uppercase text-rose-700 dark:text-rose-300 border-2 border-rose-600 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 hover:text-white transition-colors inline-flex items-center gap-1.5"
+              className="min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-medium text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-600 hover:text-white transition-colors inline-flex items-center gap-1.5"
             >
               <Trash2 className="w-3.5 h-3.5" />
               Hapus Kategori

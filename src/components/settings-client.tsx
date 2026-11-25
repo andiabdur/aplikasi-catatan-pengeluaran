@@ -46,6 +46,7 @@ import {
   Wallet,
   Key,
   Copy,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ApiTokensManager } from "@/components/api-tokens-manager";
@@ -148,7 +149,6 @@ export function SettingsClient({
     };
   }, []);
 
-  // Reload budgets, incomes, current summary, and 3 previous summaries when period changes
   useEffect(() => {
     if (!householdId) return;
     let cancelled = false;
@@ -638,11 +638,11 @@ export function SettingsClient({
 
   return (
     <div className="space-y-4 pb-20">
-      {/* Segmented Tabs (3 Tabs) */}
+      {/* Segmented Tabs (Shadcn Style) */}
       <div
         role="tablist"
         aria-label="Menu Pengaturan"
-        className="grid grid-cols-3 gap-1.5 bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 p-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+        className="grid grid-cols-3 gap-1 bg-muted border border-border rounded-2xl p-1"
       >
         {(
           [
@@ -660,10 +660,10 @@ export function SettingsClient({
               aria-selected={active}
               onClick={() => setActiveTab(id)}
               className={cn(
-                "min-h-[44px] px-2 py-2 flex items-center justify-center gap-1.5 text-xs font-headline font-bold uppercase tracking-wider transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500",
+                "min-h-[44px] px-2 py-2 rounded-xl flex items-center justify-center gap-1.5 text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 active
-                  ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  ? "bg-card text-foreground font-semibold shadow-sm"
+                  : "text-muted-foreground font-medium hover:text-foreground"
               )}
             >
               <Icon className="w-4 h-4 shrink-0" />
@@ -676,87 +676,86 @@ export function SettingsClient({
       {actionError && (
         <div
           role="alert"
-          className="p-3 bg-rose-100 dark:bg-rose-950/60 border-2 border-rose-600 text-rose-900 dark:text-rose-200 text-xs font-mono font-bold flex items-center justify-between gap-2"
+          className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-medium flex items-center justify-between gap-2"
         >
           <span className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+            <AlertCircle className="w-4 h-4 shrink-0" />
             {actionError}
           </span>
           <button
             type="button"
             onClick={() => setActionError(null)}
             aria-label="Tutup pesan error"
-            className="p-1 hover:bg-rose-200 dark:hover:bg-rose-900"
+            className="p-1 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* TAB 1: BUDGET & INCOME (Default) */}
+      {/* TAB 1: BUDGET & INCOME */}
       {activeTab === "budget" && (
         <div role="tabpanel" className="space-y-4">
-          {/* Period Switcher + Quick Jumps */}
-          <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-3.5 space-y-2.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+          <div className="bg-card border border-border rounded-2xl p-3.5 space-y-2.5 shadow-sm">
             <PeriodSelector
               labelMonth={labelMonth}
               payDay={payDay}
               onChange={setLabelMonth}
               customRangeText={periodRangeTextWithCustom(labelMonth, payDay, customPeriods)}
             />
-            <div className="flex items-center justify-center gap-3 pt-1 flex-wrap">
+            <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
               {labelKey !== currentPeriodKey && (
                 <button
                   type="button"
                   onClick={() => setLabelMonth(currentPeriodDate)}
-                  className="text-[11px] font-mono font-bold uppercase text-brand-700 dark:text-brand-400 hover:underline px-2 py-1"
+                  className="text-xs font-medium text-primary hover:underline px-2.5 py-1 rounded-lg hover:bg-accent"
                 >
-                  Ke Periode Sekarang
+                  Ke periode sekarang
                 </button>
               )}
               {labelKey !== labelMonthKey(nextPeriodDate) && (
                 <button
                   type="button"
                   onClick={() => setLabelMonth(nextPeriodDate)}
-                  className="text-[11px] font-mono font-bold uppercase text-slate-700 dark:text-slate-300 border border-slate-950 dark:border-slate-100 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-brand-400 hover:text-slate-950 transition-colors"
+                  className="text-xs font-medium text-foreground border border-border rounded-xl px-3 py-1 bg-secondary hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
-                  Susun Periode Depan ({shortMonthLabel(nextPeriodDate)})
+                  Susun periode depan ({shortMonthLabel(nextPeriodDate)})
                 </button>
               )}
             </div>
           </div>
 
           {/* Sticky Live Budget Allocator Bar */}
-          <div className="sticky top-[68px] z-20 bg-slate-950 text-slate-50 dark:bg-slate-900 border-4 border-slate-950 dark:border-slate-100 p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] space-y-2">
+          <div className="sticky top-[68px] z-20 bg-card/95 backdrop-blur-md border border-border rounded-2xl p-3.5 shadow-md space-y-2">
             <div className="grid grid-cols-3 gap-2">
               <div className="min-w-0">
-                <p className="text-[10px] font-headline font-bold uppercase tracking-wider text-slate-400">
+                <p className="text-[11px] font-medium text-muted-foreground">
                   Income
                 </p>
-                <p className="text-xs sm:text-sm font-mono font-black text-white truncate">
+                <p className="text-xs sm:text-sm font-mono font-semibold text-foreground truncate tabular-nums">
                   {formatIDR(totalIncome)}
                 </p>
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-headline font-bold uppercase tracking-wider text-slate-400">
+                <p className="text-[11px] font-medium text-muted-foreground">
                   Total Budget
                 </p>
-                <p className="text-xs sm:text-sm font-mono font-black text-brand-400 truncate">
+                <p className="text-xs sm:text-sm font-mono font-semibold text-primary truncate tabular-nums">
                   {formatIDR(liveTotalBudget)}
                 </p>
               </div>
               <div className="min-w-0 text-right">
-                <p className="text-[10px] font-headline font-bold uppercase tracking-wider text-slate-400">
+                <p className="text-[11px] font-medium text-muted-foreground">
                   {vsIncome >= 0 ? "Sisa Alokasi" : "Defisit"}
                 </p>
                 <p
                   className={cn(
-                    "text-xs sm:text-sm font-mono font-black truncate",
+                    "text-xs sm:text-sm font-mono font-semibold truncate tabular-nums",
                     totalIncome === 0
-                      ? "text-slate-300"
+                      ? "text-muted-foreground"
                       : vsIncome >= 0
-                        ? "text-emerald-400"
-                        : "text-rose-400"
+                        ? "text-teal-700 dark:text-teal-300"
+                        : "text-rose-700 dark:text-rose-300"
                   )}
                 >
                   {totalIncome === 0 ? "-" : formatIDR(Math.abs(vsIncome))}
@@ -766,19 +765,19 @@ export function SettingsClient({
 
             {totalIncome > 0 && (
               <div className="space-y-1">
-                <div className="h-2 w-full bg-slate-800 border border-slate-700 overflow-hidden">
+                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                   <div
                     className={cn(
-                      "h-full transition-all duration-200",
-                      allocPct > 100 ? "bg-rose-500" : "bg-brand-500"
+                      "h-full rounded-full transition-all duration-200",
+                      allocPct > 100 ? "bg-rose-600 dark:bg-rose-400" : "bg-primary"
                     )}
                     style={{ width: `${Math.min(100, allocPct)}%` }}
                   />
                 </div>
-                <p className="text-[10px] font-mono text-slate-300 flex items-center justify-between">
+                <p className="text-[11px] font-mono text-muted-foreground flex items-center justify-between">
                   <span>{allocPct}% dari income dialokasikan</span>
                   {savingKey && savingKey.startsWith("b-") && (
-                    <span className="text-brand-400">Menyimpan...</span>
+                    <span className="text-primary font-medium">Menyimpan...</span>
                   )}
                 </p>
               </div>
@@ -788,7 +787,7 @@ export function SettingsClient({
           {/* Income / Pemasukan Section */}
           <section className="space-y-2">
             <div className="flex items-center justify-between gap-2 px-0.5">
-              <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">
+              <h2 className="text-sm font-semibold text-foreground">
                 Income / Pemasukan
               </h2>
               <div className="flex items-center gap-2">
@@ -797,7 +796,7 @@ export function SettingsClient({
                     type="button"
                     onClick={copyIncomesFromPrevPeriod}
                     disabled={savingKey === "copy-incomes"}
-                    className="min-h-[34px] px-2.5 py-1 text-[11px] font-mono font-bold uppercase bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 text-slate-950 dark:text-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    className="min-h-[34px] px-3 py-1 rounded-xl text-xs font-medium bg-card border border-border text-foreground flex items-center gap-1 hover:bg-muted transition-colors"
                   >
                     <Copy className="w-3 h-3" />
                     Salin Lalu
@@ -806,16 +805,16 @@ export function SettingsClient({
                 <button
                   type="button"
                   onClick={() => setIncomeModalOpen(true)}
-                  className="min-h-[34px] px-2.5 py-1 text-[11px] font-headline font-bold uppercase bg-brand-400 text-slate-950 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1 hover:bg-brand-300"
+                  className="min-h-[34px] px-3 py-1 rounded-xl text-xs font-semibold bg-primary text-primary-foreground flex items-center gap-1 hover:bg-primary/90 shadow-sm transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" /> Tambah
                 </button>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none divide-y-2 divide-slate-100 dark:divide-slate-800 p-0 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+            <div className="bg-card border border-border rounded-2xl divide-y divide-border p-0 overflow-hidden shadow-sm">
               {incomes.length === 0 && (
-                <p className="p-4 text-xs font-mono uppercase text-slate-500 dark:text-slate-400">
+                <p className="p-4 text-xs text-muted-foreground">
                   Belum ada income di periode ini.
                 </p>
               )}
@@ -832,7 +831,6 @@ export function SettingsClient({
             </div>
           </section>
 
-          {/* Smart Budget Planner */}
           <BudgetPlanner
             householdId={householdId}
             labelKey={labelKey}
@@ -857,20 +855,19 @@ export function SettingsClient({
       {/* TAB 2: PERIODE & EVENT */}
       {activeTab === "period" && (
         <div role="tabpanel" className="space-y-4">
-          {/* Pay day setting */}
           <section>
-            <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex items-center gap-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-              <div className="w-10 h-10 rounded-none bg-brand-400 text-slate-950 border-2 border-slate-950 flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
+            <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3 shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-accent text-primary border border-brand-200/70 dark:border-brand-800/40 flex items-center justify-center shrink-0">
                 <CalendarCog className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <label
                   htmlFor="pay-day-input"
-                  className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block"
+                  className="text-xs font-semibold text-foreground block"
                 >
                   Pay Day (Tanggal Gajian)
                 </label>
-                <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-muted-foreground">
                   Periode dihitung dari tanggal ini setiap bulan
                 </p>
               </div>
@@ -885,15 +882,14 @@ export function SettingsClient({
                     const v = Number(e.target.value);
                     if (v !== payDay) savePayDay(v);
                   }}
-                  className="w-16 min-h-[42px] border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-2 py-1.5 text-center text-base sm:text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  className="w-16 min-h-[42px] border border-input bg-background text-foreground rounded-xl px-2 py-1.5 text-center text-base sm:text-xs font-mono font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
-                {savingKey === "pd" && <Save className="w-4 h-4 text-brand-500 animate-pulse" />}
+                {savingKey === "pd" && <Save className="w-4 h-4 text-primary animate-pulse" />}
               </div>
             </div>
           </section>
 
-          {/* Period selector & Custom Period Editor */}
-          <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+          <div className="bg-card border border-border rounded-2xl p-4 space-y-4 shadow-sm">
             <PeriodSelector
               labelMonth={labelMonth}
               payDay={payDay}
@@ -904,7 +900,7 @@ export function SettingsClient({
               <button
                 type="button"
                 onClick={() => setLabelMonth(currentPeriodDate)}
-                className="mt-2 text-xs font-mono font-bold uppercase text-brand-600 dark:text-brand-400 w-full text-center hover:underline"
+                className="text-xs font-medium text-primary w-full text-center hover:underline py-1"
               >
                 Ke periode sekarang
               </button>
@@ -919,32 +915,31 @@ export function SettingsClient({
             />
           </div>
 
-          {/* Events Management */}
-          <section className="space-y-2">
+          <section className="space-y-2.5">
             <Link
               href="/events"
-              className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex items-center justify-between shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 group transition-all"
+              className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/40 transition-colors group"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-none bg-indigo-200 text-indigo-950 border-2 border-slate-950 flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 flex items-center justify-center shrink-0">
                   <Tent className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950">
+                  <p className="text-sm font-semibold text-foreground">
                     Kelola Event &amp; Perjalanan
                   </p>
-                  <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 group-hover:text-slate-300 dark:group-hover:text-slate-700">
+                  <p className="text-xs text-muted-foreground">
                     Grup pengeluaran untuk liburan, renovasi, dsb.
                   </p>
                 </div>
               </div>
-              <p className="font-headline font-black text-xl shrink-0">›</p>
+              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0" />
             </Link>
 
             {events && events.length > 0 && (
               <div className="space-y-2 pt-1">
-                <p className="text-[10px] font-headline font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
-                  Event Aktif &amp; Terakhir (Klik untuk ke Riwayat Periode)
+                <p className="text-xs font-medium text-muted-foreground px-1">
+                  Event aktif &amp; terakhir (klik untuk lihat riwayat)
                 </p>
                 <div className="grid gap-2">
                   {events.slice(0, 3).map((evt) => {
@@ -954,38 +949,36 @@ export function SettingsClient({
                       <Link
                         key={evt.id}
                         href={historyHref}
-                        className="bg-white dark:bg-surface-dark border-2 border-slate-950 dark:border-slate-100 rounded-none p-3 flex items-center justify-between gap-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:bg-slate-50 dark:hover:bg-slate-900 group transition-all"
+                        className="bg-card border border-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-sm hover:border-primary/40 group transition-colors"
                       >
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-headline font-bold text-xs uppercase tracking-wider text-slate-950 dark:text-slate-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 truncate">
+                            <span className="font-semibold text-xs text-foreground group-hover:text-primary truncate">
                               {evt.name}
                             </span>
                             <span
                               className={cn(
-                                "text-[9px] font-headline font-bold px-1.5 py-0.5 rounded-none border",
+                                "text-[11px] font-medium px-2 py-0.5 rounded-full border",
                                 evt.status === "active"
-                                  ? "bg-emerald-400 text-slate-950 border-slate-950 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                                  : "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-950 dark:border-slate-100"
+                                  ? "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800/60"
+                                  : "bg-muted text-muted-foreground border-border"
                               )}
                             >
-                              {evt.status === "active" ? "Sedang Berjalan" : "Selesai"}
+                              {evt.status === "active" ? "Sedang berjalan" : "Selesai"}
                             </span>
                           </div>
-                          <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 uppercase">
+                          <p className="text-xs font-mono text-muted-foreground mt-0.5">
                             {formatDisplayDate(evt.start_date)}
                             {evt.end_date ? ` - ${formatDisplayDate(evt.end_date)}` : " - Sekarang"}
                           </p>
                         </div>
-                        <div className="text-right shrink-0 flex items-center gap-2">
-                          <div>
-                            <p className="font-headline font-black text-brand-600 dark:text-brand-400 text-xs">
-                              {formatIDR(evt.totalSpent || 0)}
-                            </p>
-                            <span className="text-[9px] font-headline font-bold uppercase text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-400 group-hover:underline flex items-center gap-0.5 justify-end">
-                              Riwayat <ArrowUpRight className="w-3 h-3" />
-                            </span>
-                          </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-mono font-semibold text-primary text-xs tabular-nums">
+                            {formatIDR(evt.totalSpent || 0)}
+                          </p>
+                          <span className="text-[11px] font-medium text-muted-foreground group-hover:text-primary flex items-center gap-0.5 justify-end">
+                            Riwayat <ArrowUpRight className="w-3 h-3" />
+                          </span>
                         </div>
                       </Link>
                     );
@@ -1000,26 +993,24 @@ export function SettingsClient({
       {/* TAB 3: SISTEM & AKUN */}
       {activeTab === "system" && (
         <div role="tabpanel" className="space-y-4">
-          {/* Integrasi AI & MCP Access Tokens */}
           <section>
             <ApiTokensManager />
           </section>
 
-          {/* Account */}
           <section>
-            <div className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex items-center justify-between gap-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+            <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm">
               <div className="min-w-0">
-                <p className="text-xs font-headline font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Masuk Sebagai
+                <p className="text-xs font-medium text-muted-foreground">
+                  Masuk sebagai
                 </p>
-                <p className="font-mono font-bold truncate text-xs text-slate-950 dark:text-slate-100 mt-0.5">
+                <p className="font-mono font-medium truncate text-xs text-foreground mt-0.5">
                   {email}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={logout}
-                className="min-h-[44px] text-xs font-headline font-bold uppercase px-3.5 py-2 rounded-none border-2 border-rose-600 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1.5 transition-all shrink-0"
+                className="min-h-[44px] text-xs font-semibold px-3.5 py-2 rounded-xl border border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-600 hover:text-white active:scale-95 flex items-center gap-1.5 transition-all shrink-0"
               >
                 <LogOut className="w-4 h-4" /> Keluar
               </button>
@@ -1062,22 +1053,22 @@ function IncomeRow({
     }
   }, [income.amount]);
   return (
-    <div className="flex items-center gap-2.5 p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+    <div className="flex items-center gap-2.5 p-3.5 hover:bg-muted/40 transition-colors">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 truncate">
+          <span className="text-xs font-semibold text-foreground truncate">
             {income.source}
           </span>
           {income.goal_id && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 bg-amber-200 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 border border-slate-950 dark:border-slate-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-              <Target className="w-3 h-3 text-amber-700 dark:text-amber-400" />
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
+              <Target className="w-3 h-3" />
               Tabungan{goal ? `: ${goal.name}` : ""}
             </span>
           )}
         </div>
       </div>
       <div className="relative w-32 sm:w-36 shrink-0">
-        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-headline font-black text-slate-950 dark:text-slate-100 pointer-events-none">
+        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground pointer-events-none">
           Rp
         </span>
         <input
@@ -1092,15 +1083,15 @@ function IncomeRow({
             isFocused.current = false;
             onChange(parseIDRInput(text));
           }}
-          className="w-full min-h-[42px] border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none pl-8 pr-2 py-1.5 text-base sm:text-xs font-mono font-bold text-right focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+          className="w-full min-h-[42px] border border-input bg-background text-foreground rounded-xl pl-8 pr-2.5 py-1.5 text-base sm:text-xs font-mono font-semibold text-right tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           placeholder="0"
         />
       </div>
-      {saving && <Save className="w-4 h-4 text-brand-500 animate-pulse shrink-0" />}
+      {saving && <Save className="w-4 h-4 text-primary animate-pulse shrink-0" />}
       <button
         type="button"
         onClick={onDelete}
-        className="min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-600 hover:text-rose-600 rounded-none border border-transparent hover:border-rose-600 transition-colors shrink-0"
+        className="min-h-[40px] min-w-[40px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors shrink-0"
         title="Hapus income"
         aria-label={`Hapus income ${income.source}`}
       >
@@ -1137,14 +1128,14 @@ function CustomPeriodEditor({
 
   if (!isEditing) {
     return (
-      <div className="flex items-center justify-between border-t-2 border-slate-950 dark:border-slate-100 pt-3">
-        <span className="text-xs text-slate-500 dark:text-slate-400">
+      <div className="flex items-center justify-between border-t border-border pt-3">
+        <span className="text-xs text-muted-foreground">
           {range.isCustom ? (
-            <span className="inline-flex items-center gap-1 text-amber-900 bg-amber-300 border-2 border-slate-950 px-2 py-0.5 rounded-none font-headline font-bold uppercase text-[10px]">
+            <span className="inline-flex items-center gap-1 text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 px-2.5 py-0.5 rounded-full font-medium text-xs">
               Custom Range
             </span>
           ) : (
-            <span className="text-slate-500 font-mono text-xs uppercase">Rentang default</span>
+            <span>Rentang default</span>
           )}
         </span>
         <div className="flex items-center gap-2">
@@ -1152,7 +1143,7 @@ function CustomPeriodEditor({
             <button
               type="button"
               onClick={onReset}
-              className="min-h-[38px] text-xs font-headline font-bold uppercase text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 px-2.5 py-1 rounded-none border border-slate-950 transition"
+              className="min-h-[38px] text-xs font-medium text-foreground hover:bg-muted flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border transition-colors"
               disabled={saving}
             >
               <RotateCcw className="w-3 h-3" /> Reset
@@ -1161,7 +1152,7 @@ function CustomPeriodEditor({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="min-h-[38px] text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-950 bg-brand-400 border-2 border-slate-950 px-2.5 py-1.5 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition flex items-center gap-1.5"
+            className="min-h-[38px] text-xs font-semibold text-primary-foreground bg-primary hover:bg-primary/90 px-3 py-1.5 rounded-xl shadow-sm transition-all flex items-center gap-1.5"
             disabled={saving}
           >
             <Edit3 className="w-3 h-3" /> Ubah Range
@@ -1172,31 +1163,31 @@ function CustomPeriodEditor({
   }
 
   return (
-    <div className="border-t-2 border-slate-950 dark:border-slate-100 pt-3 space-y-3">
-      <p className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">
+    <div className="border-t border-border pt-3 space-y-3">
+      <p className="text-xs font-semibold text-foreground">
         Custom Rentang Tanggal
       </p>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-[10px] font-headline font-bold text-slate-950 dark:text-slate-100 block mb-1 uppercase">
+          <label className="text-xs font-medium text-muted-foreground block mb-1">
             Mulai
           </label>
           <input
             type="date"
             value={start}
             onChange={(e) => setStart(e.target.value)}
-            className="w-full min-h-[42px] border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-2.5 py-2 text-base sm:text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            className="w-full min-h-[42px] border border-input bg-background text-foreground rounded-xl px-2.5 py-2 text-base sm:text-xs font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
         <div>
-          <label className="text-[10px] font-headline font-bold text-slate-950 dark:text-slate-100 block mb-1 uppercase">
+          <label className="text-xs font-medium text-muted-foreground block mb-1">
             Selesai
           </label>
           <input
             type="date"
             value={end}
             onChange={(e) => setEnd(e.target.value)}
-            className="w-full min-h-[42px] border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-2.5 py-2 text-base sm:text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            className="w-full min-h-[42px] border border-input bg-background text-foreground rounded-xl px-2.5 py-2 text-base sm:text-xs font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
       </div>
@@ -1204,7 +1195,7 @@ function CustomPeriodEditor({
         <button
           type="button"
           onClick={() => setIsEditing(false)}
-          className="min-h-[40px] text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 px-3 py-1.5 rounded-none border-2 border-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+          className="min-h-[40px] text-xs font-medium text-foreground px-3.5 py-1.5 rounded-xl border border-border hover:bg-muted transition-colors"
           disabled={saving}
         >
           Batal
@@ -1215,7 +1206,7 @@ function CustomPeriodEditor({
             await onSave(start, end);
             setIsEditing(false);
           }}
-          className="min-h-[40px] text-xs font-headline font-bold uppercase px-4 py-1.5 rounded-none bg-brand-500 text-slate-950 border-2 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1.5"
+          className="min-h-[40px] text-xs font-semibold px-4 py-1.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm flex items-center gap-1.5"
           disabled={saving}
         >
           {saving ? "Menyimpan..." : "Simpan"}
@@ -1310,26 +1301,26 @@ function AddIncomeModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-income-title"
-        className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 w-full max-w-md p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] space-y-4 max-h-[90vh] overflow-y-auto"
+        className="bg-card border border-border rounded-2xl w-full max-w-md p-5 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto"
       >
-        <div className="flex items-center justify-between border-b-2 border-slate-950 dark:border-slate-100 pb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-none bg-brand-500 text-slate-950 border-2 border-slate-950 flex items-center justify-center font-bold">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-accent text-primary flex items-center justify-center">
               <Plus className="w-5 h-5" />
             </div>
             <div>
               <h3
                 id="add-income-title"
-                className="font-headline font-black text-base uppercase tracking-wider text-slate-950 dark:text-slate-100"
+                className="font-semibold text-base text-foreground"
               >
                 Tambah Pemasukan
               </h3>
-              <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 Catat cashflow masuk ke periode ini
               </p>
             </div>
@@ -1338,14 +1329,13 @@ function AddIncomeModal({
             type="button"
             onClick={onClose}
             aria-label="Tutup modal pemasukan"
-            className="min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-100 border border-transparent hover:border-slate-950"
+            className="min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Tab switch */}
-        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-100">
+        <div className="grid grid-cols-2 gap-1 p-1 bg-muted rounded-xl border border-border">
           <button
             type="button"
             onClick={() => {
@@ -1353,10 +1343,10 @@ function AddIncomeModal({
               setError(null);
             }}
             className={cn(
-              "min-h-[40px] py-2 px-3 text-xs font-headline font-bold uppercase tracking-wider transition-all",
+              "min-h-[40px] py-2 px-3 rounded-lg text-xs font-semibold transition-all",
               tab === "regular"
-                ? "bg-brand-500 text-slate-950 border-2 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             Pemasukan Baru
@@ -1368,10 +1358,10 @@ function AddIncomeModal({
               setError(null);
             }}
             className={cn(
-              "min-h-[40px] py-2 px-3 text-xs font-headline font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5",
+              "min-h-[40px] py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5",
               tab === "goal"
-                ? "bg-amber-400 text-slate-950 border-2 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Target className="w-3.5 h-3.5" /> Dari Tabungan
@@ -1379,45 +1369,43 @@ function AddIncomeModal({
         </div>
 
         {error && (
-          <div className="p-2.5 bg-rose-100 dark:bg-rose-950/60 border-2 border-rose-600 text-rose-900 dark:text-rose-200 text-xs font-mono font-bold flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+          <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {tab === "regular" ? (
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block mb-1">
-                  Sumber Pemasukan
-                </label>
-                <input
-                  type="text"
-                  value={source}
-                  onChange={(e) => setSource(e.target.value)}
-                  placeholder="Contoh: Gaji Pokok, Bonus, Freelance, THR"
-                  className="w-full min-h-[44px] border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-3 py-2 text-base sm:text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                  autoFocus
-                />
-              </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-foreground block">
+                Sumber Pemasukan
+              </label>
+              <input
+                type="text"
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
+                placeholder="Contoh: Gaji Pokok, Bonus, Freelance, THR"
+                className="w-full min-h-[44px] border border-input bg-background text-foreground rounded-xl px-3 py-2 text-base sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                autoFocus
+              />
             </div>
           ) : (
             <div className="space-y-3">
               {goals.length === 0 ? (
-                <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-600 text-amber-900 dark:text-amber-200 text-xs font-mono">
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-amber-800 dark:text-amber-300 text-xs">
                   Belum ada Target/Tabungan aktif. Buat tabungan dulu di menu Goals.
                 </div>
               ) : (
                 <>
                   <div>
-                    <label className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block mb-1">
+                    <label className="text-xs font-semibold text-foreground block mb-1.5">
                       Pilih Tabungan / Goal yang Dicairkan
                     </label>
                     <select
                       value={selectedGoalId}
                       onChange={(e) => handleGoalChange(e.target.value)}
-                      className="w-full min-h-[44px] border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-3 py-2 text-base sm:text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                      className="w-full min-h-[44px] border border-input bg-background text-foreground rounded-xl px-3 py-2 text-base sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {goals.map((g) => (
                         <option key={g.id} value={g.id}>
@@ -1428,23 +1416,23 @@ function AddIncomeModal({
                   </div>
 
                   {selectedGoal && (
-                    <div className="p-3 bg-amber-50 dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-100 rounded-none space-y-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="p-3 bg-muted/60 border border-border rounded-xl space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-headline font-bold uppercase text-slate-700 dark:text-slate-300">
-                          Saldo Tabungan Tersedia:
+                        <span className="text-xs font-medium text-muted-foreground">
+                          Saldo tabungan tersedia:
                         </span>
-                        <span className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400">
+                        <span className="font-mono text-sm font-semibold text-teal-700 dark:text-teal-300">
                           {formatIDR(selectedGoal.saved)}
                         </span>
                       </div>
-                      <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-muted-foreground">
                         Saldo &quot;{selectedGoal.name}&quot; akan otomatis terpotong saat penarikan ini disimpan.
                       </p>
                     </div>
                   )}
 
                   <div>
-                    <label className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block mb-1">
+                    <label className="text-xs font-semibold text-foreground block mb-1.5">
                       Label Catatan Pemasukan
                     </label>
                     <input
@@ -1452,7 +1440,7 @@ function AddIncomeModal({
                       value={customGoalSource}
                       onChange={(e) => setCustomGoalSource(e.target.value)}
                       placeholder="Tarik Tabungan: ..."
-                      className="w-full min-h-[44px] border-2 border-slate-950 dark:border-slate-100 bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 rounded-none px-3 py-2 text-base sm:text-xs font-mono font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                      className="w-full min-h-[44px] border border-input bg-background text-foreground rounded-xl px-3 py-2 text-base sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                   </div>
                 </>
@@ -1460,13 +1448,12 @@ function AddIncomeModal({
             </div>
           )}
 
-          {/* Nominal input */}
           <div className="space-y-2">
-            <label className="text-xs font-headline font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 block">
+            <label className="text-xs font-semibold text-foreground block">
               Nominal {tab === "goal" ? "Penarikan" : "Pemasukan"}
             </label>
-            <div className="flex items-center bg-slate-50 dark:bg-slate-950 border-2 border-slate-950 dark:border-slate-100 rounded-none px-3 py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <span className="font-headline text-lg font-black text-slate-950 dark:text-slate-100 mr-2">
+            <div className="flex items-center bg-background border border-input rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-ring">
+              <span className="text-lg font-bold text-muted-foreground mr-2">
                 Rp
               </span>
               <input
@@ -1475,18 +1462,17 @@ function AddIncomeModal({
                 value={amountText}
                 onChange={(e) => setAmountText(formatIDRInput(e.target.value))}
                 placeholder="0"
-                className="w-full bg-transparent font-headline text-xl font-black text-slate-950 dark:text-slate-100 focus:outline-none placeholder-slate-400"
+                className="w-full bg-transparent font-mono text-xl font-bold text-foreground focus:outline-none placeholder:text-muted-foreground/60 tabular-nums"
               />
             </div>
 
-            {/* Quick amount chips */}
             <div className="flex flex-wrap gap-1.5 pt-1">
               {[100000, 250000, 500000, 1000000].map((val) => (
                 <button
                   key={val}
                   type="button"
                   onClick={() => handleSetQuickAmount(val)}
-                  className="min-h-[34px] px-2.5 py-1 text-[11px] font-mono font-bold bg-white dark:bg-slate-900 border border-slate-950 dark:border-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                  className="min-h-[34px] px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-secondary border border-border text-secondary-foreground hover:bg-muted"
                 >
                   +{formatIDR(val).replace(",00", "").replace("Rp ", "")}
                 </button>
@@ -1495,26 +1481,26 @@ function AddIncomeModal({
                 <button
                   type="button"
                   onClick={() => handleSetQuickAmount(selectedGoal.saved)}
-                  className="min-h-[34px] px-2.5 py-1 text-[11px] font-mono font-bold bg-amber-300 text-slate-950 border border-slate-950 hover:bg-amber-200 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                  className="min-h-[34px] px-2.5 py-1 rounded-lg text-xs font-medium bg-accent text-accent-foreground border border-brand-200 dark:border-brand-800/50 hover:bg-primary hover:text-primary-foreground transition-colors"
                 >
-                  Tarik Semua Saldo
+                  Tarik semua saldo
                 </button>
               )}
             </div>
           </div>
 
-          <div className="flex gap-2 justify-end pt-3 border-t-2 border-slate-950 dark:border-slate-100">
+          <div className="flex gap-2 justify-end pt-3 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              className="min-h-[42px] text-xs font-headline font-bold uppercase text-slate-950 dark:text-slate-100 px-4 py-2 rounded-none border-2 border-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="min-h-[42px] text-xs font-medium text-foreground px-4 py-2 rounded-xl border border-border hover:bg-muted transition-colors"
               disabled={saving}
             >
               Batal
             </button>
             <button
               type="submit"
-              className="min-h-[42px] text-xs font-headline font-black uppercase px-5 py-2 rounded-none bg-brand-500 text-slate-950 hover:bg-brand-400 border-2 border-slate-950 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1.5 transition-all"
+              className="min-h-[42px] text-xs font-semibold px-5 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm flex items-center gap-1.5 transition-all"
               disabled={saving || (tab === "goal" && goals.length === 0)}
             >
               {saving ? (

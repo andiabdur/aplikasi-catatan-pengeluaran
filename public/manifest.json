@@ -4,8 +4,8 @@
   "description": "Pencatatan & analisis pengeluaran keluarga",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#16a34a",
+  "background_color": "#FAF8F5",
+  "theme_color": "#B85138",
   "orientation": "portrait",
   "icons": [
     {

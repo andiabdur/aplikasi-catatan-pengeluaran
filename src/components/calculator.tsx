@@ -35,13 +35,13 @@ export function Calculator({ onResult, onClose }: CalculatorProps) {
   }
 
   return (
-    <div className="mt-2 bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-0 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-      <div className="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-950 border-b-2 border-slate-950 dark:border-slate-100 text-right min-h-10 flex items-center justify-end">
-        <span className="text-lg font-mono font-black text-slate-950 dark:text-slate-100 truncate">
+    <div className="mt-2 bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+      <div className="px-3.5 py-2.5 bg-muted/60 border-b border-border text-right min-h-10 flex items-center justify-end">
+        <span className="text-lg font-mono font-bold text-foreground truncate tabular-nums">
           {calcExpr || "0"}
         </span>
       </div>
-      <div className="grid grid-cols-4 gap-px bg-slate-950 dark:bg-slate-100 border-t-0">
+      <div className="grid grid-cols-4 gap-1 p-1.5 bg-muted/40">
         {(["AC", "⌫", "÷", "×", "7", "8", "9", "-", "4", "5", "6", "+", "1", "2", "3", "=", "0", "00", "000", "."] as const).map(
           (k) => (
             <button
@@ -49,11 +49,13 @@ export function Calculator({ onResult, onClose }: CalculatorProps) {
               key={k}
               onClick={() => calcPress(k)}
               className={cn(
-                "py-3.5 text-xs font-mono font-bold bg-white dark:bg-surface-dark text-slate-950 dark:text-slate-100 hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950 transition-colors",
-                (k === "AC" || k === "⌫") && "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-600 hover:text-white",
+                "min-h-[44px] rounded-lg text-xs font-mono font-semibold bg-card text-foreground border border-border/70 hover:bg-muted active:scale-95 transition-all",
+                (k === "AC" || k === "⌫") &&
+                  "text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 hover:bg-rose-100 dark:hover:bg-rose-950/70",
                 (k === "÷" || k === "×" || k === "-" || k === "+") &&
-                  "bg-slate-100 dark:bg-slate-900 font-black",
-                k === "=" && "bg-brand-500 text-slate-950 font-black hover:bg-brand-400 dark:hover:bg-brand-400 hover:text-slate-950",
+                  "bg-secondary text-foreground font-bold",
+                k === "=" &&
+                  "bg-primary text-primary-foreground border-primary font-bold hover:bg-primary/90",
               )}
             >
               {k}
