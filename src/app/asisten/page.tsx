@@ -4,11 +4,18 @@ import { AsistenClient } from "@/components/asisten-client";
 
 export const dynamic = "force-dynamic";
 
-export default async function AsistenPage() {
+export default async function AsistenPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const householdId = await getCurrentHouseholdId();
+  const { tab } = await searchParams;
+  const initialTab = tab === "chat" ? "chat" : "analisa";
+
   return (
-    <PageShell title="Asisten Keuangan" subtitle="Analisa AI & Rekomendasi CFO Finansial">
-      <AsistenClient householdId={householdId ?? ""} />
+    <PageShell title="Asisten Keuangan" subtitle="Chat interaktif dan audit keuangan">
+      <AsistenClient householdId={householdId ?? ""} initialTab={initialTab} />
     </PageShell>
   );
 }

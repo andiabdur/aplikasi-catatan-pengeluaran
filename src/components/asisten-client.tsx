@@ -10,8 +10,18 @@ import { cn } from "@/lib/utils";
 import { FinancialChat } from "@/components/financial-chat";
 import { useChatContext } from "@/contexts/chat-context";
 
-export function AsistenClient({ householdId }: { householdId: string }) {
-  const [tab, setTab] = useState<"analisa" | "chat">("analisa");
+export function AsistenClient({
+  householdId,
+  initialTab = "analisa",
+}: {
+  householdId: string;
+  initialTab?: "analisa" | "chat";
+}) {
+  const [tab, setTab] = useState<"analisa" | "chat">(initialTab);
+
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
 
   const {
     analysisData: data,
@@ -29,40 +39,51 @@ export function AsistenClient({ householdId }: { householdId: string }) {
   }, [householdId, setHouseholdId]);
 
   const tabBar = (
-    <div className="flex p-1 bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] gap-2">
+    <div
+      role="tablist"
+      aria-label="Mode Asisten Keuangan"
+      className="flex p-1 bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] gap-2"
+    >
       <button
         type="button"
+        role="tab"
+        aria-selected={tab === "analisa"}
         onClick={() => setTab("analisa")}
         className={cn(
-          "flex-1 py-2.5 text-center font-headline text-xs font-bold uppercase tracking-widest rounded-none border-2 transition-all flex items-center justify-center gap-1.5",
+          "flex-1 min-h-[44px] py-2 text-center font-headline text-xs font-bold uppercase tracking-widest rounded-none border-2 transition-all flex items-center justify-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500",
           tab === "analisa"
             ? "bg-brand-500 text-slate-950 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
             : "text-slate-700 dark:text-slate-300 border-transparent hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950"
         )}
       >
         <BarChart3 className="w-4 h-4" />
-        <span>Audit CFO {loading && "..."}</span>
+        <span>Audit CFO {loading ? "..." : ""}</span>
       </button>
       <button
         type="button"
+        role="tab"
+        aria-selected={tab === "chat"}
         onClick={() => setTab("chat")}
         className={cn(
-          "flex-1 py-2.5 text-center font-headline text-xs font-bold uppercase tracking-widest rounded-none border-2 transition-all flex items-center justify-center gap-1.5",
+          "flex-1 min-h-[44px] py-2 text-center font-headline text-xs font-bold uppercase tracking-widest rounded-none border-2 transition-all flex items-center justify-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500",
           tab === "chat"
             ? "bg-brand-500 text-slate-950 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
             : "text-slate-700 dark:text-slate-300 border-transparent hover:bg-slate-950 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950"
         )}
       >
-        <MessageCircle className="w-4 h-4" /> Chat Interaktif
+        <MessageCircle className="w-4 h-4" />
+        <span>Chat AI</span>
       </button>
     </div>
   );
 
   if (tab === "chat") {
     return (
-      <div className="space-y-4">
-        {tabBar}
-        <FinancialChat householdId={householdId} fullPage />
+      <div className="fixed inset-x-0 top-[68px] bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-20 bg-slate-50 dark:bg-background-dark flex flex-col">
+        <div className="mx-auto w-full max-w-md flex-1 min-h-0 flex flex-col">
+          <div className="px-4 pt-3 pb-2 shrink-0">{tabBar}</div>
+          <FinancialChat householdId={householdId} />
+        </div>
       </div>
     );
   }
@@ -75,7 +96,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
         <span>Menganalisis Keuangan Keluarga...</span>
       </div>
       <p className="text-xs font-mono text-slate-700 dark:text-slate-300 leading-relaxed uppercase">
-        AI membaca cashflow & memori keluarga di background. Anda bebas berpindah halaman!
+        AI membaca cashflow &amp; memori keluarga di background. Anda bebas berpindah halaman!
       </p>
     </div>
   );
@@ -97,6 +118,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => analyze()}
               disabled={loading}
               className="w-full py-4 text-sm bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black uppercase tracking-wider rounded-none border-4 border-slate-950 dark:border-slate-100 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all flex items-center justify-center gap-2"
@@ -196,7 +218,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
       {data.suggested_budgets.length > 0 && (
         <section className="bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-5 space-y-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
           <SectionTitle icon={Wallet}>
-            Usulan Budget — {data.next_period_title}
+            Usulan Budget: {data.next_period_title}
           </SectionTitle>
           <div className="divide-y-2 divide-slate-100 dark:divide-slate-800">
             {data.suggested_budgets.map((s) => (
@@ -218,6 +240,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
             </div>
           ) : (
             <button
+              type="button"
               onClick={() => applyBudgets()}
               disabled={applying}
               className="w-full py-3.5 bg-brand-500 text-slate-950 hover:bg-brand-400 font-headline font-black uppercase tracking-wider rounded-none border-2 border-slate-950 dark:border-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2"
@@ -238,6 +261,7 @@ export function AsistenClient({ householdId }: { householdId: string }) {
       {error && <p className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400 px-1 uppercase">{error}</p>}
 
       <button
+        type="button"
         onClick={() => analyze()}
         disabled={loading}
         className="w-full flex items-center justify-center gap-2 rounded-none border-2 border-slate-950 dark:border-slate-100 bg-white dark:bg-slate-900 text-slate-950 dark:text-slate-100 font-headline font-bold uppercase py-3 text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition disabled:opacity-60"
@@ -267,7 +291,7 @@ function HealthBadge({ health }: { health: string }) {
     waspada: { label: "Waspada", cls: "bg-amber-400 text-slate-950 border-slate-950" },
     boncos: { label: "Boncos", cls: "bg-rose-500 text-white border-slate-950" },
   };
-  const m = map[health] ?? { label: health || "—", cls: "bg-slate-200 text-slate-950 border-slate-950" };
+  const m = map[health] ?? { label: health || "-", cls: "bg-slate-200 text-slate-950 border-slate-950" };
   return (
     <span className={cn("text-xs font-headline font-black uppercase px-3 py-1 rounded-none border-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-wider inline-flex items-center gap-1", m.cls)}>
       <CheckCircle2 className="w-3.5 h-3.5" />

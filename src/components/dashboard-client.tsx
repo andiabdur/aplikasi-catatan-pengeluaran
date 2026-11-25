@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, TrendingUp, TrendingDown, Wallet, Sparkles } from "lucide-react";
+import { ArrowUpRight, TrendingUp, TrendingDown, Wallet, Sparkles, MessageCircle, BarChart3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { formatIDR } from "@/lib/format";
 import {
@@ -151,24 +151,38 @@ export function DashboardClient({
         </div>
       </section>
 
-      {/* AI CFO Banner */}
-      <Link
-        href="/asisten"
-        className="w-full bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 flex items-center gap-3.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-slate-950 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-950 group active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all text-left"
-      >
-        <div className="w-11 h-11 rounded-none bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] group-hover:border-white dark:group-hover:border-slate-950 transition-all">
-          <Sparkles className="w-5 h-5 text-brand-400 group-hover:text-brand-300" />
+      {/* Asisten Keuangan AI (Direct Chat & Audit CFO) */}
+      <section className="w-full bg-white dark:bg-surface-dark border-4 border-slate-950 dark:border-slate-100 rounded-none p-4 space-y-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-none bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 border-2 border-slate-950 dark:border-slate-100 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+            <Sparkles className="w-5 h-5 text-brand-400" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h4 className="font-headline text-sm font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">
+              Asisten Keuangan AI
+            </h4>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+              Tanya cashflow, catat cepat, atau audit CFO
+            </p>
+          </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <h4 className="font-headline text-sm font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950 transition-colors">
-            Audit CFO AI
-          </h4>
-          <p className="text-xs text-slate-600 dark:text-slate-400 group-hover:text-slate-300 dark:group-hover:text-slate-700 mt-0.5 transition-colors">
-            Diagnosa kesehatan cashflow & rekomendasi
-          </p>
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            href="/asisten?tab=chat"
+            className="min-h-[44px] px-3 py-2 bg-brand-500 hover:bg-brand-400 text-slate-950 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center justify-center gap-1.5 font-headline font-black text-xs uppercase tracking-wider transition-all"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>Chat AI</span>
+          </Link>
+          <Link
+            href="/asisten?tab=analisa"
+            className="min-h-[44px] px-3 py-2 bg-slate-950 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-950 border-2 border-slate-950 dark:border-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center justify-center gap-1.5 font-headline font-black text-xs uppercase tracking-wider transition-all"
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>Audit CFO</span>
+          </Link>
         </div>
-        <ArrowUpRight className="w-5 h-5 text-slate-950 dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-950 transition-colors shrink-0" />
-      </Link>
+      </section>
 
       {/* Categories Breakdown */}
       <section className="space-y-3 mt-1">
