@@ -119,11 +119,11 @@ export function CategoryBarChart({ data, total }: { data: ChartRow[]; total: num
             type="category"
             dataKey="name"
             width={120}
-            tick={{ fontSize: 11, fill: "#475569" }}
+            tick={{ fontSize: 11, fill: "rgb(var(--foreground))" }}
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<CustomChartTooltip total={total} />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
+          <Tooltip content={<CustomChartTooltip total={total} />} cursor={{ fill: "rgb(var(--muted) / 0.5)" }} />
           <Bar dataKey="value" radius={[0, 8, 8, 0]}>
             {cleaned.map((entry, i) => (
               <Cell key={i} fill={entry.color} />
@@ -134,7 +134,7 @@ export function CategoryBarChart({ data, total }: { data: ChartRow[]; total: num
               formatter={(v: number) =>
                 v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}jt` : `${(v / 1000).toFixed(0)}rb`
               }
-              style={{ fontSize: 10, fill: "#475569", fontWeight: 600 }}
+              style={{ fontSize: 10, fill: "rgb(var(--muted-foreground))", fontWeight: 600 }}
             />
           </Bar>
         </BarChart>
