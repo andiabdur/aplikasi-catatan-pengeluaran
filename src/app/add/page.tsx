@@ -6,9 +6,14 @@ import type { Category, Goal } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function AddPage() {
+export default async function AddPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ event?: string }>;
+}) {
   const supabase = await createClient();
   const householdId = await getCurrentHouseholdId();
+  const params = await searchParams;
   const { data } = await supabase
     .from("categories")
     .select("*")
@@ -54,7 +59,13 @@ export default async function AddPage() {
 
   return (
     <PageShell title="Catat Pengeluaran" subtitle="Tulis nama dulu, lanjut nominal">
-      <ExpenseForm categories={categories} topCategories={top} goals={goals} activeEvents={events} />
+      <ExpenseForm
+        categories={categories}
+        topCategories={top}
+        goals={goals}
+        activeEvents={events}
+        initialEventId={params.event ?? null}
+      />
     </PageShell>
   );
 }

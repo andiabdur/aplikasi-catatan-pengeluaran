@@ -2,31 +2,54 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
+import { isoDate } from "@/lib/period";
 import { revalidatePath } from "next/cache";
+
+function revalidateEventPaths() {
+  revalidatePath("/events");
+  revalidatePath("/settings");
+  revalidatePath("/history");
+  revalidatePath("/add");
+  revalidatePath("/analysis");
+  revalidatePath("/");
+}
 
 export async function createEvent(formData: FormData) {
   const supabase = await createClient();
   const householdId = await getCurrentHouseholdId();
-  if (!householdId) return { error: "No household selected" };
+  if (!householdId) return { error: "Household belum dipilih." };
 
-  const name = formData.get("name") as string;
-  const start_date = formData.get("start_date") as string;
+  const name = (formData.get("name") as string | null)?.trim() ?? "";
+  const start_date = (formData.get("start_date") as string | null)?.trim() ?? "";
+  const rawStatus = (formData.get("status") as string | null)?.trim() ?? "active";
+  const rawEndDate = (formData.get("end_date") as string | null)?.trim() ?? "";
 
-  if (!name || !start_date) return { error: "Name and start date are required" };
+  if (!name) return { error: "Nama event wajib diisi." };
+  if (!start_date) return { error: "Tanggal mulai wajib diisi." };
+
+  const status: "active" | "completed" =
+    rawStatus === "completed" ? "completed" : "active";
+
+  if (status === "completed") {
+    if (!rawEndDate) {
+      return { error: "Tanggal selesai wajib diisi jika status selesai." };
+    }
+    if (rawEndDate < start_date) {
+      return { error: "Tanggal selesai tidak boleh sebelum tanggal mulai." };
+    }
+  }
 
   const { error } = await supabase.from("events").insert({
     household_id: householdId,
-    name: name.trim(),
+    name,
     start_date,
-    status: "active",
+    end_date: status === "completed" ? rawEndDate : null,
+    status,
   });
 
   if (error) return { error: error.message };
 
-  revalidatePath("/events");
-  revalidatePath("/settings");
-  revalidatePath("/history");
-  revalidatePath("/");
+  revalidateEventPaths();
   return { success: true };
 }
 
@@ -41,7 +64,7 @@ export async function updateEvent(
 ) {
   const supabase = await createClient();
   const householdId = await getCurrentHouseholdId();
-  if (!householdId) return { error: "No household selected" };
+  if (!householdId) return { error: "Household belum dipilih." };
 
   const updates: {
     name?: string;
@@ -75,19 +98,16 @@ export async function updateEvent(
 
   if (error) return { error: error.message };
 
-  revalidatePath("/events");
-  revalidatePath("/settings");
-  revalidatePath("/history");
-  revalidatePath("/");
+  revalidateEventPaths();
   return { success: true };
 }
 
 export async function finishEvent(eventId: string, end_date?: string) {
   const supabase = await createClient();
   const householdId = await getCurrentHouseholdId();
-  if (!householdId) return { error: "No household selected" };
+  if (!householdId) return { error: "Household belum dipilih." };
 
-  const resolvedEndDate = end_date || new Date().toISOString().split("T")[0];
+  const resolvedEndDate = end_date || isoDate(new Date());
 
   const { error } = await supabase
     .from("events")
@@ -97,17 +117,14 @@ export async function finishEvent(eventId: string, end_date?: string) {
 
   if (error) return { error: error.message };
 
-  revalidatePath("/events");
-  revalidatePath("/settings");
-  revalidatePath("/history");
-  revalidatePath("/");
+  revalidateEventPaths();
   return { success: true };
 }
 
 export async function deleteEvent(eventId: string) {
   const supabase = await createClient();
   const householdId = await getCurrentHouseholdId();
-  if (!householdId) return { error: "No household selected" };
+  if (!householdId) return { error: "Household belum dipilih." };
 
   const { error } = await supabase
     .from("events")
@@ -117,9 +134,56 @@ export async function deleteEvent(eventId: string) {
 
   if (error) return { error: error.message };
 
-  revalidatePath("/events");
-  revalidatePath("/settings");
-  revalidatePath("/history");
-  revalidatePath("/");
+  revalidateEventPaths();
+  return { success: true };
+}
+
+export async function linkExpensesToEvent(eventId: string, expenseIds: string[]) {
+  const supabase = await createClient();
+  const householdId = await getCurrentHouseholdId();
+  if (!householdId) return { error: "Household belum dipilih." };
+
+  const uniqueIds = Array.from(new Set(expenseIds.filter(Boolean)));
+  if (uniqueIds.length === 0) {
+    return { error: "Pilih minimal satu transaksi untuk ditautkan." };
+  }
+
+  const { data: evt, error: evtErr } = await supabase
+    .from("events")
+    .select("id")
+    .eq("id", eventId)
+    .eq("household_id", householdId)
+    .maybeSingle();
+
+  if (evtErr || !evt) {
+    return { error: "Event tidak ditemukan." };
+  }
+
+  const { error } = await supabase
+    .from("expenses")
+    .update({ event_id: eventId })
+    .in("id", uniqueIds)
+    .eq("household_id", householdId);
+
+  if (error) return { error: error.message };
+
+  revalidateEventPaths();
+  return { success: true };
+}
+
+export async function unlinkExpenseFromEvent(expenseId: string) {
+  const supabase = await createClient();
+  const householdId = await getCurrentHouseholdId();
+  if (!householdId) return { error: "Household belum dipilih." };
+
+  const { error } = await supabase
+    .from("expenses")
+    .update({ event_id: null })
+    .eq("id", expenseId)
+    .eq("household_id", householdId);
+
+  if (error) return { error: error.message };
+
+  revalidateEventPaths();
   return { success: true };
 }

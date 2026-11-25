@@ -94,6 +94,7 @@ type AnalysisClientProps = {
   categories: AnalysisCategory[];
   events: AnalysisEvent[];
   members: AnalysisMember[];
+  initialEventId?: string | null;
 };
 
 const METRICS_STORAGE_KEY = "analysis_visible_metrics_v1";
@@ -412,27 +413,39 @@ export function AnalysisClient({
   categories,
   events,
   members,
+  initialEventId = null,
 }: AnalysisClientProps) {
   const defaultAnchorDate = useMemo(() => parseLocalDate(defaultLabelMonth), [defaultLabelMonth]);
+  const initialEvent = useMemo(
+    () => (initialEventId ? events.find((e) => e.id === initialEventId) ?? null : null),
+    [events, initialEventId]
+  );
 
   // Time Controls
-  const [preset, setPreset] = useState<AnalysisRangePreset>("period");
+  const [preset, setPreset] = useState<AnalysisRangePreset>(() =>
+    initialEvent ? "custom" : "period"
+  );
   const [anchorLabelMonth, setAnchorLabelMonth] = useState<Date>(defaultAnchorDate);
   const [customStart, setCustomStart] = useState<string>(() => {
+    if (initialEvent) return initialEvent.start_date;
     const d = parseLocalDate(todayStr);
     d.setDate(d.getDate() - 29);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
       d.getDate()
     ).padStart(2, "0")}`;
   });
-  const [customEnd, setCustomEnd] = useState<string>(todayStr);
+  const [customEnd, setCustomEnd] = useState<string>(() =>
+    initialEvent ? initialEvent.end_date || todayStr : todayStr
+  );
 
   // Filter Controls
   const [showFiltersPanel, setShowFiltersPanel] = useState(false);
   const [showMetricsPanel, setShowMetricsPanel] = useState(false);
   const [includeSavings, setIncludeSavings] = useState(true);
   const [excludedCategoryIds, setExcludedCategoryIds] = useState<Set<string>>(() => new Set());
-  const [eventFilter, setEventFilter] = useState<EventFilterMode>("all");
+  const [eventFilter, setEventFilter] = useState<EventFilterMode>(() =>
+    initialEvent ? initialEvent.id : "all"
+  );
   const [memberId, setMemberId] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 

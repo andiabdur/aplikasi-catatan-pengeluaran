@@ -1,10 +1,30 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHouseholdId } from "@/lib/supabase/household";
-import { EventsList } from "@/components/events-list";
-import { redirect } from "next/navigation";
-import { createEvent } from "@/app/actions/events";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { isoDate } from "@/lib/period";
+import { PageShell } from "@/components/page-shell";
+import {
+  EventsList,
+  type EventCategorySummary,
+  type EventExpenseItem,
+  type EventWithDetails,
+} from "@/components/events-list";
+import type { Event } from "@/lib/types";
+
+export const dynamic = "force-dynamic";
+
+type RawEventExpense = {
+  id: string;
+  event_id: string | null;
+  amount: number;
+  description: string;
+  note: string | null;
+  spent_at: string;
+  categories: {
+    name: string;
+    color: string | null;
+  } | null;
+};
 
 export default async function EventsPage() {
   const supabase = await createClient();
@@ -28,64 +48,95 @@ export default async function EventsPage() {
       .eq("household_id", householdId),
     supabase
       .from("expenses")
-      .select("event_id, amount")
+      .select("id, event_id, amount, description, note, spent_at, categories(name, color)")
       .eq("household_id", householdId)
-      .not("event_id", "is", null),
+      .not("event_id", "is", null)
+      .order("spent_at", { ascending: false }),
   ]);
 
   const payDay = hhRes.data?.pay_day_of_month ?? 25;
   const customPeriods = cpRes.data ?? [];
-  const events = eventsRes.data ?? [];
-  const expenses = expensesRes.data ?? [];
+  const events = (eventsRes.data ?? []) as Event[];
+  const rawExpenses = (expensesRes.data ?? []) as unknown as RawEventExpense[];
+  const todayStr = isoDate(new Date());
 
+  const expensesByEvent = new Map<string, EventExpenseItem[]>();
   const spentByEvent = new Map<string, number>();
-  for (const exp of expenses) {
-    if (exp.event_id) {
-      spentByEvent.set(exp.event_id, (spentByEvent.get(exp.event_id) || 0) + (exp.amount || 0));
+  const catMapByEvent = new Map<
+    string,
+    Map<string, { color: string; amount: number; count: number }>
+  >();
+
+  for (const exp of rawExpenses) {
+    if (!exp.event_id) continue;
+    const amt = Number(exp.amount) || 0;
+    const catName = exp.categories?.name || "Lainnya";
+    const catColor = exp.categories?.color || "#B85138";
+
+    spentByEvent.set(exp.event_id, (spentByEvent.get(exp.event_id) ?? 0) + amt);
+
+    const list = expensesByEvent.get(exp.event_id) ?? [];
+    list.push({
+      id: exp.id,
+      spent_at: exp.spent_at,
+      description: exp.description,
+      note: exp.note,
+      amount: amt,
+      categoryName: catName,
+      categoryColor: catColor,
+    });
+    expensesByEvent.set(exp.event_id, list);
+
+    let evtCats = catMapByEvent.get(exp.event_id);
+    if (!evtCats) {
+      evtCats = new Map();
+      catMapByEvent.set(exp.event_id, evtCats);
     }
+    const prevCat = evtCats.get(catName) ?? { color: catColor, amount: 0, count: 0 };
+    evtCats.set(catName, {
+      color: prevCat.color,
+      amount: prevCat.amount + amt,
+      count: prevCat.count + 1,
+    });
   }
 
-  const eventsWithTotal = events.map((evt) => ({
-    ...evt,
-    totalSpent: spentByEvent.get(evt.id) || 0,
-  }));
+  const eventsWithDetails: EventWithDetails[] = events.map((evt) => {
+    const totalSpent = spentByEvent.get(evt.id) ?? 0;
+    const items = expensesByEvent.get(evt.id) ?? [];
+    const catMap = catMapByEvent.get(evt.id);
+    const categoryBreakdown: EventCategorySummary[] = catMap
+      ? Array.from(catMap.entries())
+          .map(([name, info]) => ({
+            name,
+            color: info.color,
+            amount: info.amount,
+            count: info.count,
+            sharePct: totalSpent > 0 ? (info.amount / totalSpent) * 100 : 0,
+          }))
+          .sort((a, b) => b.amount - a.amount)
+      : [];
+
+    return {
+      ...evt,
+      totalSpent,
+      txCount: items.length,
+      categoryBreakdown,
+      expenses: items,
+    };
+  });
 
   return (
-    <div className="container max-w-lg mx-auto p-4 pb-32 space-y-4">
-      <div className="flex items-center gap-3">
-        <Link
-          href="/settings"
-          aria-label="Kembali ke Pengaturan"
-          className="w-10 h-10 bg-card border border-border rounded-xl flex items-center justify-center hover:bg-muted transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <div>
-          <h1 className="text-lg font-semibold text-foreground tracking-tight">Event &amp; Perjalanan</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Kelola anggaran khusus liburan &amp; acara</p>
-        </div>
-      </div>
-
-      <form action={async (formData) => { "use server"; await createEvent(formData); }} className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-sm">
-        <h2 className="text-sm font-semibold text-foreground">Buat Event Baru</h2>
-        <div className="space-y-3">
-          <div>
-            <label className="text-xs font-semibold text-foreground block mb-1.5">Nama Event</label>
-            <input required name="name" type="text" placeholder="Misal: Liburan Bali, Renovasi Dapur" className="w-full min-h-[44px] bg-background border border-input px-3.5 py-2 rounded-xl text-base sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-foreground block mb-1.5">Tanggal Mulai</label>
-            <input required name="start_date" type="date" defaultValue={new Date().toISOString().split("T")[0]} className="w-full min-h-[44px] bg-background border border-input px-3.5 py-2 rounded-xl text-base sm:text-sm font-mono text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
-          </div>
-          <button type="submit" className="w-full min-h-[44px] py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm rounded-xl shadow-sm active:scale-[0.98] transition-all">Tambah Event</button>
-        </div>
-      </form>
-
+    <PageShell
+      title="Event & Perjalanan"
+      subtitle="Kelola acara & perjalanan khusus"
+    >
       <EventsList
-        events={eventsWithTotal}
+        householdId={householdId}
+        todayStr={todayStr}
+        events={eventsWithDetails}
         payDay={payDay}
         customPeriods={customPeriods}
       />
-    </div>
+    </PageShell>
   );
 }

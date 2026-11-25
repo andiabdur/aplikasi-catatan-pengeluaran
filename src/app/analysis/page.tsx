@@ -12,9 +12,14 @@ import type {
 
 export const dynamic = "force-dynamic";
 
-export default async function AnalysisPage() {
+export default async function AnalysisPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ event?: string }>;
+}) {
   const supabase = await createClient();
   const householdId = await getCurrentHouseholdId();
+  const params = await searchParams;
 
   const [hhRes, cpRes, catRes, evtRes, memRes] = householdId
     ? await Promise.all([
@@ -73,6 +78,7 @@ export default async function AnalysisPage() {
         categories={(catRes.data ?? []) as AnalysisCategory[]}
         events={(evtRes.data ?? []) as AnalysisEvent[]}
         members={(memRes.data ?? []) as AnalysisMember[]}
+        initialEventId={params.event ?? null}
       />
     </PageShell>
   );

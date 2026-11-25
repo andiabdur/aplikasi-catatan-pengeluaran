@@ -31,11 +31,13 @@ export function ExpenseForm({
   topCategories,
   goals = [],
   activeEvents = [],
+  initialEventId = null,
 }: {
   categories: Category[];
   topCategories: Category[];
   goals?: Goal[];
   activeEvents?: Event[];
+  initialEventId?: string | null;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -47,7 +49,11 @@ export function ExpenseForm({
   const [error, setError] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(() =>
+    initialEventId && activeEvents.some((ev) => ev.id === initialEventId)
+      ? initialEventId
+      : null
+  );
   const [voiceDismissed, setVoiceDismissed] = useState(false);
   const descRef = useRef<HTMLInputElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
@@ -160,9 +166,29 @@ export function ExpenseForm({
   }
 
   const elapsedFmt = `${Math.floor(elapsed / 60)}:${String(elapsed % 60).padStart(2, "0")}`;
+  const selectedEventObj = selectedEventId
+    ? activeEvents.find((ev) => ev.id === selectedEventId) ?? null
+    : null;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pb-24" noValidate>
+      {selectedEventObj && (
+        <div className="flex items-center justify-between gap-2 bg-accent/75 border border-brand-200 dark:border-brand-800/50 rounded-2xl px-3.5 py-2.5 text-xs">
+          <div className="min-w-0">
+            <span className="text-muted-foreground">Event aktif: </span>
+            <span className="font-semibold text-accent-foreground truncate">
+              {selectedEventObj.name}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSelectedEventId(null)}
+            className="text-xs font-medium text-muted-foreground hover:text-foreground shrink-0 px-2 py-0.5 rounded-lg hover:bg-background/60"
+          >
+            Lepas
+          </button>
+        </div>
+      )}
       {/* Blok Input Utama: Nama Kebutuhan dulu -> Nominal Pengeluaran */}
       <div className="bg-card border border-border rounded-2xl p-4 shadow-sm space-y-4">
         {/* Field 1: Nama Kebutuhan (Auto-focused) */}
