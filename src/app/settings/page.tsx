@@ -98,7 +98,7 @@ export default async function SettingsPage() {
   }));
 
   return (
-    <PageShell title="Pengaturan" subtitle="Periode, kategori, budget, income">
+    <PageShell title="Pengaturan" subtitle="Budget, income, periode, sistem">
       <SettingsClient
         householdId={householdId ?? ""}
         categories={(catRes.data ?? []) as Category[]}

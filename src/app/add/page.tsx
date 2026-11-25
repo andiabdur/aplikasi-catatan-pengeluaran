@@ -53,7 +53,7 @@ export default async function AddPage() {
     .filter((c) => (counts.get(c.id) ?? 0) > 0);
 
   return (
-    <PageShell title="Catat Pengeluaran" subtitle="Form simpel, langsung kelar">
+    <PageShell title="Catat Pengeluaran" subtitle="Tulis nama dulu, lanjut nominal">
       <ExpenseForm categories={categories} topCategories={top} goals={goals} activeEvents={events} />
     </PageShell>
   );
